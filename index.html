@@ -107,47 +107,59 @@ window.addEventListener("scroll",()=>header.classList.toggle("scrolled",scrollY>
 
 // ----- JSON CENTRALISE -----
 const copyflixData = {
-  "folders":[
-      {
-        "id":"dossier1",
-        "title":"Pirates de Caraïbes",
-        "type":"Folder",
-        "image":"https://via.placeholder.com/300x450?text=Trilogie",
-        "children":[
-          {
-            "id":"film1",
-            "title":"Pirates 1",
-            "type":"film",
-            "image":"https://via.placeholder.com/300x450?text=Pirates+1",
-            "video":"https://example.com/video1.mp4"
-          },
-          {
-            "id":"film2",
-            "title":"Pirates 2",
-            "type":"film",
-            "image":"https://via.placeholder.com/300x450?text=Pirates+2",
-            "video":"https://example.com/video2.mp4"
-          }
-        ]
-      }
+  "folders": [
+    {
+      "id": "id-1767280611268",
+      "title": "Pirates des Caraïbes",
+      "type": "Folder",
+      "video": "",
+      "image": "https://image.tmdb.org/t/p/w500/usU1WwpWh0yKx65jZ12fQyklqUC.jpg",
+      "children": [
+        {
+          "id": "id-1767280664240",
+          "title": "La Malédiction du Black Pearl",
+          "type": "Film",
+          "video": "https://vidmoly.net/embed-k62t9dnk8ayx.html",
+          "image": "https://image.tmdb.org/t/p/w600_and_h900_face/jFmc6zbnx6mSoxejECYvdi3IHIs.jpg",
+          "children": []
+        },
+        {
+          "id": "id-1767280752771",
+          "title": "Le Secret du coffre maudit ",
+          "type": "Film",
+          "video": "https://vidmoly.net/embed-2auw0gof0ysr.html",
+          "image": "https://image.tmdb.org/t/p/w600_and_h900_face/bzOlMYEfNmgCDnFHj3zL3RBqwau.jpg",
+          "children": []
+        },
+        {
+          "id": "id-1767280791677",
+          "title": "Jusqu'au bout du monde ",
+          "type": "Film",
+          "video": "https://vidmoly.net/embed-bcmp3nqh45r9.html",
+          "image": "https://image.tmdb.org/t/p/w600_and_h900_face/3JjceHUzbtgJ4fJs6x2ow4ckH89.jpg",
+          "children": []
+        },
+        {
+          "id": "id-1767280821680",
+          "title": "La Fontaine de jouvence",
+          "type": "Film",
+          "video": "https://vidmoly.net/embed-6y841fa09ato.html",
+          "image": "https://image.tmdb.org/t/p/w600_and_h900_face/5JjjjGg24IGRXIQtaZkPU59acjV.jpg",
+          "children": []
+        },
+        {
+          "id": "id-1767280854766",
+          "title": "La Vengeance de Salazar ",
+          "type": "Film",
+          "video": "https://vidmoly.net/embed-f9d7kg4zvjs9.html",
+          "image": "https://image.tmdb.org/t/p/w600_and_h900_face/fVMudKQfhosujwgAKhfxNGfS9sL.jpg",
+          "children": []
+        }
+      ]
+    }
   ],
-  "films":[
-      {
-        "id":"racine1",
-        "title":"Film Test",
-        "type":"film",
-        "image":"https://via.placeholder.com/300x450?text=Film+Test",
-        "video":"https://example.com/video.mp4"
-      },
-      {
-        "id":"racine2",
-        "title":"Série Test",
-        "type":"serie",
-        "image":"https://via.placeholder.com/300x450?text=Série+Test",
-        "video":"https://example.com/video2.mp4"
-      }
-  ]
-};
+  "films": []
+}
 
 // ---- RENDER ----
 const grid=document.getElementById("grid");

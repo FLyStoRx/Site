@@ -4,22 +4,26 @@
 <meta charset="UTF-8">
 <title>Admin Copyflix</title>
 <style>
-body { font-family: 'Inter', sans-serif; background: #0d0d0d; color: #fff; margin:0; padding:0; }
-h1 { text-align:center; padding:20px 0; font-size:2rem; }
-.top-buttons { text-align:center; margin-bottom:20px; }
-.top-buttons button { background:#e50914; border:none; color:#fff; padding:10px 16px; margin:0 5px; cursor:pointer; border-radius:8px; font-weight:bold; transition:0.3s; }
-.top-buttons button:hover { background:#f6121d; }
-#tree-view { max-width:900px; margin:0 auto 50px auto; background:#1c1c1c; padding:20px; border-radius:12px; box-shadow:0 4px 15px rgba(0,0,0,0.5); }
-.tree-item { display:flex; justify-content:space-between; align-items:center; padding:8px 12px; margin:5px 0; background:#2a2a2a; border-radius:6px; }
-.tree-item:hover { background:#3a3a3a; }
-.tree-buttons button { background:#ff4b3e; padding:4px 8px; font-size:0.85rem; border-radius:4px; margin-left:5px; transition:0.2s; }
-.tree-buttons button:hover { background:#ff6f61; }
-#panel { display:none; position:fixed; top:50%; left:50%; transform:translate(-50%,-50%); background:#1c1c1c; padding:30px 25px; border-radius:12px; box-shadow:0 8px 25px rgba(0,0,0,0.7); z-index:1000; width:350px; }
-#panel h2 { margin-top:0; margin-bottom:20px; text-align:center; font-size:1.5rem; }
-#panel form label { display:block; margin-bottom:6px; font-weight:bold; }
-#panel form input, #panel form select { width:100%; padding:10px; margin-bottom:15px; border-radius:6px; border:1px solid #444; background:#2a2a2a; color:#fff; font-size:1rem; }
-#panel form button { width:48%; margin:0 1%; padding:10px; border-radius:8px; border:none; background:#e50914; color:#fff; font-weight:bold; cursor:pointer; transition:0.3s; }
-#panel form button:hover { background:#f6121d; }
+  body { font-family:'Inter',sans-serif; background:#0d0d0d; color:#fff; margin:0; padding:0; }
+  h1 { text-align:center; padding:30px 0; font-size:2rem; }
+  .top-buttons { text-align:center; margin-bottom:20px; }
+  .top-buttons button { background:#e50914; border:none; color:#fff; padding:12px 20px; margin:0 10px; cursor:pointer; border-radius:8px; font-weight:bold; transition:0.3s; }
+  .top-buttons button:hover { background:#f6121d; }
+  #tree-view { max-width:900px; margin:0 auto 50px auto; background:#1c1c1c; padding:20px; border-radius:12px; box-shadow:0 4px 15px rgba(0,0,0,0.5); }
+  .tree-item { display:flex; justify-content:space-between; align-items:center; padding:8px 12px; margin:5px 0; background:#2a2a2a; border-radius:6px; transition:0.2s; cursor:grab; }
+  .tree-item:hover { background:#3a3a3a; }
+  .tree-buttons button { background:#ff4b3e; padding:4px 10px; font-size:0.85rem; border-radius:4px; margin-left:5px; transition:0.2s; cursor:pointer; }
+  .tree-buttons button:hover { background:#ff6f61; }
+  .tree-children { margin-left:20px; }
+  #panel { display:none; position:fixed; top:50%; left:50%; transform:translate(-50%,-50%); background:#1c1c1c; padding:30px 25px; border-radius:12px; box-shadow:0 8px 25px rgba(0,0,0,0.7); z-index:1000; width:350px; }
+  #panel h2 { margin-top:0; margin-bottom:20px; text-align:center; font-size:1.5rem; }
+  #panel form label { display:block; margin-bottom:6px; font-weight:bold; }
+  #panel form input, #panel form select { width:100%; padding:10px; margin-bottom:15px; border-radius:6px; border:1px solid #444; background:#2a2a2a; color:#fff; font-size:1rem; }
+  #panel form button { width:48%; margin:0 1%; padding:10px; border-radius:8px; border:none; background:#e50914; color:#fff; font-weight:bold; cursor:pointer; transition:0.3s; }
+  #panel form button:hover { background:#f6121d; }
+  @media(max-width:480px){ #panel { width:90%; } .top-buttons button { display:block; width:80%; margin:8px auto; } }
+  #json-output { position:fixed; top:50px; left:50%; transform:translateX(-50%); background:#111; color:#fff; padding:20px; border-radius:12px; max-width:90%; max-height:70%; overflow:auto; display:none; z-index:1001; box-shadow:0 4px 15px rgba(0,0,0,0.7); white-space:pre-wrap; font-family:monospace; }
+  #json-close { display:block; margin-top:10px; padding:6px 12px; background:#e50914; border:none; color:#fff; border-radius:6px; cursor:pointer; }
 </style>
 </head>
 <body>
@@ -27,8 +31,10 @@ h1 { text-align:center; padding:20px 0; font-size:2rem; }
 <h1>Admin Copyflix</h1>
 
 <div class="top-buttons">
+  <button id="btn-logout">Déconnexion</button>
   <button id="btn-add-folder">Ajouter Dossier</button>
   <button id="btn-add-film">Ajouter Film/Série</button>
+  <button id="btn-show-json">Afficher JSON</button>
 </div>
 
 <div id="tree-view"></div>
@@ -37,31 +43,26 @@ h1 { text-align:center; padding:20px 0; font-size:2rem; }
   <h2 id="panel-title"></h2>
   <form id="panel-form">
     <input type="hidden" id="item-id">
-    <label>Titre :</label>
+    <label>Titre:</label>
     <input type="text" id="item-title" required>
-
     <div id="type-field">
       <label>Type:</label>
       <select id="item-type">
-        <option value="film">Film</option>
-        <option value="serie">Série</option>
+        <option value="Film">Film</option>
+        <option value="Série">Série</option>
         <option value="Folder">Dossier</option>
       </select>
     </div>
-
     <div id="video-field">
       <label>Lien vidéo :</label>
       <input type="text" id="item-video" placeholder="https://...">
     </div>
-
     <div id="image-field">
       <label>Image / Jaquette :</label>
       <input type="text" id="item-image" placeholder="https://...">
     </div>
-
-    <label>Dossier parent :</label>
+    <label>Dossier parent:</label>
     <select id="item-parent"></select>
-
     <div style="display:flex; justify-content: space-between;">
       <button type="submit">Valider</button>
       <button type="button" id="btn-close-panel">Fermer</button>
@@ -69,158 +70,201 @@ h1 { text-align:center; padding:20px 0; font-size:2rem; }
   </form>
 </div>
 
+<div id="json-output">
+  <h3>Données JSON</h3>
+  <pre id="json-pre"></pre>
+  <button id="json-close">Fermer</button>
+</div>
+
 <script>
-// JSON importé du site
-let copyflixData = {
-  folders: [],
-  films: []
-};
+let data = JSON.parse(localStorage.getItem("copyflixData") || '{"folders":[],"films":[]}');
 
-// ----- ELEMENTS -----
-const treeView=document.getElementById("tree-view");
-const panel=document.getElementById("panel");
-const panelTitle=document.getElementById("panel-title");
-const form=document.getElementById("panel-form");
-const itemId=document.getElementById("item-id");
-const itemTitle=document.getElementById("item-title");
-const itemType=document.getElementById("item-type");
-const itemVideo=document.getElementById("item-video");
-const itemImage=document.getElementById("item-image");
-const itemParent=document.getElementById("item-parent");
-const typeField=document.getElementById("type-field");
-const videoField=document.getElementById("video-field");
+const treeView = document.getElementById("tree-view");
+const panel = document.getElementById("panel");
+const panelTitle = document.getElementById("panel-title");
+const panelForm = document.getElementById("panel-form");
 
-document.getElementById("btn-add-folder").onclick=()=>openPanel('add','Folder');
-document.getElementById("btn-add-film").onclick=()=>openPanel('add','film');
-document.getElementById("btn-close-panel").onclick=closePanel;
+// Boutons
+document.getElementById("btn-logout").addEventListener("click",()=>window.location.href="../index.html");
+document.getElementById("btn-add-folder").addEventListener("click",()=>openPanel("Folder"));
+document.getElementById("btn-add-film").addEventListener("click",()=>openPanel("Film"));
+document.getElementById("btn-close-panel").addEventListener("click",closePanel);
+panelForm.addEventListener("submit",submitForm);
+
+// JSON
+const jsonBtn = document.getElementById("btn-show-json");
+const jsonOutput = document.getElementById("json-output");
+const jsonPre = document.getElementById("json-pre");
+const jsonClose = document.getElementById("json-close");
+
+jsonBtn.addEventListener("click",()=>{
+  jsonPre.textContent = JSON.stringify(data,null,2);
+  jsonOutput.style.display="block";
+});
+jsonClose.addEventListener("click",()=>{jsonOutput.style.display="none";});
 
 renderTree();
 
-// --- FONCTIONS ---
-function renderTree(){
-  treeView.innerHTML="";
-  copyflixData.folders.forEach(f=>renderItem(f,0));
-  copyflixData.films.forEach(f=>renderItem(f,0));
+function openPanel(type,item=null){
+  panel.style.display="block";
+  panelTitle.textContent = item ? "Modifier "+item.title : type==="Folder"?"Ajouter Dossier":"Ajouter Film/Série";
+  document.getElementById("item-id").value = item?.id || "";
+  document.getElementById("item-title").value = item?.title || "";
+  document.getElementById("item-type").value = item?.type || type;
+  document.getElementById("item-video").value = item?.video || "";
+  document.getElementById("item-image").value = item?.image || "";
+  populateParentOptions(item?.id,type);
+  if(type==="Folder"){document.getElementById("type-field").style.display="none"; document.getElementById("video-field").style.display="none";}
+  else{document.getElementById("type-field").style.display="block"; document.getElementById("video-field").style.display="block";}
 }
 
-function renderItem(item,level){
-  const div=document.createElement("div");
-  div.className="tree-item";
-  div.style.paddingLeft=(level*20)+"px";
-  div.innerHTML=`<span>${item.title} [${item.type}]</span>
-  <div class="tree-buttons">
-    <button onclick="editItem('${item.id}')">✏️</button>
-    <button onclick="deleteItem('${item.id}')">🗑️</button>
-  </div>`;
-  treeView.appendChild(div);
+function closePanel(){panel.style.display="none"; panelForm.reset();}
 
-  // enfants
-  if(item.children){
-    item.children.forEach(c=>renderItem(c,level+1));
-  }
-}
-
-function openPanel(mode,type='film',item=null){
-  panel.style.display='block';
-  panelTitle.textContent=mode==='add'?"Ajouter":"Modifier";
-  itemId.value=item?.id||"";
-  itemTitle.value=item?.title||"";
-  itemType.value=item?.type||type;
-  itemVideo.value=item?.video||"";
-  itemImage.value=item?.image||"";
-
-  // Afficher type et video selon mode
-  typeField.style.display = type==='Folder' ? 'none' : 'block';
-  videoField.style.display = (type==='film' || type==='serie') ? 'block' : 'none';
-
-  populateParentOptions();
-}
-
-function closePanel(){
-  panel.style.display='none';
-}
-
-// REMPLIR LES DOSSIERS PARENTS
-function populateParentOptions(){
-  itemParent.innerHTML='<option value="">Aucun</option>';
-  copyflixData.folders.forEach(f=>{
-    const opt=document.createElement("option");
-    opt.value=f.id;
-    opt.textContent=f.title;
-    itemParent.appendChild(opt);
+function populateParentOptions(skipId,type){
+  const sel = document.getElementById("item-parent");
+  sel.innerHTML='<option value="">-- Aucun --</option>';
+  data.folders.forEach(f=>{
+    if(f.id!==skipId){
+      const opt=document.createElement("option");
+      opt.value=f.id;
+      opt.textContent=f.title;
+      sel.appendChild(opt);
+    }
   });
 }
 
-// --- AJOUT / MODIF ---
-form.onsubmit=function(e){
+function submitForm(e){
   e.preventDefault();
-  const newItem={
-    id:itemId.value||'id_'+Date.now(),
-    title:itemTitle.value,
-    type:itemType.value,
-    image:itemImage.value,
-    video:itemVideo.value
-  };
+  const id=document.getElementById("item-id").value||"id-"+Date.now();
+  const title=document.getElementById("item-title").value;
+  const type=document.getElementById("item-type").value;
+  const video=document.getElementById("item-video").value;
+  const image=document.getElementById("item-image").value;
+  const parentId=document.getElementById("item-parent").value;
 
-  const parentId=itemParent.value;
+  const newItem={id,title,type,video,image,children:[]};
+
   if(parentId){
-    const parent=findItem(parentId,copyflixData);
+    const parent=findItem(parentId,data);
     parent.children=parent.children||[];
-    if(itemId.value){
-      // modif
-      const idx=parent.children.findIndex(c=>c.id===itemId.value);
-      parent.children[idx]=newItem;
-    }else parent.children.push(newItem);
+    const idx=parent.children.findIndex(c=>c.id===id);
+    if(idx>=0) parent.children[idx]=newItem;
+    else parent.children.push(newItem);
   } else {
-    if(itemId.value){
-      // modif root
-      const idx=copyflixData.films.findIndex(f=>f.id===itemId.value);
-      if(idx>=0) copyflixData.films[idx]=newItem;
-      else{
-        const idxF=copyflixData.folders.findIndex(f=>f.id===itemId.value);
-        if(idxF>=0) copyflixData.folders[idxF]=newItem;
-      }
-    } else {
-      if(newItem.type==='Folder') copyflixData.folders.push(newItem);
-      else copyflixData.films.push(newItem);
+    let arr = type==="Folder"?data.folders:data.films;
+    const idx=arr.findIndex(c=>c.id===id);
+    if(idx>=0) arr[idx]=newItem;
+    else arr.push(newItem);
+  }
+
+  saveData(); renderTree(); closePanel();
+}
+
+function findItem(id,root){
+  let res=null;
+  function search(arr){
+    for(const i of arr){
+      if(i.id===id){res=i; return;}
+      if(i.children) search(i.children);
     }
   }
-  renderTree();
-  closePanel();
-};
+  search(root.folders||root);
+  search(root.films||[]);
+  return res;
+}
 
-// --- SUPPRESSION ---
+function saveData(){localStorage.setItem("copyflixData",JSON.stringify(data));}
+
+function renderTree(){
+  treeView.innerHTML="";
+  data.folders.forEach(f=>renderItem(f,treeView));
+  data.films.forEach(f=>renderItem(f,treeView));
+}
+
+function renderItem(item,parentEl){
+  const div=document.createElement("div");
+  div.className="tree-item";
+  div.dataset.id=item.id;
+  div.draggable=true;
+
+  let icon="";
+  if(item.type==="Folder") icon="📁";
+  else if(item.type==="Film") icon="🎬";
+  else icon="📺";
+
+  div.innerHTML=`<span>${icon} ${item.title}</span>`;
+  
+  const btns=document.createElement("span");
+  btns.className="tree-buttons";
+
+  const mod=document.createElement("button");
+  mod.textContent="✏️";
+  mod.onclick=(e)=>{e.stopPropagation(); openPanel(item.type,item);};
+  btns.appendChild(mod);
+
+  const del=document.createElement("button");
+  del.textContent="🗑";
+  del.onclick=(e)=>{e.stopPropagation(); deleteItem(item.id);};
+  btns.appendChild(del);
+
+  div.appendChild(btns);
+  parentEl.appendChild(div);
+
+  if(item.children && item.children.length){
+    const cont=document.createElement("div");
+    cont.className="tree-children";
+    item.children.forEach(c=>renderItem(c,cont));
+    parentEl.appendChild(cont);
+  }
+
+  div.addEventListener("dragstart",dragStart);
+  div.addEventListener("dragover",dragOver);
+  div.addEventListener("drop",drop);
+}
+
+let draggedId=null;
+function dragStart(e){draggedId=this.dataset.id;}
+function dragOver(e){e.preventDefault();}
+function drop(e){
+  e.preventDefault();
+  if(draggedId===this.dataset.id) return;
+  const dragged=findAndRemove(draggedId,data);
+  const parent=findParentArray(this.dataset.id,data) || data.folders;
+  const idx=parent.findIndex(i=>i.id===this.dataset.id);
+  parent.splice(idx,0,dragged);
+  saveData(); renderTree();
+}
+
+function findAndRemove(id,root){
+  let res=null;
+  function search(arr){
+    for(let i=0;i<arr.length;i++){
+      if(arr[i].id===id){res=arr.splice(i,1)[0]; return;}
+      if(arr[i].children) search(arr[i].children);
+    }
+  }
+  search(root.folders||root);
+  search(root.films||[]);
+  return res;
+}
+
+function findParentArray(id,root){
+  let res=null;
+  function search(arr){
+    for(const i of arr){
+      if(i.id===id){res=arr; return;}
+      if(i.children) search(i.children);
+    }
+  }
+  search(root.folders||root);
+  search(root.films||[]);
+  return res;
+}
+
 function deleteItem(id){
-  deleteRecursive(id,copyflixData);
-  renderTree();
+  findAndRemove(id,data);
+  saveData(); renderTree();
 }
-
-function deleteRecursive(id,obj){
-  obj.folders=obj.folders?.filter(f=>f.id!==id);
-  obj.films=obj.films?.filter(f=>f.id!==id);
-  obj.folders?.forEach(f=>deleteRecursive(id,f));
-  obj.films?.forEach(f=>deleteRecursive(id,f));
-}
-
-// --- EDIT ---
-function editItem(id){
-  const item=findItem(id,copyflixData);
-  if(item) openPanel('edit',item.type,item);
-}
-
-// --- RECHERCHE D'ITEM ---
-function findItem(id,obj){
-  let all=[...(obj.folders||[]),...(obj.films||[])];
-  for(const i of all){
-    if(i.id===id) return i;
-    if(i.children){
-      const c=findItem(id,{folders:i.children,films:[]});
-      if(c) return c;
-    }
-  }
-  return null;
-}
-
 </script>
 </body>
 </html>
