@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Admin Copyflix - Login</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/png" href="../favicon.png">
+    <style>
+        body {
+            margin: 0;
+            background-color: #0f0f0f;
+            font-family: 'Inter', sans-serif;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+        }
+
+        .login-box {
+            background-color: rgba(20,20,20,0.95);
+            padding: 40px;
+            border-radius: 10px;
+            text-align: center;
+            width: 300px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.5);
+        }
+
+        .login-box h1 {
+            margin-bottom: 30px;
+            color: #e50914;
+        }
+
+        input[type="password"] {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 20px;
+            border-radius: 5px;
+            border: none;
+            background-color: rgba(255,255,255,0.1);
+            color: white;
+            font-size: 16px;
+        }
+
+        input[type="password"]:focus {
+            outline: none;
+            background-color: rgba(255,255,255,0.2);
+        }
+
+        button {
+            background-color: #e50914;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: background 0.3s, transform 0.2s;
+        }
+
+        button:hover {
+            background-color: #f6121d;
+            transform: scale(1.05);
+        }
+
+        .error {
+            color: #f44336;
+            margin-bottom: 10px;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-box">
+        <h1>Admin Copyflix</h1>
+        <div class="error" id="error-msg">Mot de passe incorrect</div>
+        <input type="password" id="password" placeholder="Mot de passe">
+        <button onclick="login()">Se connecter</button>
+    </div>
+
+    <script>
+        const ADMIN_PASSWORD = "Tigrette@chat123";
+
+        function login() {
+            const pwd = document.getElementById('password').value;
+            const error = document.getElementById('error-msg');
+            if(pwd === ADMIN_PASSWORD){
+                localStorage.setItem("adminLoggedIn", "true");
+                window.location.href = "dashboard.html";
+            } else {
+                error.style.display = "block";
+            }
+        }
+    </script>
+</body>
+</html>
