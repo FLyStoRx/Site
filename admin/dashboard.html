@@ -22,8 +22,6 @@
   #panel form button { width:48%; margin:0 1%; padding:10px; border-radius:8px; border:none; background:#e50914; color:#fff; font-weight:bold; cursor:pointer; transition:0.3s; }
   #panel form button:hover { background:#f6121d; }
   @media(max-width:480px){ #panel { width:90%; } .top-buttons button { display:block; width:80%; margin:8px auto; } }
-  #json-output { position:fixed; top:50px; left:50%; transform:translateX(-50%); background:#111; color:#fff; padding:20px; border-radius:12px; max-width:90%; max-height:70%; overflow:auto; display:none; z-index:1001; box-shadow:0 4px 15px rgba(0,0,0,0.7); white-space:pre-wrap; font-family:monospace; }
-  #json-close { display:block; margin-top:10px; padding:6px 12px; background:#e50914; border:none; color:#fff; border-radius:6px; cursor:pointer; }
 </style>
 </head>
 <body>
@@ -34,7 +32,7 @@
   <button id="btn-logout">Déconnexion</button>
   <button id="btn-add-folder">Ajouter Dossier</button>
   <button id="btn-add-film">Ajouter Film/Série</button>
-  <button id="btn-show-json">Afficher JSON</button>
+  <button id="btn-copy-json">📋 Copier JSON</button>
 </div>
 
 <div id="tree-view"></div>
@@ -70,41 +68,31 @@
   </form>
 </div>
 
-<div id="json-output">
-  <h3>Données JSON</h3>
-  <pre id="json-pre"></pre>
-  <button id="json-close">Fermer</button>
-</div>
-
 <script>
-let data = JSON.parse(localStorage.getItem("copyflixData") || '{"folders":[],"films":[]}');
+let data = JSON.parse(localStorage.getItem("copyflixData") || '{"folders":[],"films":[] }');
 
 const treeView = document.getElementById("tree-view");
 const panel = document.getElementById("panel");
 const panelTitle = document.getElementById("panel-title");
 const panelForm = document.getElementById("panel-form");
 
-// Boutons
+// BUTTONS
 document.getElementById("btn-logout").addEventListener("click",()=>window.location.href="../index.html");
 document.getElementById("btn-add-folder").addEventListener("click",()=>openPanel("Folder"));
 document.getElementById("btn-add-film").addEventListener("click",()=>openPanel("Film"));
 document.getElementById("btn-close-panel").addEventListener("click",closePanel);
 panelForm.addEventListener("submit",submitForm);
 
-// JSON
-const jsonBtn = document.getElementById("btn-show-json");
-const jsonOutput = document.getElementById("json-output");
-const jsonPre = document.getElementById("json-pre");
-const jsonClose = document.getElementById("json-close");
-
-jsonBtn.addEventListener("click",()=>{
-  jsonPre.textContent = JSON.stringify(data,null,2);
-  jsonOutput.style.display="block";
+// BOUTON COPIER JSON
+document.getElementById("btn-copy-json").addEventListener("click", ()=>{
+  navigator.clipboard.writeText(JSON.stringify(data,null,2))
+  .then(()=>alert("JSON copié !"))
+  .catch(()=>alert("Impossible de copier"));
 });
-jsonClose.addEventListener("click",()=>{jsonOutput.style.display="none";});
 
 renderTree();
 
+// PANEL
 function openPanel(type,item=null){
   panel.style.display="block";
   panelTitle.textContent = item ? "Modifier "+item.title : type==="Folder"?"Ajouter Dossier":"Ajouter Film/Série";
@@ -120,19 +108,29 @@ function openPanel(type,item=null){
 
 function closePanel(){panel.style.display="none"; panelForm.reset();}
 
+// REMPLIR LISTE DOSSIERS PARENTS RECURSIVE
 function populateParentOptions(skipId,type){
   const sel = document.getElementById("item-parent");
   sel.innerHTML='<option value="">-- Aucun --</option>';
-  data.folders.forEach(f=>{
-    if(f.id!==skipId){
-      const opt=document.createElement("option");
-      opt.value=f.id;
-      opt.textContent=f.title;
-      sel.appendChild(opt);
-    }
-  });
+
+  function addOptions(folders, level = 0){
+    folders.forEach(f => {
+      if(f.id !== skipId){
+        const opt = document.createElement("option");
+        opt.value = f.id;
+        opt.textContent = '—'.repeat(level) + ' ' + f.title; // indentation
+        sel.appendChild(opt);
+        if(f.children && f.children.length){
+          addOptions(f.children.filter(c => c.type === "Folder"), level + 1);
+        }
+      }
+    });
+  }
+
+  addOptions(data.folders);
 }
 
+// FORM SUBMIT
 function submitForm(e){
   e.preventDefault();
   const id=document.getElementById("item-id").value||"id-"+Date.now();
@@ -160,6 +158,7 @@ function submitForm(e){
   saveData(); renderTree(); closePanel();
 }
 
+// RECHERCHE D'UN ITEM
 function findItem(id,root){
   let res=null;
   function search(arr){
@@ -173,8 +172,10 @@ function findItem(id,root){
   return res;
 }
 
+// SAUVEGARDE
 function saveData(){localStorage.setItem("copyflixData",JSON.stringify(data));}
 
+// RENDER TREE
 function renderTree(){
   treeView.innerHTML="";
   data.folders.forEach(f=>renderItem(f,treeView));
@@ -222,16 +223,19 @@ function renderItem(item,parentEl){
   div.addEventListener("drop",drop);
 }
 
+// DRAG & DROP
 let draggedId=null;
 function dragStart(e){draggedId=this.dataset.id;}
 function dragOver(e){e.preventDefault();}
 function drop(e){
   e.preventDefault();
   if(draggedId===this.dataset.id) return;
+
   const dragged=findAndRemove(draggedId,data);
   const parent=findParentArray(this.dataset.id,data) || data.folders;
   const idx=parent.findIndex(i=>i.id===this.dataset.id);
   parent.splice(idx,0,dragged);
+
   saveData(); renderTree();
 }
 
@@ -261,6 +265,7 @@ function findParentArray(id,root){
   return res;
 }
 
+// DELETE
 function deleteItem(id){
   findAndRemove(id,data);
   saveData(); renderTree();
