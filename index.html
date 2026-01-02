@@ -11,63 +11,20 @@
 <style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:'Inter',sans-serif;}
 body{background:#0f0f0f;color:white;}
-
-/* HEADER */
-header{position:fixed;top:0;width:100%;height:70px;z-index:10;
-display:flex;align-items:center;justify-content:space-between;
-padding:0 40px;background:rgba(0,0,0,0.6);backdrop-filter:blur(10px);
-transition:background 0.3s,box-shadow 0.3s;}
-header.scrolled{background:#000;box-shadow:0 4px 15px rgba(0,0,0,.6);}
+header{position:fixed;top:0;width:100%;height:70px;z-index:10;display:flex;align-items:center;justify-content:space-between;padding:0 40px;background:rgba(0,0,0,0.6);backdrop-filter:blur(10px);}
+header.scrolled{background:#000;}
 .logo{font-size:28px;font-weight:800;color:#e50914;}
 nav{display:flex;gap:25px;}
-nav a{color:white;text-decoration:none;font-weight:500;cursor:pointer;}
-nav a:hover{color:#e50914;}
-.header-right{display:flex;gap:10px;align-items:center;}
-
-/* ADMIN BUTTON */
-.admin-btn{padding:8px 16px;border:none;border-radius:5px;background:#e50914;color:white;font-weight:600;cursor:pointer;}
-.admin-btn:hover{background:#f6121d;}
-
-/* SEARCH */
-.search-box{position:relative;}
-.search-box input{background:rgba(255,255,255,0.1);border:none;border-radius:20px;padding:8px 15px 8px 35px;color:white;width:180px;transition:width 0.3s;}
-.search-box input:focus{width:240px;outline:none;}
-.search-box i{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:#bbb;}
-
-/* HERO */
-.hero{
-  height:45vh;margin-top:70px;
-  background:linear-gradient(to bottom,rgba(0,0,0,.5),rgba(0,0,0,.95)),
-             url("https://images.unsplash.com/photo-1524985069026-dd778a71c7b4") center/cover no-repeat;
-  display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;
-  padding:0 40px;
-}
-.hero h1{font-size:48px;margin-bottom:10px;}
-.hero p{font-size:18px;max-width:650px;color:#ddd;line-height:1.4;}
-
-/* CONTENT */
-#content{margin-top:20px;position:relative;z-index:2;padding-bottom:60px;}
-#grid{display:flex;flex-wrap:wrap;justify-content:center;gap:20px;padding:0 40px;}
+nav a{color:white;text-decoration:none;cursor:pointer;}
+.admin-btn{padding:8px 16px;border:none;border-radius:5px;background:#e50914;color:white;cursor:pointer;}
+.hero{height:45vh;margin-top:70px;background:linear-gradient(to bottom,rgba(0,0,0,.5),rgba(0,0,0,.95)),url("https://images.unsplash.com/photo-1524985069026-dd778a71c7b4") center/cover no-repeat;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;}
+#grid{display:flex;flex-wrap:wrap;justify-content:center;gap:20px;padding:40px;}
 .card{background:#111;border-radius:12px;overflow:hidden;width:180px;cursor:pointer;transition:transform 0.3s,box-shadow 0.3s;}
-.card:hover{transform:scale(1.05);box-shadow:0 8px 20px rgba(0,0,0,0.7);}
 .card img{width:100%;height:270px;object-fit:cover;}
-.card-title{text-align:center;padding:12px;font-size:14px;font-weight:500;}
+.card-title{text-align:center;padding:10px;}
 .folder{border:2px solid #e50914;}
-
-/* FOOTER */
-footer{text-align:center;padding:30px;color:#999;background:black;}
-
-/* RESPONSIVE */
-@media(max-width:768px){
-  header{padding:0 20px;}
-  .hero h1{font-size:36px;}
-  .hero p{font-size:16px; max-width:90%;}
-  #grid{gap:15px;}
-  .card{width:140px;}
-  .card img{height:210px;}
-  .search-box input{width:140px;}
-  .search-box input:focus{width:180px;}
-}
+#backBtn{margin:0 40px 15px;color:#e50914;font-weight:600;cursor:pointer;user-select:none;}
+#backBtn:hover{text-decoration:underline;}
 </style>
 </head>
 
@@ -80,32 +37,23 @@ footer{text-align:center;padding:30px;color:#999;background:black;}
     <a onclick="setFilter('film')">Films</a>
     <a onclick="setFilter('serie')">Séries</a>
   </nav>
-  <div class="header-right">
-    <div class="search-box">
-      <i class="fa-solid fa-magnifying-glass"></i>
-      <input type="text" id="searchInput" placeholder="Rechercher...">
-    </div>
-    <button class="admin-btn" onclick="window.open('admin/login.html','_blank')">Admin</button>
-  </div>
+  <button class="admin-btn" onclick="window.open('admin/login.html','_blank')">Admin</button>
 </header>
 
 <section class="hero">
   <h1>Bienvenue sur Copyflix</h1>
-  <p>Ta plateforme privée de films et séries.<br>Simple. Moderne. Efficace.</p>
 </section>
 
 <section id="content">
+  <div id="backBtn" style="display:none;">← Retour</div>
   <div id="grid"></div>
 </section>
 
-<footer>© 2025 Copyflix</footer>
-
 <script>
-// HEADER SCROLL EFFECT
-const header=document.querySelector("header");
-window.addEventListener("scroll",()=>header.classList.toggle("scrolled",scrollY>50));
+// HEADER
+window.addEventListener("scroll",()=>document.querySelector("header").classList.toggle("scrolled",scrollY>50));
 
-// ----- JSON CENTRALISE -----
+// ----- DATA -----
 const copyflixData = {
   "folders": [
     {
@@ -115,11 +63,46 @@ const copyflixData = {
       "video": "",
       "image": "https://image.tmdb.org/t/p/w500/usU1WwpWh0yKx65jZ12fQyklqUC.jpg",
       "children": [
-        {"id":"id-1767280664240","title":"La Malédiction du Black Pearl","type":"Film","video":"https://vidmoly.net/embed-k62t9dnk8ayx.html","image":"https://image.tmdb.org/t/p/w600_and_h900_face/jFmc6zbnx6mSoxejECYvdi3IHIs.jpg","children":[]},
-        {"id":"id-1767280752771","title":"Le Secret du coffre maudit ","type":"Film","video":"https://vidmoly.net/embed-2auw0gof0ysr.html","image":"https://image.tmdb.org/t/p/w600_and_h900_face/bzOlMYEfNmgCDnFHj3zL3RBqwau.jpg","children":[]},
-        {"id":"id-1767280791677","title":"Jusqu'au bout du monde ","type":"Film","video":"https://vidmoly.net/embed-bcmp3nqh45r9.html","image":"https://image.tmdb.org/t/p/w600_and_h900_face/3JjceHUzbtgJ4fJs6x2ow4ckH89.jpg","children":[]},
-        {"id":"id-1767280821680","title":"La Fontaine de jouvence","type":"Film","video":"https://vidmoly.net/embed-6y841fa09ato.html","image":"https://image.tmdb.org/t/p/w600_and_h900_face/5JjjjGg24IGRXIQtaZkPU59acjV.jpg","children":[]},
-        {"id":"id-1767280854766","title":"La Vengeance de Salazar ","type":"Film","video":"https://vidmoly.net/embed-f9d7kg4zvjs9.html","image":"https://image.tmdb.org/t/p/w600_and_h900_face/fVMudKQfhosujwgAKhfxNGfS9sL.jpg","children":[]}
+        {
+          "id": "id-1767280664240",
+          "title": "La Malédiction du Black Pearl",
+          "type": "Film",
+          "video": "https://vidmoly.net/embed-k62t9dnk8ayx.html",
+          "image": "https://image.tmdb.org/t/p/w600_and_h900_face/jFmc6zbnx6mSoxejECYvdi3IHIs.jpg",
+          "children": []
+        },
+        {
+          "id": "id-1767280752771",
+          "title": "Le Secret du coffre maudit ",
+          "type": "Film",
+          "video": "https://vidmoly.net/embed-2auw0gof0ysr.html",
+          "image": "https://image.tmdb.org/t/p/w600_and_h900_face/bzOlMYEfNmgCDnFHj3zL3RBqwau.jpg",
+          "children": []
+        },
+        {
+          "id": "id-1767280791677",
+          "title": "Jusqu'au bout du monde ",
+          "type": "Film",
+          "video": "https://vidmoly.net/embed-bcmp3nqh45r9.html",
+          "image": "https://image.tmdb.org/t/p/w600_and_h900_face/3JjceHUzbtgJ4fJs6x2ow4ckH89.jpg",
+          "children": []
+        },
+        {
+          "id": "id-1767280821680",
+          "title": "La Fontaine de jouvence",
+          "type": "Film",
+          "video": "https://vidmoly.net/embed-6y841fa09ato.html",
+          "image": "https://image.tmdb.org/t/p/w600_and_h900_face/5JjjjGg24IGRXIQtaZkPU59acjV.jpg",
+          "children": []
+        },
+        {
+          "id": "id-1767280854766",
+          "title": "La Vengeance de Salazar ",
+          "type": "Film",
+          "video": "https://vidmoly.net/embed-f9d7kg4zvjs9.html",
+          "image": "https://image.tmdb.org/t/p/w600_and_h900_face/fVMudKQfhosujwgAKhfxNGfS9sL.jpg",
+          "children": []
+        }
       ]
     },
     {
@@ -136,13 +119,373 @@ const copyflixData = {
           "video": "",
           "image": "https://medias.boutique.lab.arte.tv/prod/10214_vod_thumb_86591.jpg",
           "children": [
-            {"id":"id-1767287311463","title":"Episode 1","type":"Série","video":"https://vidmoly.net/embed-d5jg6du3cvd7.html","image":"https://m.media-amazon.com/images/M/MV5BOGM0NGY3ZmItOGE2ZC00OWIxLTk0N2EtZWY4Yzg3ZDlhNGI3XkEyXkFqcGc@._V1_.jpg","children":[]},
-            {"id":"id-1767287688302","title":"Episode 2","type":"Série","video":"https://vidmoly.net/embed-hvkabnv7lirw.html","image":"https://m.media-amazon.com/images/M/MV5BOGM0NGY3ZmItOGE2ZC00OWIxLTk0N2EtZWY4Yzg3ZDlhNGI3XkEyXkFqcGc@._V1_.jpg","children":[]},
-            {"id":"id-1767287709190","title":"Episode 3","type":"Série","video":"https://vidmoly.net/embed-iedihouj7aro.html","image":"https://m.media-amazon.com/images/M/MV5BOGM0NGY3ZmItOGE2ZC00OWIxLTk0N2EtZWY4Yzg3ZDlhNGI3XkEyXkFqcGc@._V1_.jpg","children":[]},
-            {"id":"id-1767287731218","title":"Episode 4","type":"Série","video":"https://vidmoly.net/embed-bh7iqzfpr5gi.html","image":"https://m.media-amazon.com/images/M/MV5BOGM0NGY3ZmItOGE2ZC00OWIxLTk0N2EtZWY4Yzg3ZDlhNGI3XkEyXkFqcGc@._V1_.jpg","children":[]},
-            {"id":"id-1767287748777","title":"Episode 5","type":"Série","video":"https://vidmoly.net/embed-374jmt4yt3or.html","image":"https://m.media-amazon.com/images/M/MV5BOGM0NGY3ZmItOGE2ZC00OWIxLTk0N2EtZWY4Yzg3ZDlhNGI3XkEyXkFqcGc@._V1_.jpg","children":[]},
-            {"id":"id-1767287765204","title":"Episode 6","type":"Série","video":"https://vidmoly.net/embed-5js5nmai49c9.html","image":"https://m.media-amazon.com/images/M/MV5BOGM0NGY3ZmItOGE2ZC00OWIxLTk0N2EtZWY4Yzg3ZDlhNGI3XkEyXkFqcGc@._V1_.jpg","children":[]}
+            {
+              "id": "id-1767287311463",
+              "title": "Episode 1",
+              "type": "Série",
+              "video": "https://vidmoly.net/embed-d5jg6du3cvd7.html",
+              "image": "https://medias.boutique.lab.arte.tv/prod/10214_vod_thumb_86591.jpg",
+              "children": []
+            },
+            {
+              "id": "id-1767287688302",
+              "title": "Episode 2",
+              "type": "Série",
+              "video": "https://vidmoly.net/embed-hvkabnv7lirw.html",
+              "image": "https://medias.boutique.lab.arte.tv/prod/10214_vod_thumb_86591.jpg",
+              "children": []
+            },
+            {
+              "id": "id-1767287709190",
+              "title": "Episode 3",
+              "type": "Série",
+              "video": "https://vidmoly.net/embed-iedihouj7aro.html",
+              "image": "https://medias.boutique.lab.arte.tv/prod/10214_vod_thumb_86591.jpg",
+              "children": []
+            },
+            {
+              "id": "id-1767287731218",
+              "title": "Episode 4",
+              "type": "Série",
+              "video": "https://vidmoly.net/embed-bh7iqzfpr5gi.html",
+              "image": "https://medias.boutique.lab.arte.tv/prod/10214_vod_thumb_86591.jpg",
+              "children": []
+            },
+            {
+              "id": "id-1767287748777",
+              "title": "Episode 5",
+              "type": "Série",
+              "video": "https://vidmoly.net/embed-374jmt4yt3or.html",
+              "image": "https://medias.boutique.lab.arte.tv/prod/10214_vod_thumb_86591.jpg",
+              "children": []
+            },
+            {
+              "id": "id-1767287765204",
+              "title": "Episode 6",
+              "type": "Série",
+              "video": "https://vidmoly.net/embed-5js5nmai49c9.html",
+              "image": "https://medias.boutique.lab.arte.tv/prod/10214_vod_thumb_86591.jpg",
+              "children": []
+            }
           ]
+        },
+        {
+          "id": "id-1767357012725",
+          "title": "Saison 2",
+          "type": "Folder",
+          "video": "",
+          "image": "https://medias.boutique.lab.arte.tv/prod/10878_vod_thumb_82796.jpg",
+          "children": [
+            {
+              "id": "id-1767357346133",
+              "title": "Episode 1",
+              "type": "Série",
+              "video": "https://vidmoly.net/embed-tfb44r88kv14.html",
+              "image": "https://medias.boutique.lab.arte.tv/prod/10878_vod_thumb_82796.jpg",
+              "children": []
+            },
+            {
+              "id": "id-1767357377060",
+              "title": "Episode 2",
+              "type": "Série",
+              "video": "https://vidmoly.net/embed-tr445cghmigx.html",
+              "image": "https://medias.boutique.lab.arte.tv/prod/10878_vod_thumb_82796.jpg",
+              "children": []
+            },
+            {
+              "id": "id-1767357401391",
+              "title": "Episode 3",
+              "type": "Série",
+              "video": "https://vidmoly.net/embed-dcpr7nrknsfg.html",
+              "image": "https://medias.boutique.lab.arte.tv/prod/10878_vod_thumb_82796.jpg",
+              "children": []
+            },
+            {
+              "id": "id-1767357422310",
+              "title": "Episode 4",
+              "type": "Série",
+              "video": "https://vidmoly.net/embed-ryo8wrdos593.html",
+              "image": "https://medias.boutique.lab.arte.tv/prod/10878_vod_thumb_82796.jpg",
+              "children": []
+            },
+            {
+              "id": "id-1767357442806",
+              "title": "Episode 5",
+              "type": "Série",
+              "video": "https://vidmoly.net/embed-8q4zkn8jho71.html",
+              "image": "https://medias.boutique.lab.arte.tv/prod/10878_vod_thumb_82796.jpg",
+              "children": []
+            },
+            {
+              "id": "id-1767357463072",
+              "title": "Episode 6",
+              "type": "Série",
+              "video": "https://vidmoly.net/embed-i4rb8a79walg.html",
+              "image": "https://medias.boutique.lab.arte.tv/prod/10878_vod_thumb_82796.jpg",
+              "children": []
+            }
+          ]
+        },
+        {
+          "id": "id-1767377850258",
+          "title": "Saison 3",
+          "type": "Folder",
+          "video": "",
+          "image": "https://medias.boutique.lab.arte.tv/prod/11837_vod_thumb_86468_crop.jpg",
+          "children": [
+            {
+              "id": "id-1767377910916",
+              "title": "Episode 1",
+              "type": "Série",
+              "video": "https://vidmoly.net/embed-3zcyd7gnuxw5.html",
+              "image": "https://medias.boutique.lab.arte.tv/prod/11837_vod_thumb_86468_crop.jpg",
+              "children": []
+            },
+            {
+              "id": "id-1767377929936",
+              "title": "Episode 2",
+              "type": "Série",
+              "video": "https://vidmoly.net/embed-wrfmsg706sja.html",
+              "image": "https://medias.boutique.lab.arte.tv/prod/11837_vod_thumb_86468_crop.jpg",
+              "children": []
+            },
+            {
+              "id": "id-1767377957704",
+              "title": "Episode 3",
+              "type": "Série",
+              "video": "https://vidmoly.net/embed-vx910ovi0qz2.html",
+              "image": "https://medias.boutique.lab.arte.tv/prod/11837_vod_thumb_86468_crop.jpg",
+              "children": []
+            },
+            {
+              "id": "id-1767377979032",
+              "title": "Episode 4",
+              "type": "Série",
+              "video": "https://vidmoly.net/embed-xjidnn39v4fo.html",
+              "image": "https://medias.boutique.lab.arte.tv/prod/11837_vod_thumb_86468_crop.jpg",
+              "children": []
+            },
+            {
+              "id": "id-1767377998662",
+              "title": "Episode 5",
+              "type": "Série",
+              "video": "https://vidmoly.net/embed-rvth0y9tfz9h.html",
+              "image": "https://medias.boutique.lab.arte.tv/prod/11837_vod_thumb_86468_crop.jpg",
+              "children": []
+            },
+            {
+              "id": "id-1767378019263",
+              "title": "Episode 6",
+              "type": "Série",
+              "video": "https://vidmoly.net/embed-7un32v4n6f3d.html",
+              "image": "https://medias.boutique.lab.arte.tv/prod/11837_vod_thumb_86468_crop.jpg",
+              "children": []
+            }
+          ]
+        },
+        {
+          "id": "id-1767378143173",
+          "title": "Saison 4",
+          "type": "Folder",
+          "video": "",
+          "image": "https://medias.boutique.lab.arte.tv/prod/12584_vod_thumb_98768.jpg",
+          "children": [
+            {
+              "id": "id-1767378596236",
+              "title": "Episode 1",
+              "type": "Série",
+              "video": "https://vidmoly.net/embed-gfn7uhbx6h3m.html",
+              "image": "https://medias.boutique.lab.arte.tv/prod/12584_vod_thumb_98768.jpg",
+              "children": []
+            },
+            {
+              "id": "id-1767378618105",
+              "title": "Episode 2",
+              "type": "Série",
+              "video": "https://vidmoly.net/embed-pcokhbhw87ld.html",
+              "image": "https://medias.boutique.lab.arte.tv/prod/12584_vod_thumb_98768.jpg",
+              "children": []
+            },
+            {
+              "id": "id-1767378644792",
+              "title": "Episode 3",
+              "type": "Série",
+              "video": "https://vidmoly.net/embed-uaj3ca4chizb.html",
+              "image": "https://medias.boutique.lab.arte.tv/prod/12584_vod_thumb_98768.jpg",
+              "children": []
+            },
+            {
+              "id": "id-1767378671796",
+              "title": "Episode 4",
+              "type": "Série",
+              "video": "https://vidmoly.net/embed-7mdoxy4v1iq2.html",
+              "image": "https://medias.boutique.lab.arte.tv/prod/12584_vod_thumb_98768.jpg",
+              "children": []
+            },
+            {
+              "id": "id-1767378693654",
+              "title": "Episode 5",
+              "type": "Série",
+              "video": "https://vidmoly.net/embed-v1mnnt0qf06b.html",
+              "image": "https://medias.boutique.lab.arte.tv/prod/12584_vod_thumb_98768.jpg",
+              "children": []
+            },
+            {
+              "id": "id-1767378717484",
+              "title": "Episode 6",
+              "type": "Série",
+              "video": "https://vidmoly.net/embed-o8v5y62z0fe6.html",
+              "image": "https://medias.boutique.lab.arte.tv/prod/12584_vod_thumb_98768.jpg",
+              "children": []
+            }
+          ]
+        },
+        {
+          "id": "id-1767378862179",
+          "title": "Saison 5",
+          "type": "Folder",
+          "video": "",
+          "image": "https://images.justwatch.com/poster/195470658/s718/saison-5.jpg",
+          "children": [
+            {
+              "id": "id-1767378902794",
+              "title": "Episode 1",
+              "type": "Série",
+              "video": "https://vidmoly.net/embed-lejk31yrd3nz.html",
+              "image": "https://images.justwatch.com/poster/195470658/s718/saison-5.jpg",
+              "children": []
+            },
+            {
+              "id": "id-1767378923042",
+              "title": "Episode 2",
+              "type": "Série",
+              "video": "https://vidmoly.net/embed-xw937fhkahnd.html",
+              "image": "https://images.justwatch.com/poster/195470658/s718/saison-5.jpg",
+              "children": []
+            },
+            {
+              "id": "id-1767378938701",
+              "title": "Episode 3",
+              "type": "Série",
+              "video": "https://vidmoly.net/embed-054g2026gh98.html",
+              "image": "https://images.justwatch.com/poster/195470658/s718/saison-5.jpg",
+              "children": []
+            },
+            {
+              "id": "id-1767378963191",
+              "title": "Episode 4",
+              "type": "Série",
+              "video": "https://vidmoly.net/embed-f2yh7gcbnzlm.html",
+              "image": "https://images.justwatch.com/poster/195470658/s718/saison-5.jpg",
+              "children": []
+            },
+            {
+              "id": "id-1767378985873",
+              "title": "Episode 5",
+              "type": "Série",
+              "video": "https://vidmoly.net/embed-skx6i2ac4gfr.html",
+              "image": "https://images.justwatch.com/poster/195470658/s718/saison-5.jpg",
+              "children": []
+            },
+            {
+              "id": "id-1767379007404",
+              "title": "Episode 6",
+              "type": "Série",
+              "video": "https://vidmoly.net/embed-pxtdfz99o224.html",
+              "image": "https://images.justwatch.com/poster/195470658/s718/saison-5.jpg",
+              "children": []
+            }
+          ]
+        },
+        {
+          "id": "id-1767379174216",
+          "title": "Saison 6",
+          "type": "Folder",
+          "video": "",
+          "image": "https://static.fnac-static.com/multimedia/Images/FR/NR/ca/3d/de/14564810/1507-1/tsp20240625081540/Peaky-Blinders-Saison-6-DVD.jpg",
+          "children": [
+            {
+              "id": "id-1767379196613",
+              "title": "Episode 1",
+              "type": "Série",
+              "video": "https://vidmoly.net/embed-pl4k8is0sdmm.html",
+              "image": "https://static.fnac-static.com/multimedia/Images/FR/NR/ca/3d/de/14564810/1507-1/tsp20240625081540/Peaky-Blinders-Saison-6-DVD.jpg",
+              "children": []
+            },
+            {
+              "id": "id-1767379214557",
+              "title": "Episode 2",
+              "type": "Série",
+              "video": "https://vidmoly.net/embed-crfdmwp3xvme.html",
+              "image": "https://static.fnac-static.com/multimedia/Images/FR/NR/ca/3d/de/14564810/1507-1/tsp20240625081540/Peaky-Blinders-Saison-6-DVD.jpg",
+              "children": []
+            },
+            {
+              "id": "id-1767379234058",
+              "title": "Episode 3",
+              "type": "Série",
+              "video": "https://vidmoly.net/embed-q7xmlxeod7q3.html",
+              "image": "https://static.fnac-static.com/multimedia/Images/FR/NR/ca/3d/de/14564810/1507-1/tsp20240625081540/Peaky-Blinders-Saison-6-DVD.jpg",
+              "children": []
+            },
+            {
+              "id": "id-1767379253360",
+              "title": "Episode 4",
+              "type": "Série",
+              "video": "https://vidmoly.net/embed-70534wrxjruw.html",
+              "image": "https://static.fnac-static.com/multimedia/Images/FR/NR/ca/3d/de/14564810/1507-1/tsp20240625081540/Peaky-Blinders-Saison-6-DVD.jpg",
+              "children": []
+            },
+            {
+              "id": "id-1767379272649",
+              "title": "Episode 5",
+              "type": "Série",
+              "video": "https://vidmoly.net/embed-izmktets4ytj.html",
+              "image": "https://static.fnac-static.com/multimedia/Images/FR/NR/ca/3d/de/14564810/1507-1/tsp20240625081540/Peaky-Blinders-Saison-6-DVD.jpg",
+              "children": []
+            },
+            {
+              "id": "id-1767379292946",
+              "title": "Episode 6",
+              "type": "Série",
+              "video": "https://vidmoly.net/embed-52puvwcx2dtw.html",
+              "image": "https://static.fnac-static.com/multimedia/Images/FR/NR/ca/3d/de/14564810/1507-1/tsp20240625081540/Peaky-Blinders-Saison-6-DVD.jpg",
+              "children": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "id-1767379387788",
+      "title": "Ça : Bienvenue à Derry",
+      "type": "Folder",
+      "video": "",
+      "image": "https://image.tmdb.org/t/p/w600_and_h900_face/rsc88AZaxgk8dEGK3l0FIQu8lJQ.jpg",
+      "children": [
+        {
+          "id": "id-1767387699183",
+          "title": "Episode 1",
+          "type": "Série",
+          "video": "https://vidmoly.net/embed-blh41f1hoxye.html",
+          "image": "https://www.actusf.com/files/new_images/actualit%C3%A9s/2024%20Semestre%201/welcometoderry.jpg",
+          "children": []
+        },
+        {
+          "id": "id-1767387754583",
+          "title": "Episode 2",
+          "type": "Série",
+          "video": "https://vidmoly.net/embed-h55xfbqmoaeu.html",
+          "image": "https://www.actusf.com/files/new_images/actualit%C3%A9s/2024%20Semestre%201/welcometoderry.jpg",
+          "children": []
+        },
+        {
+          "id": "id-1767387786882",
+          "title": "Episode 3",
+          "type": "Série",
+          "video": "https://vidmoly.net/embed-xhebp07db6sz.html",
+          "image": "https://www.actusf.com/files/new_images/actualit%C3%A9s/2024%20Semestre%201/welcometoderry.jpg",
+          "children": []
         }
       ]
     }
@@ -150,18 +493,23 @@ const copyflixData = {
   "films": []
 }
 
-// ---- RENDER ----
-const grid=document.getElementById("grid");
-let currentFilter='all';
+// ----- VARIABLES -----
+const grid = document.getElementById("grid");
+const backBtn = document.getElementById("backBtn");
+let currentFilter = "all";
+let historyStack = [];
 
+// ----- INIT -----
 renderRoot();
 
-// RENDER ROOT
+// ----- RENDER ROOT -----
 function renderRoot(){
+  historyStack = [];
+  backBtn.style.display = "none";
   renderItems(copyflixData.folders, copyflixData.films);
 }
 
-// RENDER ITEMS
+// ----- RENDER ITEMS -----
 function renderItems(folders=[], films=[]){
   grid.innerHTML="";
   folders.forEach(f=>{
@@ -172,59 +520,65 @@ function renderItems(folders=[], films=[]){
   });
 }
 
-// FONCTION POUR VERIFIER TYPE DANS DOSSIER
-function folderHasType(folder,type){
-  if(!folder.children || folder.children.length===0) return false;
-  return folder.children.some(c=>c.type===type);
+// ----- RECURSIVE CHECK -----
+function folderHasType(folder, type){
+  if(!folder.children) return false;
+  return folder.children.some(c=>{
+    if(c.type===type) return true;
+    if(c.type==="Folder") return folderHasType(c,type);
+    return false;
+  });
 }
 
-// CARDS
+// ----- CARDS -----
 function renderFolder(folder){
-  const card=document.createElement("div");
-  card.className="card folder";
-  card.innerHTML=`<img src="${folder.image||'https://via.placeholder.com/300x450?text=Dossier'}"><div class="card-title">${folder.title}</div>`;
-  card.onclick=()=>openFolder(folder);
-  grid.appendChild(card);
+  const d=document.createElement("div");
+  d.className="card folder";
+  d.innerHTML=`<img src="${folder.image}"><div class="card-title">${folder.title}</div>`;
+  d.onclick=()=>openFolder(folder);
+  grid.appendChild(d);
 }
 
 function renderFilm(film){
-  const card=document.createElement("div");
-  card.className="card";
-  card.innerHTML=`<img src="${film.image||'https://via.placeholder.com/300x450?text=Film'}"><div class="card-title">${film.title}</div>`;
-  card.onclick=()=>window.open(film.video,"_blank");
-  grid.appendChild(card);
+  const d=document.createElement("div");
+  d.className="card";
+  d.innerHTML=`<img src="${film.image}"><div class="card-title">${film.title}</div>`;
+  d.onclick=()=>window.open(film.video,"_blank");
+  grid.appendChild(d);
 }
 
-// NAVIGATION DOSSIERS
-let historyStack=[];
+// ----- NAVIGATION DOSSIERS -----
 function openFolder(folder){
   historyStack.push(folder);
+  backBtn.style.display="block";
   renderItems(
-    folder.children?.filter(i=>i.type==="Folder")||[],
-    folder.children?.filter(i=>i.type!=="Folder")||[]
+    folder.children.filter(c=>c.type==="Folder"),
+    folder.children.filter(c=>c.type!=="Folder")
   );
 }
 
-// FILTRE FILMS / SERIES
+// ----- BOUTON RETOUR -----
+backBtn.onclick=()=>{
+  historyStack.pop();
+  if(historyStack.length===0){
+    renderRoot();
+  }else{
+    const parent=historyStack[historyStack.length-1];
+    renderItems(
+      parent.children.filter(c=>c.type==="Folder"),
+      parent.children.filter(c=>c.type!=="Folder")
+    );
+  }
+};
+
+// ----- FILTRES -----
 function setFilter(type){
-  currentFilter=type==='Série'?'Série':type==='film'?'Film':'all';
+  if(type==="film") currentFilter="Film";
+  else if(type==="serie") currentFilter="Série";
+  else currentFilter="all";
   renderRoot();
 }
-
-// RECHERCHE
-document.getElementById("searchInput").addEventListener("input", e=>{
-  const q=e.target.value.toLowerCase();
-  grid.innerHTML="";
-  copyflixData.folders.forEach(f=>{
-    if(f.title.toLowerCase().includes(q) && (currentFilter==='all' || folderHasType(f,currentFilter))) renderFolder(f);
-    f.children.forEach(c=>{
-      if(c.title.toLowerCase().includes(q) && (currentFilter==='all' || c.type===currentFilter)) renderFilm(c);
-    });
-  });
-  copyflixData.films.forEach(f=>{
-    if(f.title.toLowerCase().includes(q) && (currentFilter==='all' || f.type===currentFilter)) renderFilm(f);
-  });
-});
 </script>
+
 </body>
 </html>

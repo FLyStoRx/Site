@@ -15,6 +15,7 @@
   .tree-buttons button { background:#ff4b3e; padding:4px 10px; font-size:0.85rem; border-radius:4px; margin-left:5px; transition:0.2s; cursor:pointer; }
   .tree-buttons button:hover { background:#ff6f61; }
   .tree-children { margin-left:20px; }
+  .tree-children.collapsed { display: none; } /* ✅ nouvelle règle pour repli/dépli */
   #panel { display:none; position:fixed; top:50%; left:50%; transform:translate(-50%,-50%); background:#1c1c1c; padding:30px 25px; border-radius:12px; box-shadow:0 8px 25px rgba(0,0,0,0.7); z-index:1000; width:350px; }
   #panel h2 { margin-top:0; margin-bottom:20px; text-align:center; font-size:1.5rem; }
   #panel form label { display:block; margin-bottom:6px; font-weight:bold; }
@@ -118,7 +119,7 @@ function populateParentOptions(skipId,type){
       if(f.id !== skipId){
         const opt = document.createElement("option");
         opt.value = f.id;
-        opt.textContent = '—'.repeat(level) + ' ' + f.title; // indentation
+        opt.textContent = '—'.repeat(level) + ' ' + f.title;
         sel.appendChild(opt);
         if(f.children && f.children.length){
           addOptions(f.children.filter(c => c.type === "Folder"), level + 1);
@@ -175,7 +176,7 @@ function findItem(id,root){
 // SAUVEGARDE
 function saveData(){localStorage.setItem("copyflixData",JSON.stringify(data));}
 
-// RENDER TREE
+// RENDER TREE (modifié juste pour bouton repli/dépli)
 function renderTree(){
   treeView.innerHTML="";
   data.folders.forEach(f=>renderItem(f,treeView));
@@ -193,8 +194,27 @@ function renderItem(item,parentEl){
   else if(item.type==="Film") icon="🎬";
   else icon="📺";
 
-  div.innerHTML=`<span>${icon} ${item.title}</span>`;
-  
+  const title=document.createElement("span");
+  title.textContent = icon+" "+item.title;
+
+  // 🔽 bouton replier/déplier pour dossiers
+  let toggleBtn=null;
+  if(item.type==="Folder" && item.children && item.children.length){
+    toggleBtn=document.createElement("span");
+    toggleBtn.textContent=" ▼";
+    toggleBtn.style.cursor="pointer";
+    toggleBtn.style.color="#e50914";
+    toggleBtn.onclick=(e)=>{
+      e.stopPropagation();
+      const childrenDiv = div.nextSibling;
+      childrenDiv.classList.toggle("collapsed");
+      toggleBtn.textContent = childrenDiv.classList.contains("collapsed") ? " ▶" : " ▼";
+    };
+    title.appendChild(toggleBtn);
+  }
+
+  div.appendChild(title);
+
   const btns=document.createElement("span");
   btns.className="tree-buttons";
 
