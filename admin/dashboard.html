@@ -6,28 +6,62 @@
 <style>
   body { font-family:'Inter',sans-serif; background:#0d0d0d; color:#fff; margin:0; padding:0; }
   h1 { text-align:center; padding:30px 0; font-size:2rem; }
+
+  /* Onglets Films / Séries */
+  .tabs { display:flex; justify-content:center; margin-bottom:20px; }
+  .tab { padding:12px 25px; margin:0 10px; cursor:pointer; border-radius:20px; font-weight:bold; transition:0.3s; background:#1c1c1c; }
+  .tab.active { background:#e50914; color:#fff; }
+
+  /* Top buttons */
   .top-buttons { text-align:center; margin-bottom:20px; }
   .top-buttons button { background:#e50914; border:none; color:#fff; padding:12px 20px; margin:0 10px; cursor:pointer; border-radius:8px; font-weight:bold; transition:0.3s; }
   .top-buttons button:hover { background:#f6121d; }
-  #tree-view { max-width:900px; margin:0 auto 50px auto; background:#1c1c1c; padding:20px; border-radius:12px; box-shadow:0 4px 15px rgba(0,0,0,0.5); }
-  .tree-item { display:flex; justify-content:space-between; align-items:center; padding:8px 12px; margin:5px 0; background:#2a2a2a; border-radius:6px; transition:0.2s; cursor:grab; }
-  .tree-item:hover { background:#3a3a3a; }
-  .tree-buttons button { background:#ff4b3e; padding:4px 10px; font-size:0.85rem; border-radius:4px; margin-left:5px; transition:0.2s; cursor:pointer; }
-  .tree-buttons button:hover { background:#ff6f61; }
-  .tree-children { margin-left:20px; }
-  .tree-children.collapsed { display: none; } /* ✅ nouvelle règle pour repli/dépli */
+
+  /* Grille type Netflix */
+  #tree-view { display:grid; grid-template-columns: repeat(auto-fill,minmax(150px,1fr)); gap:15px; max-width:1200px; margin:0 auto 50px; }
+  .tree-item { position:relative; background:#1c1c1c; border-radius:12px; overflow:hidden; cursor:pointer; transition:0.3s; }
+  .tree-item img { width:100%; display:block; border-radius:12px; }
+
+  /* Encadré titre sous l'image */
+  .tree-item .title-box {
+    position:absolute;
+    bottom:0;
+    width:100%;
+    background:rgba(0,0,0,0.6);
+    padding:6px 8px;
+    text-align:center;
+    font-weight:bold;
+    font-size:0.95rem;
+    color:#fff;
+    border-bottom-left-radius:12px;
+    border-bottom-right-radius:12px;
+  }
+
+  .tree-item:hover { transform:scale(1.03); box-shadow:0 8px 20px rgba(0,0,0,0.7); }
+
+  /* bouton modifier */
+  .edit-btn { position:absolute; top:5px; right:5px; background:#e50914; border:none; color:#fff; padding:4px 6px; border-radius:8px; cursor:pointer; font-size:0.85rem; transition:0.2s; }
+  .edit-btn:hover { background:#f6121d; }
+
+  /* Panel flottant */
   #panel { display:none; position:fixed; top:50%; left:50%; transform:translate(-50%,-50%); background:#1c1c1c; padding:30px 25px; border-radius:12px; box-shadow:0 8px 25px rgba(0,0,0,0.7); z-index:1000; width:350px; }
   #panel h2 { margin-top:0; margin-bottom:20px; text-align:center; font-size:1.5rem; }
   #panel form label { display:block; margin-bottom:6px; font-weight:bold; }
   #panel form input, #panel form select { width:100%; padding:10px; margin-bottom:15px; border-radius:6px; border:1px solid #444; background:#2a2a2a; color:#fff; font-size:1rem; }
   #panel form button { width:48%; margin:0 1%; padding:10px; border-radius:8px; border:none; background:#e50914; color:#fff; font-weight:bold; cursor:pointer; transition:0.3s; }
   #panel form button:hover { background:#f6121d; }
+
   @media(max-width:480px){ #panel { width:90%; } .top-buttons button { display:block; width:80%; margin:8px auto; } }
 </style>
 </head>
 <body>
 
 <h1>Admin Copyflix</h1>
+
+<div class="tabs">
+  <div class="tab active" data-type="Film">Films</div>
+  <div class="tab" data-type="Série">Séries</div>
+</div>
 
 <div class="top-buttons">
   <button id="btn-logout">Déconnexion</button>
@@ -70,28 +104,42 @@
 </div>
 
 <script>
-let data = JSON.parse(localStorage.getItem("copyflixData") || '{"folders":[],"films":[] }');
+let data = { folders: [], films: [] }; 
+let currentFilter = "Film";
 
 const treeView = document.getElementById("tree-view");
 const panel = document.getElementById("panel");
 const panelTitle = document.getElementById("panel-title");
 const panelForm = document.getElementById("panel-form");
 
-// BUTTONS
+// onglets
+document.querySelectorAll(".tab").forEach(tab=>{
+  tab.addEventListener("click", ()=>{
+    document.querySelectorAll(".tab").forEach(t=>t.classList.remove("active"));
+    tab.classList.add("active");
+    currentFilter = tab.dataset.type;
+    renderTree();
+  });
+});
+
+// boutons
 document.getElementById("btn-logout").addEventListener("click",()=>window.location.href="../index.html");
 document.getElementById("btn-add-folder").addEventListener("click",()=>openPanel("Folder"));
 document.getElementById("btn-add-film").addEventListener("click",()=>openPanel("Film"));
 document.getElementById("btn-close-panel").addEventListener("click",closePanel);
 panelForm.addEventListener("submit",submitForm);
-
-// BOUTON COPIER JSON
 document.getElementById("btn-copy-json").addEventListener("click", ()=>{
-  navigator.clipboard.writeText(JSON.stringify(data,null,2))
-  .then(()=>alert("JSON copié !"))
-  .catch(()=>alert("Impossible de copier"));
+  navigator.clipboard.writeText(JSON.stringify(data,null,2)).then(()=>alert("JSON copié !")).catch(()=>alert("Impossible de copier"));
 });
 
-renderTree();
+// charger data.json
+fetch('../data.json')
+  .then(res => res.json())
+  .then(json => {
+    data = json;
+    renderTree();
+  })
+  .catch(err => console.error("Erreur en chargeant data.json :", err));
 
 // PANEL
 function openPanel(type,item=null){
@@ -109,11 +157,10 @@ function openPanel(type,item=null){
 
 function closePanel(){panel.style.display="none"; panelForm.reset();}
 
-// REMPLIR LISTE DOSSIERS PARENTS RECURSIVE
+// populate parent options
 function populateParentOptions(skipId,type){
   const sel = document.getElementById("item-parent");
   sel.innerHTML='<option value="">-- Aucun --</option>';
-
   function addOptions(folders, level = 0){
     folders.forEach(f => {
       if(f.id !== skipId){
@@ -127,11 +174,10 @@ function populateParentOptions(skipId,type){
       }
     });
   }
-
   addOptions(data.folders);
 }
 
-// FORM SUBMIT
+// submit form
 function submitForm(e){
   e.preventDefault();
   const id=document.getElementById("item-id").value||"id-"+Date.now();
@@ -141,7 +187,7 @@ function submitForm(e){
   const image=document.getElementById("item-image").value;
   const parentId=document.getElementById("item-parent").value;
 
-  const newItem={id,title,type,video,image,children:[]};
+  const newItem={id,title,type,video,image,children:[],expanded:false};
 
   if(parentId){
     const parent=findItem(parentId,data);
@@ -159,7 +205,7 @@ function submitForm(e){
   saveData(); renderTree(); closePanel();
 }
 
-// RECHERCHE D'UN ITEM
+// find item
 function findItem(id,root){
   let res=null;
   function search(arr){
@@ -173,122 +219,72 @@ function findItem(id,root){
   return res;
 }
 
-// SAUVEGARDE
+// save
 function saveData(){localStorage.setItem("copyflixData",JSON.stringify(data));}
 
-// RENDER TREE (modifié juste pour bouton repli/dépli)
+// render
 function renderTree(){
   treeView.innerHTML="";
-  data.folders.forEach(f=>renderItem(f,treeView));
-  data.films.forEach(f=>renderItem(f,treeView));
+
+  let items = [];
+  data.folders.forEach(f=>{ if(containsType(f,currentFilter)) items.push(f); });
+  if(currentFilter==="Film") items = items.concat(data.films.filter(f=>f.type==="Film"));
+  if(currentFilter==="Série") items = items.concat(data.films.filter(f=>f.type==="Série"));
+
+  items.forEach(i=>renderItem(i,treeView));
+}
+
+function containsType(folder,type){
+  if(folder.children && folder.children.length){
+    for(const c of folder.children){
+      if(c.type===type) return true;
+      if(c.type==="Folder" && containsType(c,type)) return true;
+    }
+  }
+  return false;
 }
 
 function renderItem(item,parentEl){
-  const div=document.createElement("div");
+  const div = document.createElement("div");
   div.className="tree-item";
-  div.dataset.id=item.id;
-  div.draggable=true;
+  div.dataset.id = item.id;
 
-  let icon="";
-  if(item.type==="Folder") icon="📁";
-  else if(item.type==="Film") icon="🎬";
-  else icon="📺";
+  const img = document.createElement("img");
+  img.src = item.image || "https://via.placeholder.com/150x225?text=?";
+  div.appendChild(img);
 
-  const title=document.createElement("span");
-  title.textContent = icon+" "+item.title;
+  const titleBox = document.createElement("div");
+  titleBox.className = "title-box";
+  titleBox.textContent = item.title;
+  div.appendChild(titleBox);
 
-  // 🔽 bouton replier/déplier pour dossiers
-  let toggleBtn=null;
-  if(item.type==="Folder" && item.children && item.children.length){
-    toggleBtn=document.createElement("span");
-    toggleBtn.textContent=" ▼";
-    toggleBtn.style.cursor="pointer";
-    toggleBtn.style.color="#e50914";
-    toggleBtn.onclick=(e)=>{
-      e.stopPropagation();
-      const childrenDiv = div.nextSibling;
-      childrenDiv.classList.toggle("collapsed");
-      toggleBtn.textContent = childrenDiv.classList.contains("collapsed") ? " ▶" : " ▼";
-    };
-    title.appendChild(toggleBtn);
-  }
+  // bouton modifier
+  const editBtn = document.createElement("button");
+  editBtn.textContent = "✏️";
+  editBtn.className="edit-btn";
+  editBtn.addEventListener("click",(e)=>{
+    e.stopPropagation();
+    openPanel(item.type,item);
+  });
+  div.appendChild(editBtn);
 
-  div.appendChild(title);
+  div.addEventListener("click",()=>{
+    if(item.type==="Folder"){
+      item.expanded = !item.expanded;
+      renderTree();
+    } else {
+      openPanel(item.type,item);
+    }
+  });
 
-  const btns=document.createElement("span");
-  btns.className="tree-buttons";
-
-  const mod=document.createElement("button");
-  mod.textContent="✏️";
-  mod.onclick=(e)=>{e.stopPropagation(); openPanel(item.type,item);};
-  btns.appendChild(mod);
-
-  const del=document.createElement("button");
-  del.textContent="🗑";
-  del.onclick=(e)=>{e.stopPropagation(); deleteItem(item.id);};
-  btns.appendChild(del);
-
-  div.appendChild(btns);
   parentEl.appendChild(div);
 
-  if(item.children && item.children.length){
-    const cont=document.createElement("div");
-    cont.className="tree-children";
-    item.children.forEach(c=>renderItem(c,cont));
-    parentEl.appendChild(cont);
+  // enfants si dossier ouvert
+  if(item.type==="Folder" && item.expanded && item.children){
+    item.children.forEach(c=>{
+      if(c.type === currentFilter || c.type==="Folder") renderItem(c,parentEl);
+    });
   }
-
-  div.addEventListener("dragstart",dragStart);
-  div.addEventListener("dragover",dragOver);
-  div.addEventListener("drop",drop);
-}
-
-// DRAG & DROP
-let draggedId=null;
-function dragStart(e){draggedId=this.dataset.id;}
-function dragOver(e){e.preventDefault();}
-function drop(e){
-  e.preventDefault();
-  if(draggedId===this.dataset.id) return;
-
-  const dragged=findAndRemove(draggedId,data);
-  const parent=findParentArray(this.dataset.id,data) || data.folders;
-  const idx=parent.findIndex(i=>i.id===this.dataset.id);
-  parent.splice(idx,0,dragged);
-
-  saveData(); renderTree();
-}
-
-function findAndRemove(id,root){
-  let res=null;
-  function search(arr){
-    for(let i=0;i<arr.length;i++){
-      if(arr[i].id===id){res=arr.splice(i,1)[0]; return;}
-      if(arr[i].children) search(arr[i].children);
-    }
-  }
-  search(root.folders||root);
-  search(root.films||[]);
-  return res;
-}
-
-function findParentArray(id,root){
-  let res=null;
-  function search(arr){
-    for(const i of arr){
-      if(i.id===id){res=arr; return;}
-      if(i.children) search(i.children);
-    }
-  }
-  search(root.folders||root);
-  search(root.films||[]);
-  return res;
-}
-
-// DELETE
-function deleteItem(id){
-  findAndRemove(id,data);
-  saveData(); renderTree();
 }
 </script>
 </body>
