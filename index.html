@@ -255,7 +255,26 @@ function openFolder(folder){
   );
 }
 
-backBtn.onclick=()=>historyStack.length>1?openFolder(historyStack.pop()):renderRoot();
+backBtn.onclick = () => {
+  historyStack.pop();
+
+  if (historyStack.length === 0) {
+    renderRoot();
+    return;
+  }
+
+  const parent = historyStack[historyStack.length - 1];
+
+  breadcrumb.innerHTML = historyStack
+    .map(f => `<span class="breadcrumb-item">${f.title}</span>`)
+    .join("");
+
+  renderItems(
+    parent.children.filter(c => c.type === "Folder"),
+    parent.children.filter(c => c.type !== "Folder")
+  );
+};
+
 
 function setFilter(type){
   document.querySelectorAll(".hero-nav a").forEach(a=>a.classList.remove("active"));
