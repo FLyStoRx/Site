@@ -20,28 +20,50 @@
   /* Grille type Netflix */
   #tree-view { display:grid; grid-template-columns: repeat(auto-fill,minmax(150px,1fr)); gap:15px; max-width:1200px; margin:0 auto 50px; }
   .tree-item { position:relative; background:#1c1c1c; border-radius:12px; overflow:hidden; cursor:pointer; transition:0.3s; }
-  .tree-item img { width:100%; display:block; border-radius:12px; }
+  
+  /* Taille uniforme pour toutes les jaquettes */
+  .tree-item img {
+    width: 150px;
+    height: 225px;
+    display:block;
+    border-radius:12px;
+    object-fit: cover;
+  }
 
-  /* Encadré titre sous l'image */
-  .tree-item .title-box {
+  /* Encadré titre sous l'image - CENTRAGE PARFAIT */
+.tree-item .title-box {
     position:absolute;
     bottom:0;
-    width:100%;
+    width:100%; /* largeur de l'image */
+    height:35px; /* ou ajustable selon la taille de l'encadré */
     background:rgba(0,0,0,0.6);
-    padding:6px 8px;
+    display:flex;
+    justify-content:center;
+    align-items:center;
     text-align:center;
     font-weight:bold;
     font-size:0.95rem;
     color:#fff;
     border-bottom-left-radius:12px;
     border-bottom-right-radius:12px;
-  }
+    overflow:hidden;
+    padding:0 5px; /* un petit padding pour ne pas toucher les bords */
+    overflow-wrap: break-word; /* assure que le texte passe à la ligne correctement */
+}
+
 
   .tree-item:hover { transform:scale(1.03); box-shadow:0 8px 20px rgba(0,0,0,0.7); }
 
   /* bouton modifier */
   .edit-btn { position:absolute; top:5px; right:5px; background:#e50914; border:none; color:#fff; padding:4px 6px; border-radius:8px; cursor:pointer; font-size:0.85rem; transition:0.2s; }
   .edit-btn:hover { background:#f6121d; }
+
+  /* bouton supprimer */
+  .delete-btn { position:absolute; top:5px; left:5px; background:#555; border:none; color:#fff; padding:4px 6px; border-radius:8px; cursor:pointer; font-size:0.85rem; transition:0.2s; }
+  .delete-btn:hover { background:#e50914; }
+
+  /* case actif / inactif */
+  .active-checkbox { position:absolute; top:5px; left:auto; right:35px; width:18px; height:18px; cursor:pointer; }
 
   /* Panel flottant */
   #panel { display:none; position:fixed; top:50%; left:50%; transform:translate(-50%,-50%); background:#1c1c1c; padding:30px 25px; border-radius:12px; box-shadow:0 8px 25px rgba(0,0,0,0.7); z-index:1000; width:350px; }
@@ -104,6 +126,7 @@
 </div>
 
 <script>
+// ----- Variables -----
 let data = { folders: [], films: [] }; 
 let currentFilter = "Film";
 
@@ -118,9 +141,14 @@ document.querySelectorAll(".tab").forEach(tab=>{
     document.querySelectorAll(".tab").forEach(t=>t.classList.remove("active"));
     tab.classList.add("active");
     currentFilter = tab.dataset.type;
+    closeAllFolders(data.folders);
     renderTree();
   });
 });
+
+function closeAllFolders(folders){
+  folders.forEach(f=>{ f.expanded = false; if(f.children) closeAllFolders(f.children); });
+}
 
 // boutons
 document.getElementById("btn-logout").addEventListener("click",()=>window.location.href="../index.html");
@@ -132,16 +160,13 @@ document.getElementById("btn-copy-json").addEventListener("click", ()=>{
   navigator.clipboard.writeText(JSON.stringify(data,null,2)).then(()=>alert("JSON copié !")).catch(()=>alert("Impossible de copier"));
 });
 
-// charger data.json
+// fetch data.json
 fetch('../data.json')
   .then(res => res.json())
-  .then(json => {
-    data = json;
-    renderTree();
-  })
+  .then(json => { data = json; closeAllFolders(data.folders); renderTree(); })
   .catch(err => console.error("Erreur en chargeant data.json :", err));
 
-// PANEL
+// Panel et form
 function openPanel(type,item=null){
   panel.style.display="block";
   panelTitle.textContent = item ? "Modifier "+item.title : type==="Folder"?"Ajouter Dossier":"Ajouter Film/Série";
@@ -151,7 +176,7 @@ function openPanel(type,item=null){
   document.getElementById("item-video").value = item?.video || "";
   document.getElementById("item-image").value = item?.image || "";
   populateParentOptions(item?.id,type);
-  if(type==="Folder"){document.getElementById("type-field").style.display="none"; document.getElementById("video-field").style.display="none";}
+  if(type==="Folder"){document.getElementById("type-field").style.display="block"; document.getElementById("video-field").style.display="none";}
   else{document.getElementById("type-field").style.display="block"; document.getElementById("video-field").style.display="block";}
 }
 
@@ -187,7 +212,7 @@ function submitForm(e){
   const image=document.getElementById("item-image").value;
   const parentId=document.getElementById("item-parent").value;
 
-  const newItem={id,title,type,video,image,children:[],expanded:false};
+  const newItem={id,title,type,video,image,children:[],expanded:false,active:true};
 
   if(parentId){
     const parent=findItem(parentId,data);
@@ -196,10 +221,8 @@ function submitForm(e){
     if(idx>=0) parent.children[idx]=newItem;
     else parent.children.push(newItem);
   } else {
-    let arr = type==="Folder"?data.folders:data.films;
-    const idx=arr.findIndex(c=>c.id===id);
-    if(idx>=0) arr[idx]=newItem;
-    else arr.push(newItem);
+    if(type==="Folder") data.folders.push(newItem);
+    else data.films.push(newItem);
   }
 
   saveData(); renderTree(); closePanel();
@@ -225,12 +248,10 @@ function saveData(){localStorage.setItem("copyflixData",JSON.stringify(data));}
 // render
 function renderTree(){
   treeView.innerHTML="";
-
   let items = [];
   data.folders.forEach(f=>{ if(containsType(f,currentFilter)) items.push(f); });
   if(currentFilter==="Film") items = items.concat(data.films.filter(f=>f.type==="Film"));
   if(currentFilter==="Série") items = items.concat(data.films.filter(f=>f.type==="Série"));
-
   items.forEach(i=>renderItem(i,treeView));
 }
 
@@ -258,7 +279,7 @@ function renderItem(item,parentEl){
   titleBox.textContent = item.title;
   div.appendChild(titleBox);
 
-  // bouton modifier
+  // modifier
   const editBtn = document.createElement("button");
   editBtn.textContent = "✏️";
   editBtn.className="edit-btn";
@@ -267,6 +288,33 @@ function renderItem(item,parentEl){
     openPanel(item.type,item);
   });
   div.appendChild(editBtn);
+
+  // supprimer
+  const delBtn = document.createElement("button");
+  delBtn.textContent = "🗑️";
+  delBtn.className="delete-btn";
+  delBtn.addEventListener("click",(e)=>{
+    e.stopPropagation();
+    if(confirm(`Voulez-vous vraiment supprimer "${item.title}" ?`)){
+      deleteItem(item.id,data);
+      renderTree();
+    }
+  });
+  div.appendChild(delBtn);
+
+  // checkbox actif
+  const checkbox = document.createElement("input");
+  checkbox.type="checkbox";
+  checkbox.checked = item.active !== false;
+  checkbox.className="active-checkbox";
+  checkbox.addEventListener("click",(e)=>{
+    e.stopPropagation();
+    item.active = checkbox.checked;
+    if(item.type==="Folder" && item.children) toggleChildrenActive(item.children,checkbox.checked);
+    saveData();
+    renderTree();
+  });
+  div.appendChild(checkbox);
 
   div.addEventListener("click",()=>{
     if(item.type==="Folder"){
@@ -279,12 +327,33 @@ function renderItem(item,parentEl){
 
   parentEl.appendChild(div);
 
-  // enfants si dossier ouvert
   if(item.type==="Folder" && item.expanded && item.children){
     item.children.forEach(c=>{
       if(c.type === currentFilter || c.type==="Folder") renderItem(c,parentEl);
     });
   }
+}
+
+function toggleChildrenActive(children,active){
+  children.forEach(c=>{
+    c.active = active;
+    if(c.type==="Folder" && c.children) toggleChildrenActive(c.children,active);
+  });
+}
+
+// delete recursive
+function deleteItem(id,root){
+  function remove(arr){
+    const index = arr.findIndex(i=>i.id===id);
+    if(index>=0){ arr.splice(index,1); return true; }
+    for(const i of arr){
+      if(i.children && remove(i.children)) return true;
+    }
+    return false;
+  }
+  remove(root.folders||root);
+  remove(root.films||[]);
+  saveData();
 }
 </script>
 </body>
