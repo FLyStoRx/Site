@@ -20,22 +20,16 @@
   /* Grille type Netflix */
   #tree-view { display:grid; grid-template-columns: repeat(auto-fill,minmax(150px,1fr)); gap:15px; max-width:1200px; margin:0 auto 50px; }
   .tree-item { position:relative; background:#1c1c1c; border-radius:12px; overflow:hidden; cursor:pointer; transition:0.3s; }
-  
+
   /* Taille uniforme pour toutes les jaquettes */
-  .tree-item img {
-    width: 150px;
-    height: 225px;
-    display:block;
-    border-radius:12px;
-    object-fit: cover;
-  }
+  .tree-item img { width:150px; height:225px; display:block; border-radius:12px; object-fit:cover; }
 
   /* Encadré titre sous l'image - CENTRAGE PARFAIT */
-.tree-item .title-box {
+  .tree-item .title-box {
     position:absolute;
     bottom:0;
-    width:100%; /* largeur de l'image */
-    height:35px; /* ou ajustable selon la taille de l'encadré */
+    width:100%;
+    height:35px;
     background:rgba(0,0,0,0.6);
     display:flex;
     justify-content:center;
@@ -47,10 +41,9 @@
     border-bottom-left-radius:12px;
     border-bottom-right-radius:12px;
     overflow:hidden;
-    padding:0 5px; /* un petit padding pour ne pas toucher les bords */
-    overflow-wrap: break-word; /* assure que le texte passe à la ligne correctement */
-}
-
+    padding:0 5px;
+    overflow-wrap: break-word;
+  }
 
   .tree-item:hover { transform:scale(1.03); box-shadow:0 8px 20px rgba(0,0,0,0.7); }
 
@@ -166,7 +159,7 @@ fetch('../data.json')
   .then(json => { data = json; closeAllFolders(data.folders); renderTree(); })
   .catch(err => console.error("Erreur en chargeant data.json :", err));
 
-// Panel et form
+// PANEL
 function openPanel(type,item=null){
   panel.style.display="block";
   panelTitle.textContent = item ? "Modifier "+item.title : type==="Folder"?"Ajouter Dossier":"Ajouter Film/Série";
@@ -202,33 +195,88 @@ function populateParentOptions(skipId,type){
   addOptions(data.folders);
 }
 
-// submit form
+// -----------------
+// CORRECTION DU BOUTON VALIDER
+// -----------------
 function submitForm(e){
   e.preventDefault();
-  const id=document.getElementById("item-id").value||"id-"+Date.now();
-  const title=document.getElementById("item-title").value;
-  const type=document.getElementById("item-type").value;
-  const video=document.getElementById("item-video").value;
-  const image=document.getElementById("item-image").value;
-  const parentId=document.getElementById("item-parent").value;
 
-  const newItem={id,title,type,video,image,children:[],expanded:false,active:true};
+  const id = document.getElementById("item-id").value;
+  const title = document.getElementById("item-title").value;
+  const type = document.getElementById("item-type").value;
+  const video = document.getElementById("item-video").value;
+  const image = document.getElementById("item-image").value;
+  const parentId = document.getElementById("item-parent").value;
 
-  if(parentId){
-    const parent=findItem(parentId,data);
-    parent.children=parent.children||[];
-    const idx=parent.children.findIndex(c=>c.id===id);
-    if(idx>=0) parent.children[idx]=newItem;
-    else parent.children.push(newItem);
+  if(id){ 
+    // MODIFICATION D’UN ITEM EXISTANT
+    const item = findItem(id, data);
+    if(item){
+      item.title = title;
+      item.type = type;
+      item.video = video;
+      item.image = image;
+
+      // Si le parent a changé
+      if(item.parentId !== parentId){
+        removeFromParent(id, data);
+        if(parentId){
+          const parent = findItem(parentId, data);
+          parent.children = parent.children || [];
+          parent.children.push(item);
+        } else {
+          if(type==="Folder") data.folders.push(item);
+          else data.films.push(item);
+        }
+      }
+
+      item.parentId = parentId || "";
+    }
   } else {
-    if(type==="Folder") data.folders.push(newItem);
-    else data.films.push(newItem);
+    // NOUVEL ITEM
+    const newItem = {
+      id: "id-" + Date.now(),
+      title,
+      type,
+      video,
+      image,
+      children: [],
+      expanded: false,
+      active: true,
+      parentId: parentId || ""
+    };
+
+    if(parentId){
+      const parent = findItem(parentId, data);
+      parent.children = parent.children || [];
+      parent.children.push(newItem);
+    } else {
+      if(type==="Folder") data.folders.push(newItem);
+      else data.films.push(newItem);
+    }
   }
 
-  saveData(); renderTree(); closePanel();
+  saveData();
+  closePanel();
+  renderTree();
 }
 
-// find item
+// utilitaire pour retirer un item de son parent
+function removeFromParent(id, root){
+  function remove(arr){
+    const index = arr.findIndex(i=>i.id===id);
+    if(index>=0){ arr.splice(index,1); return true; }
+    for(const i of arr){
+      if(i.children && remove(i.children)) return true;
+    }
+    return false;
+  }
+  remove(root.folders || root);
+  remove(root.films || []);
+}
+
+// --------- FONCTIONS EXISTANTES (INCHANGÉES) ---------
+
 function findItem(id,root){
   let res=null;
   function search(arr){
@@ -242,10 +290,8 @@ function findItem(id,root){
   return res;
 }
 
-// save
 function saveData(){localStorage.setItem("copyflixData",JSON.stringify(data));}
 
-// render
 function renderTree(){
   treeView.innerHTML="";
   let items = [];

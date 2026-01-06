@@ -86,6 +86,43 @@ header.scrolled{background:#000;}
 .breadcrumb-item{color:#fff;}
 .breadcrumb-item:not(:last-child)::after{content:'›';margin:0 5px;color:#e50914;}
 
+/* MODAL VIDEO */
+#videoModal{
+  display:none;
+  position:fixed;
+  top:0; left:0;
+  width:100%; height:100%;
+  background:rgba(0,0,0,0.85);
+  justify-content:center;
+  align-items:center;
+  z-index:100;
+  animation:fadeZoom 0.3s ease forwards;
+}
+#videoModal iframe{
+  width:80%;
+  max-width:960px;
+  height:540px;
+  border:none;
+  border-radius:12px;
+}
+#videoModal .closeBtn{
+  position:absolute;
+  top:15px;
+  right:20px;
+  background:rgba(229,9,20,0.9);
+  color:white;
+  border:none;
+  padding:6px 12px;
+  font-weight:600;
+  border-radius:6px;
+  cursor:pointer;
+  font-size:1rem;
+}
+@keyframes fadeZoom{
+  0%{opacity:0; transform:scale(0.8);}
+  100%{opacity:1; transform:scale(1);}
+}
+
 /* RESPONSIVE MOBILE */
 @media (max-width: 768px) {
   header { padding: 0 20px; height: 60px; }
@@ -129,6 +166,12 @@ header.scrolled{background:#000;}
   <div id="grid"></div>
 </section>
 
+<!-- MODAL VIDEO -->
+<div id="videoModal">
+  <button class="closeBtn" onclick="closeVideo()">X</button>
+  <iframe id="videoFrame" src="" allowfullscreen webkitallowfullscreen mozallowfullscreen></iframe>
+</div>
+
 <script>
 let copyflixData;
 fetch("data.json").then(r=>r.json()).then(j=>{copyflixData=j; renderRoot();});
@@ -137,6 +180,8 @@ const grid = document.getElementById("grid");
 const backBtn = document.getElementById("backBtn");
 const breadcrumb = document.getElementById("breadcrumb");
 const searchInput = document.querySelector(".search-input");
+const videoModal = document.getElementById("videoModal");
+const videoFrame = document.getElementById("videoFrame");
 let currentFilter = "all";
 let historyStack = [];
 
@@ -197,7 +242,7 @@ function renderFilm(film){
   const d=document.createElement("div");
   d.className="card"+(film.active===false?" disabled":"");
   d.innerHTML=`<img src="${film.image}"><div class="card-title">${film.title}</div>`;
-  d.onclick=()=>{if(film.active!==false) window.open(film.video,"_blank");};
+  d.onclick=()=>{if(film.active!==false) openVideo(film.video);};
   grid.appendChild(d);
 }
 
@@ -233,6 +278,18 @@ function renderBreadcrumb(){
     breadcrumb.appendChild(span);
   });
   breadcrumb.style.display = historyStack.length ? "flex" : "none";
+}
+
+// --- VIDEO MODAL ---
+function openVideo(url){
+  videoFrame.src = url;
+  videoModal.style.display = "flex";
+  videoFrame.scrollIntoView({behavior:"smooth"});
+}
+
+function closeVideo(){
+  videoModal.style.display = "none";
+  videoFrame.src = "";
 }
 </script>
 
