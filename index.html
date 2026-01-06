@@ -4,141 +4,155 @@
 <meta charset="UTF-8">
 <title>Copyflix</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<link rel="icon" type="image/png" href="favicon.png">
+
+
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
-<link rel="icon" type="image/png" href="favicon.png">
 
 <style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:'Inter',sans-serif;}
-body{background:#0f0f0f;color:white;}
-header{position:fixed;top:0;width:100%;height:70px;z-index:10;display:flex;align-items:center;justify-content:space-between;padding:0 40px;background:rgba(0,0,0,0.6);backdrop-filter:blur(10px);}
-header.scrolled{background:#000;}
-.logo{font-size:28px;font-weight:800;color:#e50914;}
-.admin-btn, .search-input{padding:8px 16px;border:none;border-radius:5px;cursor:pointer;}
-.admin-btn{background:#e50914;color:white;}
-.search-input{background:#1c1c1c;color:white;outline:none;}
+body{background:#0f0f0f;color:white;overflow-x:hidden}
 
-/* Hero */
-.hero{height:45vh;margin-top:70px;background:linear-gradient(to bottom,rgba(0,0,0,.5),rgba(0,0,0,.95)),url("https://images.unsplash.com/photo-1524985069026-dd778a71c7b4") center/cover no-repeat;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;position:relative;}
-.hero h1{font-size:2rem;position:relative;animation:fadeIn 1s ease-in-out;margin-bottom:20px;}
-@keyframes fadeIn{0%{opacity:0; transform:translateY(-20px);}100%{opacity:1; transform:translateY(0);}}
+/* HEADER */
+header{
+  position:fixed;top:0;width:100%;height:70px;z-index:10;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 40px;background:rgba(0,0,0,.6);backdrop-filter:blur(10px);
+}
+header.scrolled{background:#000}
+.logo{font-size:28px;font-weight:800;color:#e50914}
+.admin-btn,.search-input{padding:8px 16px;border:none;border-radius:5px}
+.admin-btn{background:#e50914;color:white;cursor:pointer}
+.search-input{background:#1c1c1c;color:white;outline:none}
 
-/* Menu sous hero */
-.nav-hero{display:flex;justify-content:center;gap:25px;margin-bottom:0;}
-.nav-hero a{color:white;text-decoration:none;cursor:pointer;position:relative;padding:5px 0;}
-.nav-hero a.active::after{content:"";position:absolute;bottom:-5px;left:0;width:100%;height:3px;background:#e50914;border-radius:2px;transition:0.3s;}
-.nav-hero a.active{color:#e50914;}
+/* HERO */
+.hero{
+  height:45vh;margin-top:70px;
+  background:linear-gradient(to bottom,rgba(0,0,0,.5),rgba(0,0,0,.95)),
+  url("https://images.unsplash.com/photo-1524985069026-dd778a71c7b4") center/cover no-repeat;
+  display:flex;flex-direction:column;justify-content:center;align-items:center;
+}
+.hero h1{font-size:2rem;margin-bottom:20px}
 
-/* Grille */
-#grid{display:flex;flex-wrap:wrap;justify-content:center;gap:20px;padding:40px;transition: transform 0.5s ease, opacity 0.5s ease;}
-.card{background:#111;border-radius:12px;overflow:hidden;width:180px;cursor:pointer;transition:transform 0.3s,box-shadow 0.3s;position:relative;}
-.card img{width:100%;height:270px;object-fit:cover;display:block;}
-.card-title{text-align:center;padding:10px;font-weight:600;} /* TITRE SOUS L'IMAGE */
+/* MENU */
+.nav-hero{display:flex;gap:25px}
+.nav-hero a{color:white;cursor:pointer;position:relative}
+.nav-hero a.active{color:#e50914}
+.nav-hero a.active::after{
+  content:"";position:absolute;bottom:-6px;left:0;width:100%;height:3px;
+  background:#e50914;border-radius:3px;
+}
 
-/* Désactivé style Netflix */
-.card.disabled img{filter:grayscale(100%) brightness(0.5);}
+/* GRID */
+#grid{
+  display:flex;flex-wrap:wrap;justify-content:center;
+  gap:20px;padding:40px;
+  transition:transform .4s ease,opacity .4s ease;
+}
+.card{
+  width:180px;background:#111;border-radius:12px;
+  overflow:hidden;cursor:pointer;position:relative;
+  transition:.3s;
+}
+.card img{width:100%;height:270px;object-fit:cover}
+.card-title{text-align:center;padding:10px;font-weight:600}
+
+/* DISABLED */
+.card.disabled img{filter:grayscale(100%) brightness(.35)}
 .card.disabled::after{
   content:"Bientôt disponible";
   position:absolute;
-  top:50%;
-  left:50%;
+  top:50%;left:50%;
   transform:translate(-50%,-50%) rotate(-45deg);
-  color:white;
-  font-weight:700;
-  font-size:1.2rem;
-  text-align:center;
-  pointer-events:none;
+  font-size:1.3rem;
+  font-weight:800;
   letter-spacing:1px;
+  pointer-events:none;
+  color:white;
+  text-shadow:0 0 10px rgba(0,0,0,.8);
   white-space:nowrap;
 }
 
-/* BOUTON RETOUR */
-#backBtn{
-  display:none;
-  margin:0 auto 15px auto;
-  padding:8px 15px;
-  font-weight:600;
-  cursor:pointer;
-  user-select:none;
-  border-radius:20px;
-  background:rgba(229,9,20,0.9);
-  color:white;
-  font-size:0.9rem;
-  max-width:200px;
-  text-align:center;
-  transition:0.3s;
-}
-#backBtn:hover{background:rgba(229,9,20,1);}
-
 /* BREADCRUMB */
 #breadcrumb{
-  display:flex;
-  flex-wrap:wrap;
-  align-items:center;
-  gap:5px;
-  margin:0 auto 15px auto;
-  padding:5px 10px;
-  font-size:0.85rem;
-  border-radius:12px;
-  background:rgba(255,255,255,0.1);
-  max-width:fit-content;
-}
-.breadcrumb-item{color:#fff;}
-.breadcrumb-item:not(:last-child)::after{content:'›';margin:0 5px;color:#e50914;}
-
-/* MODAL VIDEO */
-#videoModal{
   display:none;
-  position:fixed;
-  top:0; left:0;
-  width:100%; height:100%;
-  background:rgba(0,0,0,0.85);
-  justify-content:center;
-  align-items:center;
-  z-index:100;
-  animation:fadeZoom 0.3s ease forwards;
-}
-#videoModal iframe{
-  width:80%;
-  max-width:960px;
-  height:540px;
-  border:none;
+  margin:10px auto;
+  padding:6px 14px;
+  background:rgba(255,255,255,.1);
   border-radius:12px;
+  font-size:.85rem;
+  width:fit-content;
 }
-#videoModal .closeBtn{
-  position:absolute;
-  top:15px;
-  right:20px;
-  background:rgba(229,9,20,0.9);
-  color:white;
-  border:none;
-  padding:6px 12px;
-  font-weight:600;
-  border-radius:6px;
-  cursor:pointer;
-  font-size:1rem;
-}
-@keyframes fadeZoom{
-  0%{opacity:0; transform:scale(0.8);}
-  100%{opacity:1; transform:scale(1);}
+.breadcrumb-item:not(:last-child)::after{
+  content:"›";margin:0 6px;color:#e50914;
 }
 
-/* RESPONSIVE MOBILE */
-@media (max-width: 768px) {
-  header { padding: 0 20px; height: 60px; }
-  .logo { font-size: 24px; }
-  .hero { height: 35vh; padding: 0 10px; }
-  #grid { gap: 15px; padding: 20px; }
-  .card { width: 45%; }
-  .card img { height:220px; }
-  #backBtn { margin: 10px auto; font-size: 0.85rem; padding: 6px 12px; }
-  #breadcrumb { margin: 10px auto 15px auto; padding: 4px 8px; gap:4px; }
-  .breadcrumb-item { font-size:0.75rem; padding: 2px 4px; }
+/* BACK */
+#backBtn{
+  display:none;
+  margin:0 auto 10px;
+  padding:6px 14px;
+  border-radius:20px;
+  background:#e50914;
+  cursor:pointer;
+  width:fit-content;
 }
-@media (max-width: 480px) {
-  .card { width: 100%; }
-  .card img { height: 200px; }
-  header { flex-direction: column; height: auto; padding: 10px 15px; }
+
+/* ================= VIDEO POPUP ================= */
+
+#video-overlay{
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,.85);
+  display:none;
+  align-items:center;
+  justify-content:center;
+  z-index:1000;
+  opacity:0;
+  transition:opacity .3s ease;
+}
+
+#video-overlay.show{opacity:1}
+#video-overlay.hide{opacity:0}
+
+#video-modal{
+  position:relative;
+  width:800px;
+  height:450px;
+  background:black;
+  border-radius:12px;
+  overflow:hidden;
+  transform:scale(.9);
+  opacity:0;
+  transition:transform .35s ease, opacity .35s ease;
+}
+
+#video-modal.show{
+  transform:scale(1);
+  opacity:1;
+}
+
+#video-modal.hide{
+  transform:scale(.9);
+  opacity:0;
+}
+
+#video-modal iframe{width:100%;height:100%;border:none}
+
+#close-video{
+  position:absolute;
+  top:8px;
+  right:12px;
+  font-size:22px;
+  color:white;
+  cursor:pointer;
+  z-index:10;
+}
+
+@media(max-width:900px){
+  #video-modal{width:90vw;height:50vw}
 }
 </style>
 </head>
@@ -147,109 +161,118 @@ header.scrolled{background:#000;}
 
 <header>
   <div class="logo">COPYFLIX</div>
-  <input class="search-input" type="text" placeholder="Rechercher...">
+  <input class="search-input" placeholder="Rechercher...">
   <button class="admin-btn" onclick="window.open('admin/login.html','_blank')">Admin</button>
 </header>
 
 <section class="hero">
   <h1>Bienvenue sur Copyflix</h1>
   <nav class="nav-hero">
-    <a class="active" onclick="setFilter('all')">Accueil</a>
-    <a onclick="setFilter('film')">Films</a>
-    <a onclick="setFilter('serie')">Séries</a>
+    <a class="active" onclick="setFilter('all',this)">Accueil</a>
+    <a onclick="setFilter('film',this)">Films</a>
+    <a onclick="setFilter('serie',this)">Séries</a>
   </nav>
 </section>
 
-<section id="content">
-  <div id="breadcrumb"></div>
-  <div id="backBtn">← Retour</div>
-  <div id="grid"></div>
-</section>
+<div id="breadcrumb"></div>
+<div id="backBtn">← Retour</div>
+<div id="grid"></div>
 
-<!-- MODAL VIDEO -->
-<div id="videoModal">
-  <button class="closeBtn" onclick="closeVideo()">X</button>
-  <iframe id="videoFrame" src="" allowfullscreen webkitallowfullscreen mozallowfullscreen></iframe>
+<!-- VIDEO -->
+<div id="video-overlay">
+  <div id="video-modal">
+    <i id="close-video" class="fa-solid fa-xmark"></i>
+    <iframe id="video-frame" allowfullscreen></iframe>
+  </div>
 </div>
 
 <script>
-let copyflixData;
-fetch("data.json").then(r=>r.json()).then(j=>{copyflixData=j; renderRoot();});
+let data,currentFilter="all",historyStack=[];
+const grid=document.getElementById("grid");
+const breadcrumb=document.getElementById("breadcrumb");
+const backBtn=document.getElementById("backBtn");
+const searchInput=document.querySelector(".search-input");
+const overlay=document.getElementById("video-overlay");
+const modal=document.getElementById("video-modal");
+const iframe=document.getElementById("video-frame");
 
-const grid = document.getElementById("grid");
-const backBtn = document.getElementById("backBtn");
-const breadcrumb = document.getElementById("breadcrumb");
-const searchInput = document.querySelector(".search-input");
-const videoModal = document.getElementById("videoModal");
-const videoFrame = document.getElementById("videoFrame");
-let currentFilter = "all";
-let historyStack = [];
+fetch("data.json").then(r=>r.json()).then(j=>{data=j;renderRoot();});
 
 window.addEventListener("scroll",()=>document.querySelector("header").classList.toggle("scrolled",scrollY>50));
 
-function setFilter(type){
-  if(type==="film") currentFilter="Film";
-  else if(type==="serie") currentFilter="Série";
-  else currentFilter="all";
-
+function setFilter(type,el){
+  currentFilter=type==="film"?"Film":type==="serie"?"Série":"all";
   document.querySelectorAll(".nav-hero a").forEach(a=>a.classList.remove("active"));
-  if(type==="all") document.querySelector(".nav-hero a:first-child").classList.add("active");
-  if(type==="film") document.querySelector(".nav-hero a:nth-child(2)").classList.add("active");
-  if(type==="serie") document.querySelector(".nav-hero a:nth-child(3)").classList.add("active");
-
-  // Effet slide
-  grid.style.opacity = 0;
-  grid.style.transform = "translateX(50px)";
-  setTimeout(()=>{ renderRoot(); grid.style.opacity=1; grid.style.transform="translateX(0)"; }, 150);
+  el.classList.add("active");
+  historyStack=[];
+  breadcrumb.style.display="none";
+  backBtn.style.display="none";
+  animate(renderRoot);
 }
 
-searchInput.addEventListener("input",()=>renderRoot());
+searchInput.addEventListener("input",()=>animate(renderSearch));
 
+function animate(fn){
+  grid.style.opacity=0;
+  grid.style.transform="translateX(40px)";
+  setTimeout(()=>{fn();grid.style.opacity=1;grid.style.transform="translateX(0)";},150);
+}
+
+/* ROOT */
 function renderRoot(){
   historyStack=[];
-  backBtn.style.display="none";
-  renderBreadcrumb();
-  renderItems(copyflixData.folders, copyflixData.films);
+  renderItems(data.folders,data.films);
 }
 
-function renderItems(folders=[], films=[]){
+/* SEARCH */
+function renderSearch(){
+  const q=searchInput.value.toLowerCase();
+  if(!q){renderRoot();return;}
   grid.innerHTML="";
-  const query = searchInput.value.toLowerCase();
-  folders.forEach(f=>{ if(currentFilter==='all' || folderHasType(f,currentFilter)) renderFolder(f,query); });
-  films.forEach(f=>{
-    if((currentFilter==='all' || f.type===currentFilter) && f.title.toLowerCase().includes(query)) renderFilm(f);
+  traverse(data.folders);
+  data.films.forEach(f=>f.title.toLowerCase().includes(q)&&renderFilm(f));
+}
+
+function traverse(folders){
+  folders.forEach(f=>{
+    if(f.title.toLowerCase().includes(searchInput.value.toLowerCase())) renderFolder(f);
+    f.children&&traverse(f.children.filter(c=>c.type==="Folder"));
+    f.children&&f.children.filter(c=>c.type!=="Folder").forEach(c=>{
+      if(c.title.toLowerCase().includes(searchInput.value.toLowerCase())) renderFilm(c);
+    });
   });
 }
 
-function folderHasType(folder, type){
-  if(!folder.children) return false;
-  return folder.children.some(c=>{
-    if(c.type===type) return true;
-    if(c.type==="Folder") return folderHasType(c,type);
-    return false;
-  });
+function renderItems(folders=[],films=[]){
+  grid.innerHTML="";
+  folders.forEach(f=>{if(currentFilter==="all"||folderHasType(f,currentFilter))renderFolder(f);});
+  films.forEach(f=>{if(currentFilter==="all"||f.type===currentFilter)renderFilm(f);});
 }
 
-function renderFolder(folder, query=""){
+function folderHasType(folder,type){
+  return folder.children?.some(c=>c.type===type||c.type==="Folder"&&folderHasType(c,type));
+}
+
+function renderFolder(folder){
   const d=document.createElement("div");
-  d.className="card folder"+(folder.active===false?" disabled":"");
+  d.className="card"+(folder.active===false?" disabled":"");
   d.innerHTML=`<img src="${folder.image}"><div class="card-title">${folder.title}</div>`;
-  d.onclick=()=>{if(folder.active!==false) openFolder(folder);};
-  if(folder.title.toLowerCase().includes(query) || folder.children.some(c=>c.title.toLowerCase().includes(query)) || query==="") grid.appendChild(d);
+  d.onclick=()=>folder.active!==false&&enterFolder(folder);
+  grid.appendChild(d);
 }
 
 function renderFilm(film){
   const d=document.createElement("div");
   d.className="card"+(film.active===false?" disabled":"");
   d.innerHTML=`<img src="${film.image}"><div class="card-title">${film.title}</div>`;
-  d.onclick=()=>{if(film.active!==false) openVideo(film.video);};
+  d.onclick=()=>film.active!==false&&openVideo(film.video);
   grid.appendChild(d);
 }
 
-function openFolder(folder){
+/* NAV */
+function enterFolder(folder){
   historyStack.push(folder);
-  backBtn.style.display="block";
-  renderBreadcrumb();
+  updateNavigation();
   renderItems(
     folder.children.filter(c=>c.type==="Folder"),
     folder.children.filter(c=>c.type!=="Folder")
@@ -258,10 +281,13 @@ function openFolder(folder){
 
 backBtn.onclick=()=>{
   historyStack.pop();
-  if(historyStack.length===0) renderRoot();
-  else{
+  if(historyStack.length===0){
+    breadcrumb.style.display="none";
+    backBtn.style.display="none";
+    renderRoot();
+  }else{
     const parent=historyStack[historyStack.length-1];
-    renderBreadcrumb();
+    updateNavigation();
     renderItems(
       parent.children.filter(c=>c.type==="Folder"),
       parent.children.filter(c=>c.type!=="Folder")
@@ -269,28 +295,38 @@ backBtn.onclick=()=>{
   }
 };
 
-function renderBreadcrumb(){
-  breadcrumb.innerHTML="";
-  historyStack.forEach(f=>{
-    const span=document.createElement("span");
-    span.className="breadcrumb-item";
-    span.textContent=f.title;
-    breadcrumb.appendChild(span);
-  });
-  breadcrumb.style.display = historyStack.length ? "flex" : "none";
+function updateNavigation(){
+  breadcrumb.style.display="flex";
+  backBtn.style.display="block";
+  breadcrumb.innerHTML=historyStack.map(f=>`<span class="breadcrumb-item">${f.title}</span>`).join("");
 }
 
-// --- VIDEO MODAL ---
-function openVideo(url){
-  videoFrame.src = url;
-  videoModal.style.display = "flex";
-  videoFrame.scrollIntoView({behavior:"smooth"});
+/* VIDEO ANIMATIONS */
+function openVideo(src){
+  iframe.src=src;
+  overlay.style.display="flex";
+  requestAnimationFrame(()=>{
+    overlay.classList.add("show");
+    modal.classList.add("show");
+  });
 }
 
 function closeVideo(){
-  videoModal.style.display = "none";
-  videoFrame.src = "";
+  overlay.classList.remove("show");
+  modal.classList.remove("show");
+  overlay.classList.add("hide");
+  modal.classList.add("hide");
+
+  setTimeout(()=>{
+    iframe.src="";
+    overlay.style.display="none";
+    overlay.classList.remove("hide");
+    modal.classList.remove("hide");
+  },350);
 }
+
+document.getElementById("close-video").onclick=closeVideo;
+overlay.onclick=e=>e.target===overlay&&closeVideo();
 </script>
 
 </body>
