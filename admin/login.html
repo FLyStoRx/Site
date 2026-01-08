@@ -2,94 +2,246 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <title>Admin Copyflix - Login</title>
+    <title>Admin Copyflix - Connexion</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
-    <link rel="icon" type="image/png" href="../favicon.png">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
     <style>
+        :root {
+            --primary: #e50914;
+            --primary-hover: #f6121d;
+            --bg-dark: #0f0f0f;
+            --glass-bg: rgba(255, 255, 255, 0.05);
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --text-main: #ffffff;
+            --text-dim: #b3b3b3;
+        }
+
+        * {
+            box-sizing: border-box;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
         body {
             margin: 0;
-            background-color: #0f0f0f;
+            background-color: var(--bg-dark);
+            background-image: 
+                radial-gradient(circle at 20% 30%, rgba(229, 9, 20, 0.15) 0%, transparent 40%),
+                radial-gradient(circle at 80% 70%, rgba(229, 9, 20, 0.1) 0%, transparent 40%);
             font-family: 'Inter', sans-serif;
-            color: white;
+            color: var(--text-main);
             display: flex;
             align-items: center;
             justify-content: center;
-            height: 100vh;
+            min-height: 100vh;
+            overflow: hidden;
+        }
+
+        .login-container {
+            animation: fadeIn 0.8s ease-out;
         }
 
         .login-box {
-            background-color: rgba(20,20,20,0.95);
-            padding: 40px;
-            border-radius: 10px;
+            background: var(--glass-bg);
+            backdrop-filter: blur(25px);
+            -webkit-backdrop-filter: blur(25px);
+            padding: 50px 40px;
+            border-radius: 28px;
+            border: 1px solid var(--glass-border);
             text-align: center;
-            width: 300px;
-            box-shadow: 0 8px 20px rgba(0,0,0,0.5);
+            width: 420px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7);
         }
 
-        .login-box h1 {
-            margin-bottom: 30px;
-            color: #e50914;
+        .logo-area h1 {
+            font-size: 2.2rem;
+            font-weight: 800;
+            margin-bottom: 8px;
+            letter-spacing: -1.5px;
+            background: linear-gradient(to right, #e50914, #ff4d4d);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .logo-area p {
+            color: var(--text-dim);
+            font-size: 0.95rem;
+            margin-bottom: 40px;
+        }
+
+        .input-group {
+            margin-bottom: 25px;
+            text-align: left;
+        }
+
+        .input-group label {
+            display: block;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: var(--text-dim);
+            margin-left: 2px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .input-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
         }
 
         input[type="password"] {
             width: 100%;
-            padding: 10px;
-            margin-bottom: 20px;
-            border-radius: 5px;
-            border: none;
-            background-color: rgba(255,255,255,0.1);
+            padding: 16px 20px; /* Padding ajusté sans icône */
+            border-radius: 14px;
+            border: 1px solid var(--glass-border);
+            background: rgba(0, 0, 0, 0.3);
             color: white;
-            font-size: 16px;
+            font-size: 1rem;
+            outline: none;
+            text-align: center; /* Centré pour un look plus "code d'accès" */
+            letter-spacing: 2px;
+        }
+
+        input[type="password"]::placeholder {
+            letter-spacing: normal;
+            text-align: center;
         }
 
         input[type="password"]:focus {
-            outline: none;
-            background-color: rgba(255,255,255,0.2);
+            border-color: var(--primary);
+            background: rgba(0, 0, 0, 0.5);
+            box-shadow: 0 0 0 4px rgba(229, 9, 20, 0.15);
         }
 
-        button {
-            background-color: #e50914;
-            color: white;
-            border: none;
-            padding: 12px 20px;
-            border-radius: 5px;
-            cursor: pointer;
-            font-weight: 600;
-            transition: background 0.3s, transform 0.2s;
-        }
-
-        button:hover {
-            background-color: #f6121d;
-            transform: scale(1.05);
+        .error-container {
+            height: 24px;
+            margin-bottom: 15px;
         }
 
         .error {
-            color: #f44336;
-            margin-bottom: 10px;
+            color: #ff4d4d;
+            font-size: 0.9rem;
             display: none;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            font-weight: 500;
+        }
+
+        button {
+            width: 100%;
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 18px;
+            border-radius: 14px;
+            cursor: pointer;
+            font-weight: 700;
+            font-size: 1.05rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            box-shadow: 0 10px 20px -5px rgba(229, 9, 20, 0.4);
+        }
+
+        button:hover {
+            background-color: var(--primary-hover);
+            transform: translateY(-2px);
+            box-shadow: 0 15px 25px -5px rgba(229, 9, 20, 0.5);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes shake {
+            10%, 90% { transform: translate3d(-1px, 0, 0); }
+            20%, 80% { transform: translate3d(2px, 0, 0); }
+            30%, 50%, 70% { transform: translate3d(-4px, 0, 0); }
+            40%, 60% { transform: translate3d(4px, 0, 0); }
+        }
+
+        @media (max-width: 480px) {
+            .login-box {
+                width: 90vw;
+                padding: 40px 20px;
+            }
         }
     </style>
 </head>
 <body>
-    <div class="login-box">
-        <h1>Admin Copyflix</h1>
-        <div class="error" id="error-msg">Mot de passe incorrect</div>
-        <input type="password" id="password" placeholder="Mot de passe">
-        <button onclick="login()">Se connecter</button>
+
+    <div class="login-container">
+        <div class="login-box" id="loginBox">
+            <div class="logo-area">
+                <h1>Admin Copyflix</h1>
+                <p>Authentification sécurisée</p>
+            </div>
+
+            <div class="input-group">
+                <label for="password">Mot de passe admin</label>
+                <div class="input-wrapper">
+                    <input type="password" id="password" placeholder="Saisir votre clé" autocomplete="current-password">
+                </div>
+            </div>
+
+            <div class="error-container">
+                <div class="error" id="error-msg">
+                    <i data-lucide="shield-alert" style="width:16px;height:16px"></i>
+                    Clé d'accès non valide
+                </div>
+            </div>
+
+            <button onclick="login()" id="loginBtn">
+                <span>Démarrer la session</span>
+                <i data-lucide="arrow-right-circle"></i>
+            </button>
+        </div>
     </div>
 
     <script>
+        lucide.createIcons();
+
         const ADMIN_PASSWORD = "Tigrette@chat123";
+        const passwordInput = document.getElementById('password');
+        const loginBox = document.getElementById('loginBox');
+        const errorMsg = document.getElementById('error-msg');
+
+        passwordInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') login();
+        });
 
         function login() {
-            const pwd = document.getElementById('password').value;
-            const error = document.getElementById('error-msg');
+            const pwd = passwordInput.value;
+            
+            errorMsg.style.display = "none";
+            loginBox.style.animation = 'none';
+            void loginBox.offsetWidth;
+
             if(pwd === ADMIN_PASSWORD){
-                localStorage.setItem("adminLoggedIn", "true");
-                window.location.href = "dashboard.html";
+                const btn = document.getElementById('loginBtn');
+                btn.innerHTML = '<span>Initialisation...</span> <i data-lucide="loader-2" class="animate-spin"></i>';
+                lucide.createIcons();
+                btn.style.background = '#10b981';
+                
+                setTimeout(() => {
+                    localStorage.setItem("adminLoggedIn", "true");
+                    window.location.href = "dashboard.html";
+                }, 1000);
             } else {
-                error.style.display = "block";
+                errorMsg.style.display = "flex";
+                loginBox.style.animation = 'shake 0.4s cubic-bezier(.36,.07,.19,.97) both';
+                passwordInput.value = '';
+                passwordInput.focus();
             }
         }
     </script>

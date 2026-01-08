@@ -1,405 +1,639 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<meta charset="UTF-8">
-<title>Admin Copyflix</title>
-<style>
-  body { font-family:'Inter',sans-serif; background:#0d0d0d; color:#fff; margin:0; padding:0; }
-  h1 { text-align:center; padding:30px 0; font-size:2rem; }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Copyflix | Dashboard</title>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #e50914;
+            --primary-hover: #f6121d;
+            --bg-dark: #0f0f0f;
+            --bg-card: #181818;
+            --bg-input: #2a2a2a;
+            --text-main: #ffffff;
+            --text-dim: #b3b3b3;
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            --shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
 
-  /* Onglets Films / Séries */
-  .tabs { display:flex; justify-content:center; margin-bottom:20px; }
-  .tab { padding:12px 25px; margin:0 10px; cursor:pointer; border-radius:20px; font-weight:bold; transition:0.3s; background:#1c1c1c; }
-  .tab.active { background:#e50914; color:#fff; }
+        * { box-sizing: border-box; }
 
-  /* Top buttons */
-  .top-buttons { text-align:center; margin-bottom:20px; }
-  .top-buttons button { background:#e50914; border:none; color:#fff; padding:12px 20px; margin:0 10px; cursor:pointer; border-radius:8px; font-weight:bold; transition:0.3s; }
-  .top-buttons button:hover { background:#f6121d; }
+        body { 
+            font-family: 'Inter', sans-serif; 
+            background: var(--bg-dark); 
+            color: var(--text-main); 
+            margin: 0; 
+            padding: 0;
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
 
-  /* Grille type Netflix */
-  #tree-view { display:grid; grid-template-columns: repeat(auto-fill,minmax(150px,1fr)); gap:15px; max-width:1200px; margin:0 auto 50px; }
-  .tree-item { position:relative; background:#1c1c1c; border-radius:12px; overflow:hidden; cursor:pointer; transition:0.3s; }
+        /* Header & Navigation */
+        header {
+            background: linear-gradient(to bottom, rgba(0,0,0,0.9) 0%, transparent 100%);
+            padding: 40px 5% 20px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            backdrop-filter: blur(10px);
+        }
 
-  /* Taille uniforme pour toutes les jaquettes */
-  .tree-item img { width:150px; height:225px; display:block; border-radius:12px; object-fit:cover; }
+        h1 { 
+            margin: 0;
+            font-size: 2.5rem; 
+            font-weight: 800;
+            letter-spacing: -1px;
+            background: linear-gradient(to right, #e50914, #ff5555);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-align: center;
+        }
 
-  /* Encadré titre sous l'image - CENTRAGE PARFAIT */
-  .tree-item .title-box {
-    position:absolute;
-    bottom:0;
-    width:100%;
-    height:35px;
-    background:rgba(0,0,0,0.6);
-    display:flex;
-    justify-content:center;
-    align-items:center;
-    text-align:center;
-    font-weight:bold;
-    font-size:0.95rem;
-    color:#fff;
-    border-bottom-left-radius:12px;
-    border-bottom-right-radius:12px;
-    overflow:hidden;
-    padding:0 5px;
-    overflow-wrap: break-word;
-  }
+        .tabs { 
+            display: flex; 
+            justify-content: center; 
+            margin: 30px 0; 
+            gap: 10px;
+        }
+        .tab { 
+            padding: 10px 24px; 
+            cursor: pointer; 
+            border-radius: 30px; 
+            font-weight: 600; 
+            font-size: 0.9rem;
+            transition: var(--transition); 
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            color: var(--text-dim);
+        }
+        .tab:hover { background: rgba(255,255,255,0.1); color: white; }
+        .tab.active { 
+            background: var(--primary); 
+            color: #fff; 
+            border-color: var(--primary);
+            box-shadow: 0 0 15px rgba(229, 9, 20, 0.4);
+        }
 
-  .tree-item:hover { transform:scale(1.03); box-shadow:0 8px 20px rgba(0,0,0,0.7); }
+        .top-buttons { 
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-bottom: 40px; 
+            padding: 0 5%;
+        }
+        .top-buttons button { 
+            background: rgba(255,255,255,0.1); 
+            border: 1px solid rgba(255,255,255,0.2);
+            color: #fff; 
+            padding: 10px 18px; 
+            cursor: pointer; 
+            border-radius: 6px; 
+            font-weight: 600; 
+            font-size: 0.85rem;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .top-buttons button:hover { 
+            background: #fff; 
+            color: #000;
+            transform: translateY(-2px);
+        }
+        .top-buttons #btn-add-film, .top-buttons #btn-add-folder { 
+            background: var(--primary); 
+            border-color: var(--primary);
+        }
 
-  /* bouton modifier */
-  .edit-btn { position:absolute; top:5px; right:5px; background:#e50914; border:none; color:#fff; padding:4px 6px; border-radius:8px; cursor:pointer; font-size:0.85rem; transition:0.2s; }
-  .edit-btn:hover { background:#f6121d; }
+        #tree-view { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); 
+            gap: 25px; 
+            max-width: 1400px; 
+            margin: 0 auto 100px; 
+            padding: 0 5%;
+        }
 
-  /* bouton supprimer */
-  .delete-btn { position:absolute; top:5px; left:5px; background:#555; border:none; color:#fff; padding:4px 6px; border-radius:8px; cursor:pointer; font-size:0.85rem; transition:0.2s; }
-  .delete-btn:hover { background:#e50914; }
+        .tree-item { 
+            position: relative; 
+            background: var(--bg-card); 
+            border-radius: 8px; 
+            overflow: hidden; 
+            cursor: pointer; 
+            transition: var(--transition); 
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+        }
+        
+        .tree-item.inactive { opacity: 0.4; filter: grayscale(100%); }
+        .tree-item.folder-open { outline: 2px solid var(--primary); }
 
-  /* case actif / inactif */
-  .active-checkbox { position:absolute; top:5px; left:auto; right:35px; width:18px; height:18px; cursor:pointer; }
+        .tree-item img { 
+            width: 100%; 
+            aspect-ratio: 2 / 3;
+            display: block; 
+            object-fit: cover; 
+            transition: var(--transition);
+        }
 
-  /* Panel flottant */
-  #panel { display:none; position:fixed; top:50%; left:50%; transform:translate(-50%,-50%); background:#1c1c1c; padding:30px 25px; border-radius:12px; box-shadow:0 8px 25px rgba(0,0,0,0.7); z-index:1000; width:350px; }
-  #panel h2 { margin-top:0; margin-bottom:20px; text-align:center; font-size:1.5rem; }
-  #panel form label { display:block; margin-bottom:6px; font-weight:bold; }
-  #panel form input, #panel form select { width:100%; padding:10px; margin-bottom:15px; border-radius:6px; border:1px solid #444; background:#2a2a2a; color:#fff; font-size:1rem; }
-  #panel form button { width:48%; margin:0 1%; padding:10px; border-radius:8px; border:none; background:#e50914; color:#fff; font-weight:bold; cursor:pointer; transition:0.3s; }
-  #panel form button:hover { background:#f6121d; }
+        .tree-item:hover img { transform: scale(1.05); }
 
-  @media(max-width:480px){ #panel { width:90%; } .top-buttons button { display:block; width:80%; margin:8px auto; } }
-</style>
+        .tree-item .title-box {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            padding: 40px 10px 10px;
+            background: linear-gradient(to top, rgba(0,0,0,0.9) 0%, transparent 100%);
+            text-align: center;
+            font-weight: 600;
+            font-size: 0.85rem;
+            color: #fff;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .item-controls {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.6);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            opacity: 0;
+            transition: var(--transition);
+            backdrop-filter: blur(2px);
+        }
+        .tree-item:hover .item-controls { opacity: 1; }
+
+        .item-controls button {
+            width: 80%;
+            padding: 8px;
+            border: none;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .edit-btn { background: #fff; color: #000; }
+        .delete-btn { background: rgba(255,255,255,0.1); color: #ff4444; border: 1px solid #ff4444 !important; }
+
+        .active-toggle {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            z-index: 10;
+        }
+        .active-toggle input { width: 18px; height: 18px; accent-color: var(--primary); cursor: pointer; }
+
+        #panel-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.85);
+            z-index: 2000;
+            backdrop-filter: blur(5px);
+        }
+
+        #panel { 
+            position: fixed; 
+            top: 50%; left: 50%; 
+            transform: translate(-50%, -50%); 
+            background: #181818; 
+            padding: 40px; 
+            border-radius: 12px; 
+            box-shadow: var(--shadow); 
+            width: 450px; 
+            max-width: 95%;
+            border: 1px solid #333;
+        }
+        #panel h2 { margin-top: 0; margin-bottom: 25px; text-align: center; font-size: 1.6rem; color: var(--primary); }
+        
+        .form-group { margin-bottom: 18px; }
+        .form-group label { display: block; margin-bottom: 8px; font-size: 0.85rem; color: var(--text-dim); font-weight: 600; }
+        
+        #panel form input, #panel form select { 
+            width: 100%; 
+            padding: 12px; 
+            border-radius: 6px; 
+            border: 1px solid #333; 
+            background: #232323; 
+            color: #fff; 
+            font-size: 0.95rem; 
+        }
+
+        .panel-actions { display: flex; gap: 10px; margin-top: 30px; }
+        .panel-actions button { 
+            flex: 1; 
+            padding: 14px; 
+            border-radius: 6px; 
+            border: none; 
+            font-weight: 700; 
+            cursor: pointer; 
+            transition: 0.3s; 
+        }
+        .btn-submit { background: var(--primary); color: #fff; }
+        .btn-cancel { background: #333; color: #fff; }
+
+        #toast {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #2e7d32;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 4px;
+            display: none;
+            z-index: 3000;
+        }
+
+        @media(max-width: 600px){
+            #tree-view { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); }
+        }
+    </style>
 </head>
 <body>
 
-<h1>Admin Copyflix</h1>
+<header>
+    <h1>ADMIN COPYFLIX</h1>
+    <div class="tabs">
+        <div class="tab active" data-type="Tout">Tout</div>
+        <div class="tab" data-type="Film">Films</div>
+        <div class="tab" data-type="Série">Séries</div>
+    </div>
 
-<div class="tabs">
-  <div class="tab active" data-type="Film">Films</div>
-  <div class="tab" data-type="Série">Séries</div>
-</div>
-
-<div class="top-buttons">
-  <button id="btn-logout">Déconnexion</button>
-  <button id="btn-add-folder">Ajouter Dossier</button>
-  <button id="btn-add-film">Ajouter Film/Série</button>
-  <button id="btn-copy-json">📋 Copier JSON</button>
-</div>
+    <div class="top-buttons">
+        <button id="btn-add-folder">📂 Nouveau Dossier</button>
+        <button id="btn-add-film">🎬 Nouveau Média</button>
+        <button id="btn-copy-json">📋 Copier JSON</button>
+        <button id="btn-logout">🚪 Quitter</button>
+    </div>
+</header>
 
 <div id="tree-view"></div>
 
-<div id="panel">
-  <h2 id="panel-title"></h2>
-  <form id="panel-form">
-    <input type="hidden" id="item-id">
-    <label>Titre:</label>
-    <input type="text" id="item-title" required>
-    <div id="type-field">
-      <label>Type:</label>
-      <select id="item-type">
-        <option value="Film">Film</option>
-        <option value="Série">Série</option>
-        <option value="Folder">Dossier</option>
-      </select>
+<div id="panel-overlay">
+    <div id="panel">
+        <h2 id="panel-title">Action</h2>
+        <form id="panel-form">
+            <input type="hidden" id="item-id">
+            
+            <div class="form-group">
+                <label>Titre :</label>
+                <input type="text" id="item-title" required>
+            </div>
+
+            <div class="form-group" id="type-field">
+                <label>Type :</label>
+                <select id="item-type">
+                    <option value="Film">Film</option>
+                    <option value="Série">Série</option>
+                    <option value="Folder">Dossier</option>
+                </select>
+            </div>
+
+            <div class="form-group" id="video-field">
+                <label>Lien vidéo :</label>
+                <input type="text" id="item-video">
+            </div>
+
+            <div class="form-group" id="image-field">
+                <label>URL Image :</label>
+                <input type="text" id="item-image">
+            </div>
+
+            <div class="form-group">
+                <label>Dossier parent :</label>
+                <select id="item-parent"></select>
+            </div>
+
+            <div class="panel-actions">
+                <button type="submit" class="btn-submit">Valider</button>
+                <button type="button" id="btn-close-panel" class="btn-cancel">Fermer</button>
+            </div>
+        </form>
     </div>
-    <div id="video-field">
-      <label>Lien vidéo :</label>
-      <input type="text" id="item-video" placeholder="https://...">
-    </div>
-    <div id="image-field">
-      <label>Image / Jaquette :</label>
-      <input type="text" id="item-image" placeholder="https://...">
-    </div>
-    <label>Dossier parent:</label>
-    <select id="item-parent"></select>
-    <div style="display:flex; justify-content: space-between;">
-      <button type="submit">Valider</button>
-      <button type="button" id="btn-close-panel">Fermer</button>
-    </div>
-  </form>
 </div>
 
+<div id="toast"></div>
+
 <script>
-// ----- Variables -----
 let data = { folders: [], films: [] }; 
-let currentFilter = "Film";
+let currentFilter = "Tout";
 
 const treeView = document.getElementById("tree-view");
-const panel = document.getElementById("panel");
+const panelOverlay = document.getElementById("panel-overlay");
 const panelTitle = document.getElementById("panel-title");
 const panelForm = document.getElementById("panel-form");
+const toast = document.getElementById("toast");
 
-// onglets
+function showToast(msg) {
+    toast.textContent = msg;
+    toast.style.display = "block";
+    setTimeout(() => { toast.style.display = "none"; }, 3000);
+}
+
+// Onglets
 document.querySelectorAll(".tab").forEach(tab=>{
-  tab.addEventListener("click", ()=>{
-    document.querySelectorAll(".tab").forEach(t=>t.classList.remove("active"));
-    tab.classList.add("active");
-    currentFilter = tab.dataset.type;
-    closeAllFolders(data.folders);
-    renderTree();
-  });
+    tab.addEventListener("click", ()=>{
+        document.querySelectorAll(".tab").forEach(t=>t.classList.remove("active"));
+        tab.classList.add("active");
+        currentFilter = tab.dataset.type;
+        closeAllFolders(data.folders);
+        renderTree();
+    });
 });
 
 function closeAllFolders(folders){
-  folders.forEach(f=>{ f.expanded = false; if(f.children) closeAllFolders(f.children); });
+    folders.forEach(f=>{ f.expanded = false; if(f.children) closeAllFolders(f.children); });
 }
 
-// boutons
+// Boutons
 document.getElementById("btn-logout").addEventListener("click",()=>window.location.href="../index.html");
 document.getElementById("btn-add-folder").addEventListener("click",()=>openPanel("Folder"));
 document.getElementById("btn-add-film").addEventListener("click",()=>openPanel("Film"));
 document.getElementById("btn-close-panel").addEventListener("click",closePanel);
 panelForm.addEventListener("submit",submitForm);
+
 document.getElementById("btn-copy-json").addEventListener("click", ()=>{
-  navigator.clipboard.writeText(JSON.stringify(data,null,2)).then(()=>alert("JSON copié !")).catch(()=>alert("Impossible de copier"));
+    const jsonStr = JSON.stringify(data, null, 2);
+    const textArea = document.createElement("textarea");
+    textArea.value = jsonStr;
+    document.body.appendChild(textArea);
+    textArea.select();
+    document.execCommand('copy');
+    document.body.removeChild(textArea);
+    showToast("JSON copié !");
 });
 
-// fetch data.json
+// Load
 fetch('../data.json')
-  .then(res => res.json())
-  .then(json => { data = json; closeAllFolders(data.folders); renderTree(); })
-  .catch(err => console.error("Erreur en chargeant data.json :", err));
+    .then(res => res.json())
+    .then(json => { data = json; closeAllFolders(data.folders); renderTree(); })
+    .catch(() => {
+        const saved = localStorage.getItem("copyflixData");
+        if(saved) { data = JSON.parse(saved); renderTree(); }
+    });
 
 // PANEL
-function openPanel(type,item=null){
-  panel.style.display="block";
-  panelTitle.textContent = item ? "Modifier "+item.title : type==="Folder"?"Ajouter Dossier":"Ajouter Film/Série";
-  document.getElementById("item-id").value = item?.id || "";
-  document.getElementById("item-title").value = item?.title || "";
-  document.getElementById("item-type").value = item?.type || type;
-  document.getElementById("item-video").value = item?.video || "";
-  document.getElementById("item-image").value = item?.image || "";
-  populateParentOptions(item?.id,type);
-  if(type==="Folder"){document.getElementById("type-field").style.display="block"; document.getElementById("video-field").style.display="none";}
-  else{document.getElementById("type-field").style.display="block"; document.getElementById("video-field").style.display="block";}
+function openPanel(type, item = null){
+    panelOverlay.style.display = "block";
+    panelTitle.textContent = item ? "Modifier " + item.title : (type === "Folder" ? "Nouveau Dossier" : "Nouveau Média");
+    
+    document.getElementById("item-id").value = item?.id || "";
+    document.getElementById("item-title").value = item?.title || "";
+    document.getElementById("item-type").value = item?.type || type;
+    document.getElementById("item-video").value = item?.video || "";
+    document.getElementById("item-image").value = item?.image || "";
+    
+    // 1. On peuple d'abord la liste des dossiers
+    populateParentOptions(item?.id);
+    
+    // 2. On pré-sélectionne le parent actuel
+    // S'assurer que le parentId est bien récupéré même si l'item a été trouvé dans une sous-structure
+    document.getElementById("item-parent").value = item?.parentId || "";
+
+    const selType = document.getElementById("item-type").value;
+    document.getElementById("video-field").style.display = selType === "Folder" ? "none" : "block";
 }
 
-function closePanel(){panel.style.display="none"; panelForm.reset();}
+document.getElementById("item-type").addEventListener("change", (e) => {
+    document.getElementById("video-field").style.display = e.target.value === "Folder" ? "none" : "block";
+});
 
-// populate parent options
-function populateParentOptions(skipId,type){
-  const sel = document.getElementById("item-parent");
-  sel.innerHTML='<option value="">-- Aucun --</option>';
-  function addOptions(folders, level = 0){
-    folders.forEach(f => {
-      if(f.id !== skipId){
-        const opt = document.createElement("option");
-        opt.value = f.id;
-        opt.textContent = '—'.repeat(level) + ' ' + f.title;
-        sel.appendChild(opt);
-        if(f.children && f.children.length){
-          addOptions(f.children.filter(c => c.type === "Folder"), level + 1);
-        }
-      }
-    });
-  }
-  addOptions(data.folders);
+function closePanel(){ panelOverlay.style.display="none"; panelForm.reset(); }
+
+function populateParentOptions(skipId){
+    const sel = document.getElementById("item-parent");
+    sel.innerHTML='<option value="">-- Racine du site --</option>';
+    function addOptions(folders, level = 0){
+        folders.forEach(f => {
+            if(f.id !== skipId){
+                const opt = document.createElement("option");
+                opt.value = f.id;
+                opt.textContent = '  '.repeat(level) + '📁 ' + f.title;
+                sel.appendChild(opt);
+                if(f.children && f.children.length){
+                    addOptions(f.children.filter(c => c.type === "Folder"), level + 1);
+                }
+            }
+        });
+    }
+    addOptions(data.folders);
 }
 
-// -----------------
-// CORRECTION DU BOUTON VALIDER
-// -----------------
 function submitForm(e){
-  e.preventDefault();
+    e.preventDefault();
+    const id = document.getElementById("item-id").value;
+    const title = document.getElementById("item-title").value;
+    const type = document.getElementById("item-type").value;
+    const video = document.getElementById("item-video").value;
+    const image = document.getElementById("item-image").value;
+    const parentId = document.getElementById("item-parent").value;
 
-  const id = document.getElementById("item-id").value;
-  const title = document.getElementById("item-title").value;
-  const type = document.getElementById("item-type").value;
-  const video = document.getElementById("item-video").value;
-  const image = document.getElementById("item-image").value;
-  const parentId = document.getElementById("item-parent").value;
+    if(id){ 
+        const item = findItem(id, data);
+        if(item){
+            item.title = title;
+            item.type = type;
+            item.video = video;
+            item.image = image;
 
-  if(id){ 
-    // MODIFICATION D’UN ITEM EXISTANT
-    const item = findItem(id, data);
-    if(item){
-      item.title = title;
-      item.type = type;
-      item.video = video;
-      item.image = image;
-
-      // Si le parent a changé
-      if(item.parentId !== parentId){
-        removeFromParent(id, data);
-        if(parentId){
-          const parent = findItem(parentId, data);
-          parent.children = parent.children || [];
-          parent.children.push(item);
-        } else {
-          if(type==="Folder") data.folders.push(item);
-          else data.films.push(item);
+            if(item.parentId !== parentId){
+                removeFromParent(id, data);
+                if(parentId){
+                    const parent = findItem(parentId, data);
+                    parent.children = parent.children || [];
+                    parent.children.push(item);
+                } else {
+                    if(type==="Folder") data.folders.push(item);
+                    else data.films.push(item);
+                }
+            }
+            item.parentId = parentId || "";
         }
-      }
-
-      item.parentId = parentId || "";
-    }
-  } else {
-    // NOUVEL ITEM
-    const newItem = {
-      id: "id-" + Date.now(),
-      title,
-      type,
-      video,
-      image,
-      children: [],
-      expanded: false,
-      active: true,
-      parentId: parentId || ""
-    };
-
-    if(parentId){
-      const parent = findItem(parentId, data);
-      parent.children = parent.children || [];
-      parent.children.push(newItem);
     } else {
-      if(type==="Folder") data.folders.push(newItem);
-      else data.films.push(newItem);
-    }
-  }
+        const newItem = {
+            id: "id-" + Date.now(),
+            title, type, video, image,
+            children: [], expanded: false, active: true,
+            parentId: parentId || ""
+        };
 
-  saveData();
-  closePanel();
-  renderTree();
+        if(parentId){
+            const parent = findItem(parentId, data);
+            parent.children = parent.children || [];
+            parent.children.push(newItem);
+        } else {
+            if(type==="Folder") data.folders.push(newItem);
+            else data.films.push(newItem);
+        }
+    }
+
+    saveData();
+    closePanel();
+    renderTree();
+    showToast("Enregistré !");
 }
 
-// utilitaire pour retirer un item de son parent
 function removeFromParent(id, root){
-  function remove(arr){
-    const index = arr.findIndex(i=>i.id===id);
-    if(index>=0){ arr.splice(index,1); return true; }
-    for(const i of arr){
-      if(i.children && remove(i.children)) return true;
+    function remove(arr){
+        if(!arr) return false;
+        const index = arr.findIndex(i => i.id === id);
+        if(index >= 0){ arr.splice(index, 1); return true; }
+        for(const i of arr){
+            if(i.children && remove(i.children)) return true;
+        }
+        return false;
     }
-    return false;
-  }
-  remove(root.folders || root);
-  remove(root.films || []);
+    remove(root.folders);
+    remove(root.films);
 }
-
-// --------- FONCTIONS EXISTANTES (INCHANGÉES) ---------
 
 function findItem(id,root){
-  let res=null;
-  function search(arr){
-    for(const i of arr){
-      if(i.id===id){res=i; return;}
-      if(i.children) search(i.children);
+    let res=null;
+    function search(arr){
+        if(!arr) return;
+        for(const i of arr){
+            if(i.id===id){res=i; return;}
+            if(i.children) search(i.children);
+        }
     }
-  }
-  search(root.folders||root);
-  search(root.films||[]);
-  return res;
+    search(root.folders);
+    search(root.films);
+    return res;
 }
 
-function saveData(){localStorage.setItem("copyflixData",JSON.stringify(data));}
+function saveData(){ localStorage.setItem("copyflixData", JSON.stringify(data)); }
 
 function renderTree(){
-  treeView.innerHTML="";
-  let items = [];
-  data.folders.forEach(f=>{ if(containsType(f,currentFilter)) items.push(f); });
-  if(currentFilter==="Film") items = items.concat(data.films.filter(f=>f.type==="Film"));
-  if(currentFilter==="Série") items = items.concat(data.films.filter(f=>f.type==="Série"));
-  items.forEach(i=>renderItem(i,treeView));
+    treeView.innerHTML="";
+    let items = [];
+    if(currentFilter==="Tout"){
+        items = [...data.folders, ...data.films];
+    } else {
+        data.folders.forEach(f=>{ if(containsType(f,currentFilter)) items.push(f); });
+        if(currentFilter==="Film") items = items.concat(data.films.filter(f=>f.type==="Film"));
+        if(currentFilter==="Série") items = items.concat(data.films.filter(f=>f.type==="Série"));
+    }
+    items.forEach(i=>renderItem(i,treeView));
 }
 
 function containsType(folder,type){
-  if(folder.children && folder.children.length){
-    for(const c of folder.children){
-      if(c.type===type) return true;
-      if(c.type==="Folder" && containsType(c,type)) return true;
-    }
-  }
-  return false;
-}
-
-function renderItem(item,parentEl){
-  const div = document.createElement("div");
-  div.className="tree-item";
-  div.dataset.id = item.id;
-
-  const img = document.createElement("img");
-  img.src = item.image || "https://via.placeholder.com/150x225?text=?";
-  div.appendChild(img);
-
-  const titleBox = document.createElement("div");
-  titleBox.className = "title-box";
-  titleBox.textContent = item.title;
-  div.appendChild(titleBox);
-
-  // modifier
-  const editBtn = document.createElement("button");
-  editBtn.textContent = "✏️";
-  editBtn.className="edit-btn";
-  editBtn.addEventListener("click",(e)=>{
-    e.stopPropagation();
-    openPanel(item.type,item);
-  });
-  div.appendChild(editBtn);
-
-  // supprimer
-  const delBtn = document.createElement("button");
-  delBtn.textContent = "🗑️";
-  delBtn.className="delete-btn";
-  delBtn.addEventListener("click",(e)=>{
-    e.stopPropagation();
-    if(confirm(`Voulez-vous vraiment supprimer "${item.title}" ?`)){
-      deleteItem(item.id,data);
-      renderTree();
-    }
-  });
-  div.appendChild(delBtn);
-
-  // checkbox actif
-  const checkbox = document.createElement("input");
-  checkbox.type="checkbox";
-  checkbox.checked = item.active !== false;
-  checkbox.className="active-checkbox";
-  checkbox.addEventListener("click",(e)=>{
-    e.stopPropagation();
-    item.active = checkbox.checked;
-    if(item.type==="Folder" && item.children) toggleChildrenActive(item.children,checkbox.checked);
-    saveData();
-    renderTree();
-  });
-  div.appendChild(checkbox);
-
-  div.addEventListener("click",()=>{
-    if(item.type==="Folder"){
-      item.expanded = !item.expanded;
-      renderTree();
-    } else {
-      openPanel(item.type,item);
-    }
-  });
-
-  parentEl.appendChild(div);
-
-  if(item.type==="Folder" && item.expanded && item.children){
-    item.children.forEach(c=>{
-      if(c.type === currentFilter || c.type==="Folder") renderItem(c,parentEl);
-    });
-  }
-}
-
-function toggleChildrenActive(children,active){
-  children.forEach(c=>{
-    c.active = active;
-    if(c.type==="Folder" && c.children) toggleChildrenActive(c.children,active);
-  });
-}
-
-// delete recursive
-function deleteItem(id,root){
-  function remove(arr){
-    const index = arr.findIndex(i=>i.id===id);
-    if(index>=0){ arr.splice(index,1); return true; }
-    for(const i of arr){
-      if(i.children && remove(i.children)) return true;
+    if(folder.children && folder.children.length){
+        for(const c of folder.children){
+            if(c.type===type) return true;
+            if(c.type==="Folder" && containsType(c,type)) return true;
+        }
     }
     return false;
-  }
-  remove(root.folders||root);
-  remove(root.films||[]);
-  saveData();
+}
+
+function renderItem(item, parentEl){
+    const div = document.createElement("div");
+    div.className = "tree-item";
+    if (item.active === false) div.classList.add("inactive");
+    if (item.expanded) div.classList.add("folder-open");
+    div.dataset.id = item.id;
+
+    const img = document.createElement("img");
+    img.src = item.image || "https://via.placeholder.com/180x270/181818/e50914?text=" + encodeURIComponent(item.title);
+    div.appendChild(img);
+
+    const titleBox = document.createElement("div");
+    titleBox.className = "title-box";
+    titleBox.textContent = (item.type === "Folder" ? "📁 " : "") + item.title;
+    div.appendChild(titleBox);
+
+    const controls = document.createElement("div");
+    controls.className = "item-controls";
+
+    const editBtn = document.createElement("button");
+    editBtn.textContent = "Modifier";
+    editBtn.className = "edit-btn";
+    editBtn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        openPanel(item.type, item);
+    });
+    controls.appendChild(editBtn);
+
+    const delBtn = document.createElement("button");
+    delBtn.textContent = "Supprimer";
+    delBtn.className = "delete-btn";
+    delBtn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        if(confirm(`Supprimer "${item.title}" ?`)){
+            deleteItem(item.id, data);
+            renderTree();
+        }
+    });
+    controls.appendChild(delBtn);
+    div.appendChild(controls);
+
+    const activeToggle = document.createElement("div");
+    activeToggle.className = "active-toggle";
+    const checkbox = document.createElement("input");
+    checkbox.type = "checkbox";
+    checkbox.checked = item.active !== false;
+    checkbox.addEventListener("click", (e) => {
+        e.stopPropagation();
+        item.active = checkbox.checked;
+        if(item.type === "Folder" && item.children) toggleChildrenActive(item.children, checkbox.checked);
+        saveData();
+        renderTree();
+    });
+    activeToggle.appendChild(checkbox);
+    div.appendChild(activeToggle);
+
+    div.addEventListener("click", () => {
+        if(item.type === "Folder"){
+            item.expanded = !item.expanded;
+            renderTree();
+        } else {
+            openPanel(item.type, item);
+        }
+    });
+
+    parentEl.appendChild(div);
+
+    if(item.type === "Folder" && item.expanded && item.children){
+        item.children.forEach(c => {
+            if(currentFilter === "Tout" || c.type === currentFilter || c.type === "Folder") renderItem(c, parentEl);
+        });
+    }
+}
+
+function toggleChildrenActive(children, active){
+    children.forEach(c => {
+        c.active = active;
+        if(c.type === "Folder" && c.children) toggleChildrenActive(c.children, active);
+    });
+}
+
+function deleteItem(id, root){
+    function remove(arr){
+        if(!arr) return false;
+        const index = arr.findIndex(i => i.id === id);
+        if(index >= 0){ arr.splice(index, 1); return true; }
+        for(const i of arr){
+            if(i.children && remove(i.children)) return true;
+        }
+        return false;
+    }
+    remove(root.folders);
+    remove(root.films);
+    saveData();
 }
 </script>
 </body>
