@@ -1863,8 +1863,30 @@
           "parentId": "id-1769536659280"
         }
       ],
-      "expanded": true,
+      "expanded": false,
       "active": true,
+      "parentId": ""
+    },
+    {
+      "id": "id-1769595329734",
+      "title": "How to Sell Drugs Online (Fast)",
+      "type": "Folder",
+      "video": "",
+      "image": "https://fr.web.img3.acsta.net/pictures/19/05/27/11/50/5254042.jpg",
+      "children": [],
+      "expanded": false,
+      "active": false,
+      "parentId": ""
+    },
+    {
+      "id": "id-1769595378396",
+      "title": "SnowFall",
+      "type": "Folder",
+      "video": "",
+      "image": "https://fr.web.img4.acsta.net/pictures/23/04/06/15/59/0246445.jpg",
+      "children": [],
+      "expanded": false,
+      "active": false,
       "parentId": ""
     }
   ],
@@ -2139,6 +2161,17 @@
       "type": "Film",
       "video": "",
       "image": "https://image.tmdb.org/t/p/w600_and_h900_face/uuwi4wwG6HAHVqaEvJDx6gI773N.jpg",
+      "children": [],
+      "expanded": false,
+      "active": false,
+      "parentId": ""
+    },
+    {
+      "id": "id-1769595435945",
+      "title": "Vaillant, pigeon de combat !",
+      "type": "Film",
+      "video": "",
+      "image": "https://image.tmdb.org/t/p/w600_and_h900_face/iU2G90PHQTGax5LErWIljpOE3w7.jpg",
       "children": [],
       "expanded": false,
       "active": false,
