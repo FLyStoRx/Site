@@ -1415,6 +1415,26 @@
           "active": true,
           "children": [],
           "parentId": "id-1769525550701"
+        },
+        {
+          "id": "id-1769893101546",
+          "title": "Avatar : La Voie de l'eau",
+          "type": "Film",
+          "image": "https://image.tmdb.org/t/p/w600_and_h900_face/kQYx143yujkwyjJdZH2skOGeQfA.jpg",
+          "video": "",
+          "active": false,
+          "children": [],
+          "parentId": "id-1769525550701"
+        },
+        {
+          "id": "id-1769893126790",
+          "title": "Avatar : De feu et de cendres",
+          "type": "Film",
+          "image": "https://image.tmdb.org/t/p/w600_and_h900_face/5eATVqK2WVQi0D3wjzM5OP8EqZv.jpg",
+          "video": "",
+          "active": false,
+          "children": [],
+          "parentId": "id-1769525550701"
         }
       ],
       "expanded": false,
@@ -2036,6 +2056,99 @@
       "expanded": true,
       "parentId": "",
       "active": true
+    },
+    {
+      "id": "id-1769893305324",
+      "title": "Dracula",
+      "type": "Folder",
+      "image": "https://static.vecteezy.com/ti/vecteur-libre/p1/59206710-classique-dracula-vampire-silhouette-illustration-pour-halloween-dessins-vectoriel.jpg",
+      "video": "",
+      "active": false,
+      "children": [
+        {
+          "id": "id-1769893350475",
+          "title": "Dracula (2025)",
+          "type": "Film",
+          "image": "https://image.tmdb.org/t/p/w600_and_h900_face/hCKkybW6EfSZoOW3xia9ZsQwaUd.jpg",
+          "video": "",
+          "active": true,
+          "children": [],
+          "parentId": "id-1769893305324"
+        },
+        {
+          "id": "id-1769893518619",
+          "title": "Dracula (1992)",
+          "type": "Film",
+          "image": "https://image.tmdb.org/t/p/w600_and_h900_face/scFDS0U5uYAjcVTyjNc7GmcZw1q.jpg",
+          "video": "",
+          "active": true,
+          "children": [],
+          "parentId": "id-1769893305324"
+        }
+      ],
+      "parentId": ""
+    },
+    {
+      "id": "id-1769893566990",
+      "title": "Joker ",
+      "type": "Folder",
+      "image": "https://d1fufvy4xao6k9.cloudfront.net/images/blog/posts/2024/01/screenshot_15.jpg",
+      "video": "",
+      "active": false,
+      "children": [
+        {
+          "id": "id-1769893592485",
+          "title": "Joker",
+          "type": "Film",
+          "image": "https://image.tmdb.org/t/p/w600_and_h900_face/tWjJ3ILjsbTwKgXxEv48QAbYZ19.jpg",
+          "video": "",
+          "active": true,
+          "children": [],
+          "parentId": "id-1769893566990"
+        },
+        {
+          "id": "id-1769893612041",
+          "title": "Joker : Folie à deux",
+          "type": "Film",
+          "image": "https://image.tmdb.org/t/p/w600_and_h900_face/cWJGZAozNQFKLCD8vv4ukw4nJP8.jpg",
+          "video": "",
+          "active": true,
+          "children": [],
+          "parentId": "id-1769893566990"
+        }
+      ],
+      "parentId": ""
+    },
+    {
+      "id": "id-1769893759249",
+      "title": "Tron",
+      "type": "Folder",
+      "image": "https://img.filmsactu.net/datas/films/t/r/tron-l-heritage/xl/4cd134c703e6f.jpg",
+      "video": "",
+      "active": false,
+      "children": [
+        {
+          "id": "id-1769894072040",
+          "title": "Tron : L'Héritage",
+          "type": "Film",
+          "image": "https://image.tmdb.org/t/p/w600_and_h900_face/vab8CIxaJ6DLE7u2tdLSm9nnGB9.jpg",
+          "video": "",
+          "active": true,
+          "children": [],
+          "parentId": "id-1769893759249"
+        },
+        {
+          "id": "id-1769894091742",
+          "title": "Tron : Ares",
+          "type": "Film",
+          "image": "https://image.tmdb.org/t/p/w600_and_h900_face/szi21Cz6bAPQ47QER5iSCkP6JWI.jpg",
+          "video": "",
+          "active": true,
+          "children": [],
+          "parentId": "id-1769893759249"
+        }
+      ],
+      "parentId": ""
     }
   ],
   "films": [
@@ -2323,6 +2436,36 @@
       "children": [],
       "expanded": false,
       "active": true,
+      "parentId": ""
+    },
+    {
+      "id": "id-1769893175139",
+      "title": "Charlie et la chocolaterie",
+      "type": "Film",
+      "image": "https://image.tmdb.org/t/p/w600_and_h900_face/tR4PU2wRPzGKmF665lE5wULGb3X.jpg",
+      "video": "",
+      "active": false,
+      "children": [],
+      "parentId": ""
+    },
+    {
+      "id": "id-1769893641668",
+      "title": "Marche ou crève",
+      "type": "Film",
+      "image": "https://image.tmdb.org/t/p/w600_and_h900_face/4KXidDT9Z8w23A4r0eoRwwDPYOD.jpg",
+      "video": "",
+      "active": false,
+      "children": [],
+      "parentId": ""
+    },
+    {
+      "id": "id-1769893699163",
+      "title": "Wonka",
+      "type": "Film",
+      "image": "https://image.tmdb.org/t/p/w600_and_h900_face/aKK2C3SErXIhNdT9gI93as2b8GV.jpg",
+      "video": "",
+      "active": false,
+      "children": [],
       "parentId": ""
     }
   ]
