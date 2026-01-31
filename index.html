@@ -6,44 +6,37 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 
 <link rel="icon" type="image/png" href="favicon.png">
-<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
 
 <style>
 :root {
-  --primary: #dc2626; /* Rouge Nakios */
+  --primary: #dc2626;
   --bg: #000000;
   --surface: #0a0a0a;
   --text-muted: #a3a3a3;
-  --transition: all 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+  --transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
   --radius: 14px;
 }
 
 * { margin:0; padding:0; box-sizing:border-box; font-family: 'Plus Jakarta Sans', sans-serif; }
 
-/* Scrollbar Style Nakios */
 ::-webkit-scrollbar { width: 8px; }
 ::-webkit-scrollbar-track { background: var(--bg); }
 ::-webkit-scrollbar-thumb { background: #262626; border-radius: 10px; }
-::-webkit-scrollbar-thumb:hover { background: #333; }
 
-body {
-  background: var(--bg);
-  color: #fff;
-  overflow-x: hidden;
-  min-height: 100vh;
-  -webkit-font-smoothing: antialiased;
-}
-
+body { background: var(--bg); color: #fff; overflow-x: hidden; min-height: 100vh; }
 body.no-scroll { overflow: hidden; }
 
-/* HEADER */
+#app-content { transition: filter 0.5s ease, transform 0.5s ease; }
+body.player-open #app-content { filter: blur(15px) brightness(0.5); transform: scale(0.98); }
+
+/* HEADER & SMART SEARCH */
 header {
   position: fixed; top: 0; width: 100%; height: 80px; z-index: 1000;
   display: flex; align-items: center; justify-content: space-between;
   padding: 0 5%; transition: var(--transition);
 }
-
 header.scrolled {
   background: rgba(0, 0, 0, 0.85);
   backdrop-filter: blur(25px);
@@ -51,82 +44,57 @@ header.scrolled {
   border-bottom: 1px solid rgba(255, 255, 255, 0.05);
 }
 
-.logo {
-  font-size: 26px; font-weight: 800; letter-spacing: -1.5px;
-  cursor: pointer; text-transform: uppercase;
-}
+.logo { font-size: 26px; font-weight: 800; cursor: pointer; text-transform: uppercase; }
 .logo span { color: var(--primary); }
 
 .nav-right { display: flex; align-items: center; gap: 20px; }
-
 .search-wrapper {
-  background: #111;
-  border-radius: 12px; padding: 10px 18px;
+  background: #111; border-radius: 12px; padding: 10px 18px;
   display: flex; align-items: center; gap: 12px;
   border: 1px solid rgba(255,255,255,0.05); transition: var(--transition);
+  position: relative;
 }
+.search-wrapper input { background: transparent; border: none; color: white; outline: none; width: 160px; }
 
-.search-wrapper:focus-within {
-  border-color: var(--primary);
-  background: #161616;
-  width: 280px;
+#clear-search {
+  cursor: pointer; color: var(--text-muted); font-size: 0.9rem;
+  display: none; transition: 0.3s;
 }
-
-.search-wrapper input {
-  background: transparent; border: none; color: white; outline: none; width: 160px;
-  font-size: 0.95rem;
-}
+#clear-search:hover { color: #fff; }
 
 .admin-trigger {
   width: 42px; height: 42px; border-radius: 12px;
   background: var(--primary); color: white; border: none;
-  cursor: pointer; transition: var(--transition);
-  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; display: flex; align-items: center; justify-content: center;
 }
-.admin-trigger:hover { transform: scale(1.05); filter: brightness(1.1); }
+
+/* NO RESULTS STATE */
+#no-results {
+  display: none; flex-direction: column; align-items: center; 
+  justify-content: center; padding: 100px 0; gap: 20px; color: var(--text-muted);
+}
+#no-results i { font-size: 3rem; opacity: 0.3; }
 
 /* HERO */
-.hero-minimal {
-  padding-top: 160px; text-align: center; margin-bottom: 50px;
-}
-
-.hero-minimal h1 {
-  font-size: clamp(2.2rem, 6vw, 4rem); font-weight: 800; margin-bottom: 30px;
-  letter-spacing: -2px; line-height: 1.1;
-}
+.hero-minimal { padding-top: 160px; text-align: center; margin-bottom: 50px; }
+.hero-minimal h1 { font-size: clamp(2.2rem, 6vw, 4rem); font-weight: 800; margin-bottom: 30px; }
 .hero-minimal h1 span { color: var(--primary); }
 
-.tab-nav {
-  display: inline-flex; background: #111;
-  padding: 6px; border-radius: 16px; border: 1px solid #222;
-}
-
+.tab-nav { background: #111; padding: 6px; border-radius: 16px; display: inline-flex; }
 .tab-nav button {
   padding: 12px 30px; border-radius: 12px; border: none; background: transparent;
   color: var(--text-muted); font-weight: 600; cursor: pointer; transition: var(--transition);
 }
+.tab-nav button.active { background: #fff; color: #000; }
 
-.tab-nav button.active {
-  background: #fff; color: #000;
-}
-
-/* NAVIGATION BREADCRUMB */
-.nav-controls {
-  max-width: 1700px; margin: 0 auto; padding: 0 5%;
-  display: flex; align-items: center; gap: 15px; margin-bottom: 30px;
-}
-
+/* NAV CONTROLS */
+.nav-controls { max-width: 1700px; margin: 0 auto; padding: 0 5% 30px; display: flex; align-items: center; gap: 15px; }
 #back-arrow {
   display: none; width: 48px; height: 48px; border-radius: 14px;
-  background: #111; border: 1px solid #222;
-  color: white; align-items: center; justify-content: center; cursor: pointer;
+  background: #111; border: 1px solid #222; color: white;
+  align-items: center; justify-content: center; cursor: pointer; transition: var(--transition);
 }
-#back-arrow:hover { border-color: var(--primary); color: var(--primary); }
-
-#breadcrumb-nav {
-  display: none; align-items: center; gap: 10px; font-weight: 600; font-size: 1rem;
-}
-.bc-item { color: var(--text-muted); transition: 0.3s; }
+#breadcrumb-nav { display: none; align-items: center; gap: 10px; font-weight: 600; }
 .bc-item:last-child { color: var(--primary); }
 
 /* GRID */
@@ -134,207 +102,270 @@ header.scrolled {
   display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
   gap: 35px; padding: 0 5% 100px; max-width: 1700px; margin: 0 auto;
 }
-
-.content-card {
-  display: flex; flex-direction: column; gap: 15px; cursor: pointer;
-  transition: var(--transition); opacity: 0; transform: translateY(20px);
+.content-card { 
+    cursor: pointer; transition: var(--transition); opacity: 0; 
+    transform: translateY(20px); display: flex; flex-direction: column; 
+    gap: 12px; text-align: center; 
 }
-
 .content-card.visible { opacity: 1; transform: translateY(0); }
 
+/* POSTER WRAPPER */
 .poster-wrapper {
-  position: relative; width: 100%; aspect-ratio: 2/3.1;
-  border-radius: var(--radius); overflow: hidden;
-  background: #0a0a0a;
-  border: 1px solid rgba(255,255,255,0.05);
+  position: relative; aspect-ratio: 2/3.1; border-radius: var(--radius);
+  overflow: hidden; background: #0a0a0a; border: 1px solid rgba(255,255,255,0.05);
   transition: var(--transition);
 }
 
-.content-card:hover .poster-wrapper {
-  transform: translateY(-8px);
+/* GLINT EFFECT (Active items only) */
+.poster-wrapper::before {
+  content: ""; position: absolute; top: 0; left: -150%; width: 100%; height: 100%;
+  background: linear-gradient(120deg, transparent, rgba(255, 255, 255, 0.15), transparent);
+  transition: 0.6s; z-index: 2;
+}
+.content-card:not(.locked):hover .poster-wrapper::before { left: 150%; }
+
+.content-card:not(.locked):hover .poster-wrapper { 
+  transform: translateY(-10px) scale(1.02); 
   border-color: var(--primary);
-  box-shadow: 0 15px 30px rgba(220, 38, 38, 0.2);
+  box-shadow: 0 20px 40px rgba(0,0,0,0.6), 0 0 20px rgba(220, 38, 38, 0.2);
 }
 
-.poster-wrapper img { width: 100%; height: 100%; object-fit: cover; transition: 1s ease; }
-.content-card:hover .poster-wrapper img { transform: scale(1.05); }
+.poster-wrapper img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.8s ease; }
+.content-card:not(.locked):hover .poster-wrapper img { transform: scale(1.08); }
 
-.content-info { text-align: left; padding-left: 5px; }
-.content-title {
-  font-size: 1rem; font-weight: 600; color: #eee;
-  transition: 0.3s;
-}
-.content-card:hover .content-title { color: white; }
-
-/* LOCKED STATE */
+/* --- CYBER PUNCH LOCKED STATE --- */
 .content-card.locked { cursor: not-allowed; }
-.content-card.locked .poster-wrapper::after {
-  content: ""; position: absolute; inset: 0;
-  background: rgba(0,0,0,0.4); backdrop-filter: blur(4px) grayscale(1); z-index: 1;
-}
-.locked-overlay {
-  position: absolute; inset: 0; z-index: 2;
-  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 15px;
-}
-.locked-icon { font-size: 1.5rem; color: #fff; opacity: 0.8; }
-.coming-soon-tag {
-  background: var(--primary); color: white; font-size: 0.7rem;
-  font-weight: 800; text-transform: uppercase; padding: 6px 14px;
-  border-radius: 8px; letter-spacing: 0.5px;
+
+.content-card.locked .poster-wrapper {
+  border: 4px solid var(--primary);
+  box-shadow: none;
 }
 
-/* PLAYER */
-#player-overlay {
-  position: fixed; inset: 0; background: #000;
-  z-index: 2000; display: none; align-items: center; justify-content: center;
-  opacity: 0; transition: 0.5s ease;
+.content-card.locked .poster-wrapper img {
+  filter: grayscale(1) brightness(0.15) blur(2px);
 }
-#player-container { width: 100%; height: 100%; }
-#player-overlay.active { opacity: 1; }
-#player-container iframe { width: 100%; height: 100%; border: none; }
+
+.locked-overlay {
+  position: absolute; inset: 0; z-index: 3;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 10px;
+}
+
+.punch-box {
+  background: var(--primary);
+  color: #000;
+  padding: 8px 15px;
+  font-weight: 900;
+  font-size: 1.2rem;
+  text-transform: uppercase;
+  transform: rotate(-8deg);
+  box-shadow: 6px 6px 0 #000;
+  letter-spacing: -1px;
+}
+
+.punch-box-white {
+  background: #fff;
+  color: #000;
+  padding: 6px 12px;
+  font-weight: 900;
+  font-size: 1rem;
+  text-transform: uppercase;
+  transform: rotate(4deg);
+  box-shadow: 5px 5px 0 #000;
+  margin-top: -5px;
+}
+
+.locked-icon-small {
+  margin-top: 15px;
+  color: rgba(255,255,255,0.4);
+  font-size: 0.9rem;
+}
+
+/* --- END LOCKED STATE --- */
+
+.content-title { font-size: 1rem; font-weight: 600; color: #eee; padding: 0 5px; transition: color 0.3s; }
+.content-card:hover .content-title { color: #fff; }
+
+/* PLAYER OVERLAY */
+#player-overlay {
+  position: fixed; inset: 0; background: rgba(0,0,0,0.4);
+  z-index: 2000; display: none; opacity: 0; transform: scale(1.05);
+  transition: opacity 0.5s ease, transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+#player-overlay.active { opacity: 1; transform: scale(1); }
+
+#player-hud {
+  position: absolute; inset: 0; z-index: 2100;
+  background: linear-gradient(to bottom, rgba(0,0,0,0.85) 0%, transparent 25%, transparent 75%, rgba(0,0,0,0.85) 100%);
+  opacity: 0; transition: opacity 0.4s ease;
+  display: flex; flex-direction: column; justify-content: space-between;
+  padding: 40px; pointer-events: none;
+}
+#player-overlay:hover #player-hud { opacity: 1; }
+
+.hud-top { display: flex; justify-content: space-between; align-items: flex-start; pointer-events: auto; }
+.hud-info { display: flex; flex-direction: column; gap: 5px; }
+.hud-series-title { color: var(--primary); font-size: 0.85rem; font-weight: 800; text-transform: uppercase; letter-spacing: 2px; }
+.hud-episode-title { font-size: 1.6rem; font-weight: 700; color: white; }
+
+.hud-bottom { 
+  display: flex; justify-content: flex-end; pointer-events: auto; 
+  padding-bottom: 60px; padding-right: 20px;
+}
+
+.btn-next-ep {
+  background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(15px);
+  border: 1px solid rgba(255, 255, 255, 0.15); color: white;
+  padding: 14px 28px; border-radius: 12px; font-weight: 700;
+  cursor: pointer; display: flex; align-items: center; gap: 12px;
+  transition: var(--transition);
+}
+.btn-next-ep:hover { background: var(--primary); border-color: var(--primary); transform: translateY(-3px); }
 
 .close-player {
-  position: absolute; top: 30px; right: 30px;
-  width: 50px; height: 50px; background: rgba(255,255,255,0.1); color: white;
+  width: 50px; height: 50px; background: rgba(255,255,255,0.1);
   border-radius: 50%; display: flex; align-items: center; justify-content: center;
-  cursor: pointer; font-size: 1.4rem; transition: 0.3s; z-index: 2100;
-  backdrop-filter: blur(10px);
+  cursor: pointer; font-size: 1.4rem; backdrop-filter: blur(10px); pointer-events: auto;
+  transition: var(--transition);
 }
-.close-player:hover { background: var(--primary); transform: rotate(90deg); }
+.close-player:hover { background: rgba(255,255,255,0.2); transform: rotate(90deg); }
 
-.grid-transition { opacity: 0; transform: scale(0.98); transition: 0.3s; }
+#player-container { width: 100%; height: 100%; }
+#player-container iframe { width: 100%; height: 100%; border: none; }
 
-@media (max-width: 768px) {
-  #main-grid { grid-template-columns: repeat(2, 1fr); gap: 20px; }
-  .hero-minimal h1 { font-size: 2.2rem; }
-  .search-wrapper:focus-within { width: 200px; }
-}
+.grid-transition { opacity: 0; transform: scale(0.98); transition: 0.4s ease; }
 </style>
 </head>
 
 <body>
 
-<header id="mainNav">
-  <div class="logo" onclick="location.reload()">COPY<span>FLIX</span></div>
-  <div class="nav-right">
-    <div class="search-wrapper">
-      <i class="fa-solid fa-magnifying-glass" style="color: #444;"></i>
-      <input type="text" class="search-input" placeholder="Rechercher...">
+<div id="app-content">
+  <header id="mainNav">
+    <div class="logo" onclick="location.reload()">COPY<span>FLIX</span></div>
+    <div class="nav-right">
+      <div class="search-wrapper">
+        <i class="fa-solid fa-magnifying-glass" style="color: #444;"></i>
+        <input type="text" id="mainSearch" placeholder="Rechercher...">
+        <i class="fa-solid fa-xmark" id="clear-search"></i>
+      </div>
+      <button class="admin-trigger" onclick="window.open('admin/login.html','_blank')">
+        <i class="fa-solid fa-bolt"></i>
+      </button>
     </div>
-    <button class="admin-trigger" onclick="window.open('admin/login.html','_blank')">
-      <i class="fa-solid fa-bolt"></i>
-    </button>
+  </header>
+
+  <section class="hero-minimal">
+    <h1>Le meilleur du <span>Streaming</span><br>en qualité Ultra HD.</h1>
+    <nav class="tab-nav">
+      <button class="active" onclick="filterData('all', this)">Tout</button>
+      <button onclick="filterData('film', this)">Films</button>
+      <button onclick="filterData('serie', this)">Séries</button>
+    </nav>
+  </section>
+
+  <div class="nav-controls">
+    <div id="back-arrow"><i class="fa-solid fa-arrow-left"></i></div>
+    <div id="breadcrumb-nav"></div>
   </div>
-</header>
 
-<section class="hero-minimal">
-  <h1>Le meilleur du <span>Streaming</span></h1>
-  <nav class="tab-nav">
-    <button class="active" onclick="filterData('all', this)">Tout</button>
-    <button onclick="filterData('film', this)">Films</button>
-    <button onclick="filterData('serie', this)">Séries</button>
-  </nav>
-</section>
+  <div id="no-results">
+    <i class="fa-solid fa-ghost"></i>
+    <p>Oups ! Aucun résultat ne correspond à votre recherche.</p>
+  </div>
 
-<div class="nav-controls">
-  <div id="back-arrow"><i class="fa-solid fa-arrow-left"></i></div>
-  <div id="breadcrumb-nav"></div>
+  <div id="main-grid"></div>
 </div>
 
-<div id="main-grid"></div>
-
 <div id="player-overlay">
-  <div class="close-player"><i class="fa-solid fa-xmark"></i></div>
+  <div id="player-hud">
+    <div class="hud-top">
+      <div class="hud-info">
+        <span class="hud-series-title" id="hud-parent-name"></span>
+        <span class="hud-episode-title" id="hud-current-name"></span>
+      </div>
+      <div class="close-player" onclick="closePlayer()"><i class="fa-solid fa-xmark"></i></div>
+    </div>
+    <div class="hud-bottom">
+      <button class="btn-next-ep" id="btn-next" style="display: none;" onclick="playNextAuto()">
+        <span id="next-btn-text">ÉPISODE SUIVANT</span>
+        <i class="fa-solid fa-forward"></i>
+      </button>
+    </div>
+  </div>
   <div id="player-container">
-    <iframe id="video-engine" allowfullscreen></iframe>
+    <iframe id="video-engine" allowfullscreen allow="autoplay"></iframe>
   </div>
 </div>
 
 <script>
 let contentData, currentFilter = 'all', pathStack = [];
+let currentSiblings = []; 
+let currentIndex = -1;
+
 const grid = document.getElementById("main-grid");
 const breadcrumbNav = document.getElementById("breadcrumb-nav");
 const backArrow = document.getElementById("back-arrow");
-const searchInput = document.querySelector(".search-input");
+const searchInput = document.getElementById("mainSearch");
+const clearBtn = document.getElementById("clear-search");
+const noResults = document.getElementById("no-results");
 const playerOverlay = document.getElementById("player-overlay");
 const videoEngine = document.getElementById("video-engine");
 const nav = document.getElementById("mainNav");
+const nextBtn = document.getElementById("btn-next");
+const nextBtnText = document.getElementById("next-btn-text");
 
-const fallbackData = { folders: [], films: [] };
-
-// CHARGEMENT DES DONNÉES (LOGIQUE ORIGINALE)
 fetch("data.json").then(r => r.json()).then(json => {
   contentData = json;
   renderInitial();
-}).catch(() => {
-  console.warn("Attente de data.json...");
-  contentData = fallbackData;
 });
 
 window.addEventListener("scroll", () => nav.classList.toggle("scrolled", window.scrollY > 50));
 
-// FILTRAGE (LOGIQUE ORIGINALE)
 function filterData(type, btn) {
   currentFilter = type === 'film' ? 'Film' : type === 'serie' ? 'Série' : 'all';
   document.querySelectorAll(".tab-nav button").forEach(b => b.classList.remove("active"));
   btn.classList.add("active");
-  pathStack = [];
-  backArrow.style.display = "none";
-  breadcrumbNav.style.display = "none";
+  resetSearch();
   triggerGridAnimation(renderInitial);
 }
-
-searchInput.addEventListener("input", () => triggerGridAnimation(performSearch));
 
 function triggerGridAnimation(callback) {
   grid.classList.add("grid-transition");
   setTimeout(() => {
     callback();
     grid.classList.remove("grid-transition");
-    const cards = grid.querySelectorAll(".content-card");
-    cards.forEach((card, index) => {
-      setTimeout(() => card.classList.add("visible"), index * 50);
-    });
   }, 400);
 }
 
 function renderInitial() {
   pathStack = [];
+  noResults.style.display = "none";
   displayContent(contentData.folders, contentData.films);
-}
-
-function performSearch() {
-  const query = searchInput.value.toLowerCase();
-  if(!query) { renderInitial(); return; }
-  grid.innerHTML = "";
-  
-  const searchInFolders = (folders) => {
-    folders.forEach(f => {
-      if(f.title.toLowerCase().includes(query)) buildFolder(f);
-      if(f.children) {
-        f.children.forEach(c => {
-          if(c.type === "Folder") searchInFolders([c]);
-          else if(c.title.toLowerCase().includes(query)) buildFilm(c);
-        });
-      }
-    });
-  };
-  searchInFolders(contentData.folders);
-  contentData.films.forEach(f => f.title.toLowerCase().includes(query) && buildFilm(f));
 }
 
 function displayContent(folders = [], films = []) {
   grid.innerHTML = "";
-  folders.forEach(f => {
-    if(currentFilter === 'all' || hasMatchingContent(f, currentFilter)) buildFolder(f);
+  
+  // LOGIQUE DE TRI GLOBALE
+  // On fusionne tout pour être sûr que les inactifs soient tout à la fin de la grille,
+  // peu importe s'il s'agit d'un film ou d'un dossier.
+  const allItems = [
+    ...folders.filter(f => currentFilter === 'all' || hasMatchingContent(f, currentFilter)).map(f => ({...f, isFolder: true})),
+    ...films.filter(f => currentFilter === 'all' || f.type === currentFilter).map(f => ({...f, isFolder: false}))
+  ];
+
+  // Tri : active (true avant false)
+  allItems.sort((a, b) => {
+    const valA = a.active === false ? 1 : 0;
+    const valB = b.active === false ? 1 : 0;
+    return valA - valB;
   });
-  films.forEach(f => {
-    if(currentFilter === 'all' || f.type === currentFilter) buildFilm(f);
-  });
+
+  allItems.forEach(item => buildItem(item, item.isFolder));
   
   const cards = grid.querySelectorAll(".content-card");
   cards.forEach((card, index) => {
-    setTimeout(() => card.classList.add("visible"), index * 30);
+    setTimeout(() => card.classList.add("visible"), index * 50);
   });
 }
 
@@ -342,59 +373,37 @@ function hasMatchingContent(folder, type) {
   return folder.children?.some(c => c.type === type || (c.type === "Folder" && hasMatchingContent(c, type)));
 }
 
-// BUILDERS (LOGIQUE ORIGINALE)
-function buildFolder(f) {
-  const card = createCardBase(f);
-  card.onclick = () => f.active !== false && openFolder(f);
-  grid.appendChild(card);
-}
-
-function buildFilm(f) {
-  const card = createCardBase(f);
-  card.onclick = () => f.active !== false && playMovie(f.video);
-  grid.appendChild(card);
-}
-
-function createCardBase(item) {
+function buildItem(item, isFolder) {
   const isLocked = item.active === false;
   const card = document.createElement("div");
   card.className = "content-card" + (isLocked ? " locked" : "");
   
-  let html = `
-    <div class="poster-wrapper">
-      <img src="${item.image}" alt="${item.title}" loading="lazy">
-  `;
-  
+  let html = `<div class="poster-wrapper"><img src="${item.image}" alt="${item.title}" loading="lazy">`;
   if(isLocked) {
-    html += `
-      <div class="locked-overlay">
-        <div class="locked-icon"><i class="fa-solid fa-lock"></i></div>
-        <div class="coming-soon-tag">Bientôt</div>
-      </div>
-    `;
+    html += `<div class="locked-overlay">
+               <div class="punch-box">ARRIVE</div>
+               <div class="punch-box-white">BIENTÔT</div>
+               <div class="locked-icon-small"><i class="fa-solid fa-lock"></i></div>
+             </div>`;
   }
-  
-  html += `
-    </div>
-    <div class="content-info">
-      <div class="content-title">${item.title}</div>
-    </div>
-  `;
+  html += `</div><div class="content-title">${item.title}</div>`;
   
   card.innerHTML = html;
-  return card;
+  card.onclick = () => { if(!isLocked) isFolder ? openFolder(item) : playMedia(item); };
+  grid.appendChild(card);
 }
 
-// NAVIGATION (LOGIQUE ORIGINALE)
 function openFolder(folder) {
   pathStack.push(folder);
   syncNavigation();
-  triggerGridAnimation(() => {
-    displayContent(
-      folder.children.filter(c => c.type === "Folder"),
-      folder.children.filter(c => c.type !== "Folder")
-    );
-  });
+  const children = [...folder.children];
+  displayContent(children.filter(c => c.type === "Folder"), children.filter(c => c.type !== "Folder"));
+}
+
+function syncNavigation() {
+  backArrow.style.display = "flex";
+  breadcrumbNav.style.display = "flex";
+  breadcrumbNav.innerHTML = pathStack.map(f => `<span class="bc-item">${f.title}</span>`).join(" / ");
 }
 
 backArrow.onclick = () => {
@@ -407,42 +416,131 @@ backArrow.onclick = () => {
     const parent = pathStack[pathStack.length - 1];
     syncNavigation();
     triggerGridAnimation(() => {
-      displayContent(
-        parent.children.filter(c => c.type === "Folder"),
-        parent.children.filter(c => c.type !== "Folder")
-      );
+        const children = [...parent.children];
+        displayContent(children.filter(c => c.type === "Folder"), children.filter(c => c.type !== "Folder"));
     });
   }
 };
 
-function syncNavigation() {
-  backArrow.style.display = "flex";
-  breadcrumbNav.style.display = "flex";
-  breadcrumbNav.innerHTML = pathStack.map(f => `<span class="bc-item">${f.title}</span>`).join(" / ");
-}
-
-// PLAYER (LOGIQUE ORIGINALE)
-function playMovie(url) {
-  videoEngine.src = url;
+function playMedia(item) {
+  const parentText = document.getElementById("hud-parent-name");
+  if(pathStack.length > 0 && item.type === "Série") {
+    const serieName = pathStack[0].title;
+    const currentContainer = pathStack[pathStack.length - 1];
+    parentText.innerText = (pathStack.length > 1) ? `${serieName} - ${currentContainer.title}` : serieName;
+    parentText.style.display = "block";
+    currentSiblings = currentContainer.children.filter(c => c.type !== "Folder");
+    currentIndex = currentSiblings.findIndex(s => s.title === item.title);
+    updateNextButtonState();
+  } else {
+    parentText.style.display = "none";
+    nextBtn.style.display = "none";
+    currentSiblings = [];
+    currentIndex = -1;
+  }
+  document.getElementById("hud-current-name").innerText = item.title;
+  videoEngine.src = item.video;
   playerOverlay.style.display = "flex";
   document.body.classList.add("no-scroll");
-  requestAnimationFrame(() => playerOverlay.classList.add("active"));
+  document.body.classList.add("player-open");
+  setTimeout(() => playerOverlay.classList.add("active"), 50);
+}
+
+function updateNextButtonState() {
+  if (currentIndex !== -1 && currentIndex < currentSiblings.length - 1) {
+    nextBtn.style.display = "flex";
+    nextBtnText.innerText = "ÉPISODE SUIVANT";
+  } else {
+    const nextSeason = getNextSeasonFolder();
+    if (nextSeason) {
+      nextBtn.style.display = "flex";
+      nextBtnText.innerText = "SAISON SUIVANTE";
+    } else {
+      nextBtn.style.display = "none";
+    }
+  }
+}
+
+function getNextSeasonFolder() {
+  if (pathStack.length < 2) return null;
+  const currentSeasonFolder = pathStack[pathStack.length - 1];
+  const serieFolder = pathStack[pathStack.length - 2];
+  const seasons = serieFolder.children.filter(c => c.type === "Folder");
+  const currentIdx = seasons.findIndex(s => s.title === currentSeasonFolder.title);
+  return (currentIdx !== -1 && currentIdx < seasons.length - 1) ? seasons[currentIdx + 1] : null;
+}
+
+function playNextAuto() {
+  if (currentIndex !== -1 && currentIndex < currentSiblings.length - 1) {
+    const nextItem = currentSiblings[currentIndex + 1];
+    videoEngine.style.opacity = "0";
+    setTimeout(() => { playMedia(nextItem); videoEngine.style.opacity = "1"; }, 300);
+  } else {
+    const nextSeason = getNextSeasonFolder();
+    if (nextSeason) {
+      pathStack.pop();
+      pathStack.push(nextSeason);
+      syncNavigation();
+      const firstEp = nextSeason.children.find(c => c.type !== "Folder");
+      if (firstEp) {
+        videoEngine.style.opacity = "0";
+        setTimeout(() => { playMedia(firstEp); videoEngine.style.opacity = "1"; }, 300);
+      }
+    }
+  }
 }
 
 function closePlayer() {
   playerOverlay.classList.remove("active");
+  document.body.classList.remove("player-open");
   document.body.classList.remove("no-scroll");
-  setTimeout(() => {
-    videoEngine.src = "";
-    playerOverlay.style.display = "none";
-  }, 500);
+  setTimeout(() => { videoEngine.src = ""; playerOverlay.style.display = "none"; }, 500);
 }
 
-document.querySelector(".close-player").onclick = closePlayer;
-playerOverlay.onclick = e => e.target === playerOverlay && closePlayer();
+function resetSearch() {
+  searchInput.value = "";
+  clearBtn.style.display = "none";
+  noResults.style.display = "none";
+}
 
-document.addEventListener("keydown", (e) => {
-  if (e.key === "Escape") closePlayer();
+clearBtn.onclick = () => { resetSearch(); renderInitial(); };
+
+searchInput.addEventListener("input", (e) => {
+  const query = e.target.value.toLowerCase();
+  if(!query) { resetSearch(); renderInitial(); return; }
+  clearBtn.style.display = "block";
+  grid.innerHTML = "";
+  const found = [];
+  
+  const searchRecursive = (list) => {
+    list.forEach(item => {
+      if(item.title.toLowerCase().includes(query)) found.push(item);
+      if(item.children) searchRecursive(item.children);
+    });
+  };
+  
+  searchRecursive(contentData.folders);
+  contentData.films.forEach(f => { if(f.title.toLowerCase().includes(query)) found.push(f); });
+
+  // Tri des résultats de recherche aussi
+  const addedTitles = new Set();
+  found.sort((a, b) => (a.active === false ? 1 : 0) - (b.active === false ? 1 : 0))
+       .forEach(item => {
+         if(!addedTitles.has(item.title)) {
+           buildItem(item, (item.children || item.type === "Folder") ? true : false);
+           addedTitles.add(item.title);
+         }
+       });
+
+  if(grid.innerHTML === "") {
+    noResults.style.display = "flex";
+  } else {
+    noResults.style.display = "none";
+    const cards = grid.querySelectorAll(".content-card");
+    cards.forEach((card, index) => {
+      setTimeout(() => card.classList.add("visible"), index * 30);
+    });
+  }
 });
 </script>
 
