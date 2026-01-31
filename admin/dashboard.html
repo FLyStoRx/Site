@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Copyflix Admin | Premium Dashboard</title>
+    <title>Copyflix Admin | Global Search</title>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -18,220 +18,90 @@
             --accent-green: #00ff88;
             --accent-red: #ff3333;
             --radius: 12px;
-            --transition: all 0.3s cubic-bezier(0.23, 1, 0.32, 1);
+            --transition: all 0.25s cubic-bezier(0.23, 1, 0.32, 1);
         }
 
         * { box-sizing: border-box; outline: none; }
-        
-        body { 
-            font-family: 'Plus Jakarta Sans', sans-serif; 
-            background: var(--bg-body); 
-            color: var(--text-main); 
-            margin: 0; 
-            display: flex;
-            height: 100vh;
-            overflow: hidden;
-        }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background: var(--bg-body); color: var(--text-main); margin: 0; display: flex; height: 100vh; overflow: hidden; }
 
-        /* --- SIDEBAR --- */
-        aside {
-            width: 280px;
-            background: var(--bg-sidebar);
-            border-right: 1px solid #1a1a1a;
-            display: flex;
-            flex-direction: column;
-            padding: 30px 20px;
-            z-index: 100;
-        }
-
-        .logo {
-            font-weight: 800;
-            font-size: 1.5rem;
-            color: var(--primary);
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            margin-bottom: 40px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
+        aside { width: 280px; background: var(--bg-sidebar); border-right: 1px solid #1a1a1a; display: flex; flex-direction: column; padding: 30px 20px; z-index: 100; }
+        .logo { font-weight: 800; font-size: 1.5rem; color: var(--primary); text-transform: uppercase; letter-spacing: 2px; margin-bottom: 40px; display: flex; align-items: center; gap: 10px; }
         .nav-group { margin-bottom: 30px; }
         .nav-label { font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 15px; display: block; }
-        
-        .nav-btn {
-            width: 100%;
-            padding: 12px 15px;
-            background: transparent;
-            border: 1px solid transparent;
-            color: var(--text-main);
-            border-radius: var(--radius);
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            font-weight: 600;
-            margin-bottom: 8px;
-            transition: var(--transition);
-        }
-
+        .nav-btn { width: 100%; padding: 12px 15px; background: transparent; border: 1px solid transparent; color: var(--text-main); border-radius: var(--radius); cursor: pointer; display: flex; align-items: center; gap: 12px; font-weight: 600; margin-bottom: 8px; transition: var(--transition); }
         .nav-btn:hover { background: #1a1a1a; }
         .nav-btn.primary { background: var(--primary); color: white; box-shadow: 0 4px 15px var(--primary-glow); }
-        .nav-btn.primary:hover { transform: translateY(-2px); opacity: 0.9; }
 
-        /* --- MAIN CONTENT --- */
-        main {
-            flex: 1;
-            overflow-y: auto;
-            padding: 40px 5%;
-            position: relative;
-        }
-
-        .header-top {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 30px;
-        }
-
-        .breadcrumb { font-size: 1.1rem; font-weight: 400; color: var(--text-muted); }
+        main { flex: 1; overflow-y: auto; padding: 40px 5%; position: relative; }
+        .header-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; gap: 20px; }
+        .breadcrumb { font-size: 1.1rem; color: var(--text-muted); flex-shrink: 0; }
         .breadcrumb b { color: white; cursor: pointer; }
         .breadcrumb b:hover { color: var(--primary); }
 
-        /* --- GRID CONTENT --- */
-        #tree-view {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-            gap: 25px;
+        .search-container { position: relative; flex: 1; max-width: 400px; }
+        .search-input { 
+            width: 100%; background: #111; border: 1px solid #333; color: white; 
+            padding: 12px 15px 12px 40px; border-radius: 50px; font-family: inherit;
+            transition: var(--transition);
         }
+        .search-input:focus { border-color: var(--primary); background: #1a1a1a; box-shadow: 0 0 15px rgba(255,0,0,0.1); }
+        .search-icon { position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: var(--text-muted); pointer-events: none; }
+
+        #tree-view { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 25px; padding-bottom: 100px; }
 
         .tree-item {
-            position: relative;
-            background: var(--bg-card);
-            border-radius: var(--radius);
-            transition: var(--transition);
-            cursor: grab;
-            border: 1px solid #1a1a1a;
+            position: relative; background: var(--bg-card); border-radius: var(--radius);
+            transition: var(--transition); cursor: grab; border: 2px solid transparent;
+            user-select: none;
         }
+        .tree-item.dragging { opacity: 0.3; transform: scale(0.9); filter: grayscale(1); }
+        .tree-item.is-inactive { opacity: 0.5; filter: saturate(0.5); }
 
-        .tree-item:hover {
-            transform: translateY(-5px);
-            background: var(--bg-card-hover);
-            border-color: #333;
-            box-shadow: 0 15px 30px rgba(0,0,0,0.5);
-        }
+        .tree-item.drop-center { border-color: var(--primary); background: rgba(255, 0, 0, 0.15); transform: scale(1.05); }
+        .tree-item.drop-before { border-left: 5px solid var(--primary); }
+        .tree-item.drop-after { border-right: 5px solid var(--primary); }
 
-        .tree-item.dragging { opacity: 0.2; transform: scale(0.9); }
-        .tree-item.drop-target { border: 2px solid var(--primary); transform: scale(1.02); }
+        .poster-wrapper { position: relative; aspect-ratio: 2/3; overflow: hidden; border-radius: var(--radius) var(--radius) 0 0; }
+        .tree-item img { width: 100%; height: 100%; object-fit: cover; pointer-events: none; }
 
-        .poster-wrapper {
-            position: relative;
-            aspect-ratio: 2/3;
-            overflow: hidden;
-            border-radius: var(--radius) var(--radius) 0 0;
-        }
-
-        .tree-item img { width: 100%; height: 100%; object-fit: cover; transition: var(--transition); }
-        .tree-item:hover img { transform: scale(1.05); }
-
-        /* Status Badge */
-        .status-badge {
-            position: absolute;
-            top: 10px;
-            left: 10px;
-            padding: 4px 10px;
-            border-radius: 20px;
-            font-size: 0.65rem;
-            font-weight: 800;
-            backdrop-filter: blur(5px);
-            text-transform: uppercase;
-        }
+        .status-badge { position: absolute; top: 10px; left: 10px; padding: 4px 10px; border-radius: 20px; font-size: 0.6rem; font-weight: 800; backdrop-filter: blur(5px); z-index: 2; }
         .status-on { background: rgba(0, 255, 136, 0.2); color: var(--accent-green); border: 1px solid var(--accent-green); }
         .status-off { background: rgba(255, 51, 51, 0.2); color: var(--accent-red); border: 1px solid var(--accent-red); }
 
-        .item-info { padding: 15px; text-align: center; }
-        .item-title { font-weight: 600; font-size: 0.9rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .item-info { padding: 12px; text-align: center; }
+        .item-title { font-weight: 600; font-size: 0.85rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; pointer-events: none; }
 
-        /* Hover Actions */
-        .item-actions {
-            position: absolute;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(0,0,0,0.6);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 10px;
-            opacity: 0;
-            transition: var(--transition);
-            border-radius: var(--radius);
-        }
+        .item-actions { position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.7); display: flex; justify-content: center; align-items: center; gap: 8px; opacity: 0; transition: 0.2s; border-radius: var(--radius); z-index: 10; }
         .tree-item:hover .item-actions { opacity: 1; }
-
-        .circle-btn {
-            width: 40px; height: 40px;
-            border-radius: 50%;
-            border: none;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.1rem;
-            transition: var(--transition);
-        }
+        
+        .circle-btn { width: 38px; height: 38px; border-radius: 50%; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: 0.2s; z-index: 20; }
         .btn-edit { background: white; color: black; }
         .btn-delete { background: var(--accent-red); color: white; }
-        .circle-btn:hover { transform: scale(1.1); }
+        .circle-btn:hover { transform: scale(1.15); }
 
-        /* --- PANEL MODAL --- */
-        #panel-overlay {
-            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.9); z-index: 2000; backdrop-filter: blur(10px);
-        }
-        #panel {
-            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
-            background: #111; width: 450px; padding: 40px; border-radius: 24px;
-            border: 1px solid #222;
-        }
+        .drop-root-zone { grid-column: 1 / -1; border: 2px dashed #333; border-radius: var(--radius); padding: 25px; text-align: center; color: var(--text-muted); margin-bottom: 15px; transition: 0.3s; }
+        .drop-root-zone.drag-over { border-color: var(--primary); background: rgba(255,0,0,0.1); color: white; }
 
-        .form-group { margin-bottom: 20px; }
-        .form-group label { display: block; margin-bottom: 8px; font-size: 0.8rem; color: var(--text-muted); font-weight: 600; }
-        .form-group input, .form-group select {
-            width: 100%; padding: 14px; background: #1a1a1a; border: 1px solid #333; 
-            color: white; border-radius: 12px; font-family: inherit;
-        }
-        .form-group input:focus { border-color: var(--primary); }
+        #panel-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 2000; backdrop-filter: blur(10px); }
+        #panel { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: #111; width: 420px; padding: 35px; border-radius: 20px; border: 1px solid #222; }
+        .form-group { margin-bottom: 18px; }
+        .form-group label { display: block; margin-bottom: 8px; font-size: 0.75rem; color: var(--text-muted); }
+        .form-group input, .form-group select { width: 100%; padding: 12px; background: #1a1a1a; border: 1px solid #333; color: white; border-radius: 10px; }
 
-        /* Root Zone */
-        .drop-root-zone {
-            grid-column: 1 / -1; border: 2px dashed #333; border-radius: var(--radius);
-            padding: 20px; text-align: center; color: var(--text-muted); transition: var(--transition);
-        }
-        .drop-root-zone.drag-over { border-color: var(--primary); background: rgba(255,0,0,0.05); color: white; }
-
-        #toast {
-            position: fixed; bottom: 30px; right: 30px; background: var(--accent-green);
-            color: #000; padding: 15px 25px; border-radius: 12px; font-weight: 700;
-            display: none; z-index: 5000; animation: slideIn 0.3s ease;
-        }
-        @keyframes slideIn { from { transform: translateX(100%); } to { transform: translateX(0); } }
+        #toast { position: fixed; bottom: 30px; right: 30px; background: var(--accent-green); color: #000; padding: 15px 25px; border-radius: 12px; font-weight: 700; display: none; z-index: 5000; }
     </style>
 </head>
 <body>
 
 <aside>
     <div class="logo"><span>🔴</span> Copyflix</div>
-    
-    <div class="nav-group">
-        <span class="nav-label">Gestion</span>
+    <div class="nav-group"><span class="nav-label">Gestion</span>
         <button class="nav-btn primary" id="btn-add-film">✨ Ajouter un Média</button>
         <button class="nav-btn" id="btn-add-folder">📂 Nouveau Dossier</button>
     </div>
-
-    <div class="nav-group">
-        <span class="nav-label">Données</span>
+    <div class="nav-group"><span class="nav-label">Données</span>
         <button class="nav-btn" id="btn-copy-json">📋 Exporter JSON</button>
     </div>
-
     <div class="nav-group" style="margin-top: auto;">
         <button class="nav-btn" id="btn-logout" style="color: var(--accent-red)">🚪 Déconnexion</button>
     </div>
@@ -240,172 +110,218 @@
 <main>
     <div class="header-top">
         <div class="breadcrumb" id="breadcrumb">Position : <b>Racine</b></div>
-        <div style="color: var(--text-muted); font-size: 0.8rem;">Glisser-déposer pour réorganiser ou classer</div>
+        <div class="search-container">
+            <span class="search-icon">🔍</span>
+            <input type="text" id="search-bar" class="search-input" placeholder="Recherche globale (titre)...">
+        </div>
     </div>
-
     <div id="tree-view"></div>
 </main>
 
 <div id="panel-overlay">
     <div id="panel">
-        <h2 style="margin: 0 0 30px 0; font-size: 1.5rem;">Édition Média</h2>
+        <h2 style="margin: 0 0 25px 0; font-size: 1.3rem;">Édition</h2>
         <form id="panel-form">
             <input type="hidden" id="item-id">
-            <div class="form-group"><label>Titre de l'oeuvre</label><input type="text" id="item-title" required placeholder="Ex: Inception"></div>
-            <div style="display: flex; gap: 15px;">
-                <div class="form-group" style="flex:1"><label>Type</label>
-                    <select id="item-type"><option value="Film">Film</option><option value="Série">Série</option><option value="Folder">Dossier</option></select>
-                </div>
-                <div class="form-group" style="flex:1"><label>Statut</label>
-                    <select id="item-active"><option value="true">Disponible</option><option value="false">Indisponible</option></select>
-                </div>
+            <div class="form-group"><label>Titre</label><input type="text" id="item-title" required></div>
+            <div style="display: flex; gap: 10px;">
+                <div class="form-group" style="flex:1"><label>Type</label><select id="item-type"><option value="Film">Film</option><option value="Série">Série</option><option value="Folder">Dossier</option></select></div>
+                <div class="form-group" style="flex:1"><label>Statut</label><select id="item-active"><option value="true">Disponible</option><option value="false">Indisponible</option></select></div>
             </div>
-            <div class="form-group"><label>Lien de l'image (Poster)</label><input type="text" id="item-image" placeholder="URL https://..."></div>
-            <div class="form-group" id="video-field"><label>Lien Vidéo / Player</label><input type="text" id="item-video" placeholder="URL streaming..."></div>
-            
-            <div style="display:flex; gap:15px; margin-top:30px;">
-                <button type="submit" style="flex:2; background:white; color:black; border:none; padding:15px; border-radius:12px; font-weight:bold; cursor:pointer;">Enregistrer les modifications</button>
-                <button type="button" onclick="closePanel()" style="flex:1; background:#222; color:white; border:none; padding:15px; border-radius:12px; cursor:pointer;">Fermer</button>
+            <div class="form-group"><label>Lien Image</label><input type="text" id="item-image"></div>
+            <div class="form-group"><label>Lien Vidéo</label><input type="text" id="item-video"></div>
+            <div style="display:flex; gap:10px; margin-top:20px;">
+                <button type="submit" style="flex:2; background:white; color:black; border:none; padding:14px; border-radius:10px; font-weight:bold; cursor:pointer;">Enregistrer</button>
+                <button type="button" onclick="closePanel()" style="flex:1; background:#222; color:white; border:none; padding:14px; border-radius:10px; cursor:pointer;">Fermer</button>
             </div>
         </form>
     </div>
 </div>
 
-<div id="toast">Copié dans le presse-papier !</div>
+<div id="toast">Copié !</div>
 
 <script>
 let data = { folders: [], films: [] };
 let currentPath = [];
 let draggedItemId = null;
+let searchQuery = "";
 
 const treeView = document.getElementById("tree-view");
+const searchBar = document.getElementById("search-bar");
 
-// --- LOGIQUE NAVIGATION ---
-function navigateTo(folderId) {
-    if (!folderId) currentPath = [];
-    else {
-        const idx = currentPath.indexOf(folderId);
-        if (idx !== -1) currentPath = currentPath.slice(0, idx + 1);
-        else currentPath.push(folderId);
-    }
-    renderTree();
-}
-
-function updateBreadcrumb() {
-    let html = 'Position : <b onclick="navigateTo(\'\')">Racine</b>';
-    currentPath.forEach(id => {
-        const f = findItem(id, data);
-        if (f) html += ` > <b onclick="navigateTo('${id}')">${f.title}</b>`;
+// --- LOGIQUE DE RECHERCHE GLOBALE ---
+function getAllItems(root, list = []) {
+    root.folders.forEach(f => {
+        list.push(f);
+        if (f.children) getAllItems({ folders: f.children.filter(c => c.type === 'Folder'), films: f.children.filter(c => c.type !== 'Folder') }, list);
     });
-    document.getElementById("breadcrumb").innerHTML = html;
+    root.films.forEach(f => list.push(f));
+    return list;
 }
 
-// --- DRAG & DROP ---
-function onDragStart(e) {
-    draggedItemId = this.dataset.id;
-    this.classList.add('dragging');
-}
-
-function onDrop(e) {
-    e.preventDefault();
-    const targetId = this.dataset.id;
-    if (!targetId || draggedItemId === targetId) return;
-
-    const targetItem = findItem(targetId, data);
-    if (targetItem && targetItem.type === "Folder") {
-        moveItem(draggedItemId, targetId);
-    } else {
-        reorderItem(draggedItemId, targetId);
-    }
-    saveAndRefresh();
-}
-
-function moveItem(id, newParentId) {
-    const item = findItem(id, data);
-    removeFromParent(id, data);
-    item.parentId = newParentId || "";
-    if (!newParentId) {
-        if (item.type === "Folder") data.folders.push(item); else data.films.push(item);
-    } else {
-        const parent = findItem(newParentId, data);
-        parent.children.push(item);
-    }
-}
-
-function reorderItem(draggedId, targetId) {
-    const item = findItem(draggedId, data);
-    const target = findItem(targetId, data);
-    removeFromParent(draggedId, data);
-    item.parentId = target.parentId;
-    let arr = !item.parentId ? (item.type === "Folder" ? data.folders : data.films) : findItem(item.parentId, data).children;
-    const targetIdx = arr.findIndex(i => i.id === targetId);
-    arr.splice(targetIdx, 0, item);
-}
-
-// --- RENDU ---
-function renderTree() {
-    treeView.innerHTML = "";
-    updateBreadcrumb();
-
-    if (currentPath.length > 0) {
-        const rootZone = document.createElement('div');
-        rootZone.className = 'drop-root-zone';
-        rootZone.textContent = "↑ Faire glisser ici pour déplacer vers la racine";
-        rootZone.ondragover = (e) => { e.preventDefault(); rootZone.classList.add('drag-over'); };
-        rootZone.ondragleave = () => rootZone.classList.remove('drag-over');
-        rootZone.ondrop = () => { moveItem(draggedItemId, ""); saveAndRefresh(); };
-        treeView.appendChild(rootZone);
-    }
-
-    let items = currentPath.length === 0 ? [...data.folders, ...data.films] : (findItem(currentPath[currentPath.length - 1], data).children || []);
-
-    items.forEach(item => {
-        const div = document.createElement("div");
-        div.className = "tree-item";
-        div.draggable = true;
-        div.dataset.id = item.id;
-        
-        div.ondragstart = onDragStart;
-        div.ondragover = (e) => { e.preventDefault(); if(item.type === "Folder") div.classList.add('drop-target'); };
-        div.ondragleave = () => div.classList.remove('drop-target');
-        div.ondragend = () => document.querySelectorAll('.tree-item').forEach(el => el.classList.remove('drop-target', 'dragging'));
-        div.ondrop = onDrop;
-        div.onclick = () => { if (item.type === "Folder") navigateTo(item.id); };
-
-        const statusClass = item.active ? 'status-on' : 'status-off';
-        const statusText = item.active ? 'En ligne' : 'Hors ligne';
-
-        div.innerHTML = `
-            <div class="poster-wrapper">
-                <span class="status-badge ${statusClass}">${statusText}</span>
-                <img src="${item.image || 'https://via.placeholder.com/300x450/111/333?text=Copyflix'}">
-                <div class="item-actions">
-                    <button class="circle-btn btn-edit" onclick="event.stopPropagation(); openPanel('${item.type}', '${item.id}')">✏️</button>
-                    <button class="circle-btn btn-delete" onclick="event.stopPropagation(); deleteItem('${item.id}')">🗑️</button>
-                </div>
-            </div>
-            <div class="item-info">
-                <div class="item-title">${(item.type === "Folder" ? "📁 " : "") + item.title}</div>
-            </div>
-        `;
-        treeView.appendChild(div);
-    });
-}
-
-// --- LOGIQUE DONNÉES ---
 function findItem(id, root) {
     let found = null;
     const scan = (arr) => { for (let i of arr) { if (i.id === id) found = i; if (!found && i.children) scan(i.children); } };
     scan(root.folders); scan(root.films); return found;
 }
+
 function removeFromParent(id, root) {
-    const remove = (arr) => { const idx = arr.findIndex(x => x.id === id); if (idx > -1) { arr.splice(idx, 1); return true; } return arr.some(x => x.children && remove(x.children)); };
+    const remove = (arr) => {
+        const idx = arr.findIndex(x => x.id === id);
+        if (idx > -1) { arr.splice(idx, 1); return true; }
+        return arr.some(x => x.children && remove(x.children));
+    };
     remove(root.folders); remove(root.films);
 }
-function saveAndRefresh() { localStorage.setItem("copyflixData", JSON.stringify(data)); renderTree(); }
-function deleteItem(id) { if (confirm("Supprimer cet élément ?")) { removeFromParent(id, data); saveAndRefresh(); } }
 
-// --- UI & PANELS ---
+function saveAndRefresh() { localStorage.setItem("copyflixData", JSON.stringify(data)); renderTree(); }
+
+// --- DRAG & DROP ---
+function onDragStart(e) {
+    if (searchQuery !== "") { e.preventDefault(); return; } // Désactiver drag pendant recherche
+    draggedItemId = this.dataset.id;
+    this.classList.add('dragging');
+    e.dataTransfer.setData("text/plain", draggedItemId);
+}
+
+function onDragOver(e) {
+    e.preventDefault();
+    if (searchQuery !== "") return;
+    const targetId = this.dataset.id;
+    if (targetId === draggedItemId) return;
+    const rect = this.getBoundingClientRect();
+    const relX = e.clientX - rect.left;
+    const targetItem = findItem(targetId, data);
+    this.classList.remove('drop-before', 'drop-after', 'drop-center');
+    if (targetItem.type === "Folder") {
+        if (relX > rect.width * 0.25 && relX < rect.width * 0.75) this.classList.add('drop-center');
+        else if (relX <= rect.width * 0.25) this.classList.add('drop-before');
+        else this.classList.add('drop-after');
+    } else {
+        if (relX < rect.width / 2) this.classList.add('drop-before');
+        else this.classList.add('drop-after');
+    }
+}
+
+function onDrop(e) {
+    e.preventDefault();
+    if (searchQuery !== "") return;
+    const targetId = this.dataset.id;
+    if (!targetId || targetId === draggedItemId) return;
+    const rect = this.getBoundingClientRect();
+    const relX = e.clientX - rect.left;
+    const targetItem = findItem(targetId, data);
+    const draggedItem = findItem(draggedItemId, data);
+    removeFromParent(draggedItemId, data);
+    const activeParentId = currentPath.length > 0 ? currentPath[currentPath.length - 1] : "";
+    if (targetItem.type === "Folder" && relX > rect.width * 0.25 && relX < rect.width * 0.75) {
+        draggedItem.parentId = targetId;
+        targetItem.children.push(draggedItem);
+    } else {
+        draggedItem.parentId = activeParentId;
+        let arr = !activeParentId ? (draggedItem.type === "Folder" ? data.folders : data.films) : findItem(activeParentId, data).children;
+        const targetIdx = arr.findIndex(i => i.id === targetId);
+        const insertIdx = relX < rect.width / 2 ? targetIdx : targetIdx + 1;
+        arr.splice(insertIdx, 0, draggedItem);
+    }
+    saveAndRefresh();
+}
+
+// --- NAVIGATION & SEARCH ---
+function navigateTo(id) {
+    searchBar.value = "";
+    searchQuery = "";
+    if (!id) currentPath = []; else {
+        const idx = currentPath.indexOf(id);
+        if (idx !== -1) currentPath = currentPath.slice(0, idx+1); else currentPath.push(id);
+    }
+    renderTree();
+}
+
+searchBar.oninput = (e) => {
+    searchQuery = e.target.value.toLowerCase();
+    renderTree();
+};
+
+function renderTree() {
+    treeView.innerHTML = "";
+    let bHtml = 'Position : <b onclick="navigateTo(\'\')">Racine</b>';
+    currentPath.forEach(id => { const f = findItem(id, data); if(f) bHtml += ` > <b onclick="navigateTo('${id}')">${f.title}</b>`; });
+    
+    // Si recherche, on change le titre du breadcrumb
+    if (searchQuery !== "") {
+        document.getElementById("breadcrumb").innerHTML = `Résultats pour : <b style="color:var(--primary)">"${searchQuery}"</b>`;
+    } else {
+        document.getElementById("breadcrumb").innerHTML = bHtml;
+    }
+
+    let items = [];
+    if (searchQuery !== "") {
+        // Recherche Globale dans TOUTE la base
+        items = getAllItems(data).filter(item => item.title.toLowerCase().includes(searchQuery));
+    } else {
+        // Vue normale par dossier
+        items = currentPath.length === 0 ? [...data.folders, ...data.films] : (findItem(currentPath[currentPath.length-1], data).children || []);
+    }
+
+    // Zone Root (Masquée si recherche)
+    if (currentPath.length > 0 && searchQuery === "") {
+        const rz = document.createElement('div');
+        rz.className = 'drop-root-zone';
+        rz.textContent = "↑ Déposer ici pour sortir de ce dossier";
+        rz.ondragover = (e) => { e.preventDefault(); rz.classList.add('drag-over'); };
+        rz.ondragleave = () => rz.classList.remove('drag-over');
+        rz.ondrop = (e) => {
+            const item = findItem(draggedItemId, data);
+            removeFromParent(draggedItemId, data);
+            item.parentId = "";
+            if(item.type === "Folder") data.folders.push(item); else data.films.push(item);
+            saveAndRefresh();
+        };
+        treeView.appendChild(rz);
+    }
+
+    // Tri : Indisponibles à la fin
+    items.sort((a, b) => {
+        if (a.active === b.active) return 0;
+        return a.active ? -1 : 1;
+    });
+
+    items.forEach(item => {
+        const div = document.createElement("div");
+        div.className = `tree-item ${!item.active ? 'is-inactive' : ''}`;
+        div.draggable = (searchQuery === ""); // Pas de drag pendant la recherche
+        div.dataset.id = item.id;
+        div.ondragstart = onDragStart;
+        div.ondragover = onDragOver;
+        div.ondragleave = () => div.classList.remove('drop-before', 'drop-after', 'drop-center');
+        div.ondrop = onDrop;
+        
+        div.onclick = (e) => {
+            if (e.target.closest('.circle-btn')) return; 
+            if (item.type === "Folder") navigateTo(item.id);
+        };
+
+        div.innerHTML = `
+            <div class="poster-wrapper">
+                <span class="status-badge ${item.active ? 'status-on' : 'status-off'}">${item.active ? 'Disponible' : 'Indisponible'}</span>
+                <img src="${item.image || 'https://via.placeholder.com/300x450/111/333?text=Copyflix'}">
+                <div class="item-actions">
+                    <button class="circle-btn btn-edit" title="Modifier">✏️</button>
+                    <button class="circle-btn btn-delete" title="Supprimer">🗑️</button>
+                </div>
+            </div>
+            <div class="item-info"><div class="item-title">${(item.type === "Folder" ? "📁 " : "") + item.title}</div></div>
+        `;
+
+        div.querySelector('.btn-edit').onclick = (e) => { e.stopPropagation(); openPanel(item.type, item.id); };
+        div.querySelector('.btn-delete').onclick = (e) => { e.stopPropagation(); deleteItem(item.id); };
+
+        treeView.appendChild(div);
+    });
+}
+
+// --- UI MODAL ---
 function openPanel(type, id = null) {
     const item = id ? findItem(id, data) : null;
     document.getElementById("panel-overlay").style.display = "block";
@@ -428,28 +344,27 @@ document.getElementById("panel-form").onsubmit = (e) => {
         video: document.getElementById("item-video").value,
         active: document.getElementById("item-active").value === "true"
     };
-
-    if (id) {
-        Object.assign(findItem(id, data), vals);
-    } else {
-        const newItem = { id: "id-" + Date.now(), ...vals, children: [], parentId: currentPath[currentPath.length - 1] || "" };
-        if (!newItem.parentId) { if (vals.type === "Folder") data.folders.push(newItem); else data.films.push(newItem); }
+    if (id) Object.assign(findItem(id, data), vals);
+    else {
+        const newItem = { id: "id-" + Date.now(), ...vals, children: [], parentId: currentPath[currentPath.length-1] || "" };
+        if(!newItem.parentId) { if(vals.type === "Folder") data.folders.push(newItem); else data.films.push(newItem); }
         else findItem(newItem.parentId, data).children.push(newItem);
     }
     saveAndRefresh(); closePanel();
 };
 
-// Init
+function deleteItem(id) { if(confirm("Supprimer cet élément ?")) { removeFromParent(id, data); saveAndRefresh(); } }
+
 const saved = localStorage.getItem("copyflixData");
-if (saved) data = JSON.parse(saved);
+if(saved) data = JSON.parse(saved);
 document.getElementById("btn-add-folder").onclick = () => openPanel("Folder");
 document.getElementById("btn-add-film").onclick = () => openPanel("Film");
 document.getElementById("btn-copy-json").onclick = () => {
     navigator.clipboard.writeText(JSON.stringify(data, null, 2));
-    const t = document.getElementById("toast"); t.style.display = "block";
-    setTimeout(() => t.style.display = "none", 2500);
+    const t = document.getElementById("toast"); t.style.display="block"; setTimeout(()=>t.style.display="none", 2000);
 };
-document.getElementById("btn-logout").onclick = () => window.location.href = "../index.html";
+document.getElementById("btn-logout").onclick = () => window.location.href="../index.html";
+
 renderTree();
 </script>
 </body>
