@@ -56,6 +56,7 @@ header.scrolled {
 .search-wrapper input { background: transparent; border: none; color: white; outline: none; width: 160px; }
 
 #clear-search { cursor: pointer; color: var(--text-muted); font-size: 0.9rem; display: none; }
+#clear-search:hover { color: #fff; }
 
 .admin-trigger {
   width: 42px; height: 42px; border-radius: 12px;
@@ -92,7 +93,6 @@ header.scrolled {
   animation: flowWave 1.5s infinite ease-in-out;
 }
 
-/* Variations d'animation pour l'effet d'onde */
 .flux-bar:nth-child(1) { animation-delay: 0.1s; height: 20px; }
 .flux-bar:nth-child(2) { animation-delay: 0.2s; height: 40px; }
 .flux-bar:nth-child(3) { animation-delay: 0.3s; height: 30px; }
@@ -130,7 +130,7 @@ header.scrolled {
   background: #111; border: 1px solid #222; color: white;
   align-items: center; justify-content: center; cursor: pointer; transition: var(--transition);
 }
-#breadcrumb-nav { display: none; align-items: center; gap: 10px; font-weight: 600; }
+#breadcrumb-nav { display: none; align-items: center; gap: 10px; font-weight: 600; color: var(--text-muted); }
 .bc-item:last-child { color: var(--primary); }
 
 #main-grid {
@@ -183,7 +183,8 @@ header.scrolled {
 #player-overlay.active { opacity: 1; transform: scale(1); }
 #player-container { width: 100%; height: 100%; }
 #player-container iframe { width: 100%; height: 100%; border: none; }
-.close-player { position: absolute; top: 40px; right: 40px; width: 50px; height: 50px; background: rgba(255,255,255,0.1); border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 2100; }
+.close-player { position: absolute; top: 40px; right: 40px; width: 50px; height: 50px; background: rgba(255,255,255,0.1); border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 2100; backdrop-filter: blur(10px); transition: 0.3s; }
+.close-player:hover { transform: rotate(90deg); background: rgba(255,255,255,0.2); }
 
 #no-results { display: none; flex-direction: column; align-items: center; padding: 100px 0; color: var(--text-muted); }
 .grid-transition { opacity: 0; transform: scale(0.98); transition: 0.4s ease; }
@@ -217,13 +218,13 @@ header.scrolled {
       <div class="flux-bar"></div>
       <div class="flux-bar"></div>
     </div>
-    <div class="flux-label">Streaming Protocol Activated</div>
+    <div class="flux-label">Streaming Protocol Active</div>
     
     <div class="tab-nav-wrapper">
       <nav class="tab-nav">
-        <button class="active" onclick="filterData('all', this)">Tout</button>
-        <button onclick="filterData('film', this)">Films</button>
-        <button onclick="filterData('serie', this)">Séries</button>
+        <button class="active" id="tab-all" onclick="filterData('all', this)">Tout</button>
+        <button id="tab-film" onclick="filterData('film', this)">Films</button>
+        <button id="tab-serie" onclick="filterData('serie', this)">Séries</button>
       </nav>
     </div>
   </section>
@@ -261,6 +262,7 @@ const playerOverlay = document.getElementById("player-overlay");
 const videoEngine = document.getElementById("video-engine");
 const nav = document.getElementById("mainNav");
 
+// Chargement initial
 fetch("data.json").then(r => r.json()).then(json => {
   contentData = json;
   renderInitial();
@@ -268,11 +270,12 @@ fetch("data.json").then(r => r.json()).then(json => {
 
 window.addEventListener("scroll", () => nav.classList.toggle("scrolled", window.scrollY > 50));
 
+// Navigation & Filtres
 function filterData(type, btn) {
   currentFilter = type === 'film' ? 'Film' : type === 'serie' ? 'Série' : 'all';
   document.querySelectorAll(".tab-nav button").forEach(b => b.classList.remove("active"));
   btn.classList.add("active");
-  resetSearch();
+  resetSearchUI();
   triggerGridAnimation(renderInitial);
 }
 
@@ -286,20 +289,32 @@ function triggerGridAnimation(callback) {
 
 function renderInitial() {
   pathStack = [];
+  backArrow.style.display = "none";
+  breadcrumbNav.style.display = "none";
   noResults.style.display = "none";
   displayContent(contentData.folders, contentData.films);
 }
 
 function displayContent(folders = [], films = []) {
   grid.innerHTML = "";
+  
+  // Fusionner et Filtrer par type
   const allItems = [
     ...folders.filter(f => currentFilter === 'all' || hasMatchingContent(f, currentFilter)).map(f => ({...f, isFolder: true})),
     ...films.filter(f => currentFilter === 'all' || f.type === currentFilter).map(f => ({...f, isFolder: false}))
   ];
 
+  // Tri "Arrive Bientôt" à la fin
   allItems.sort((a, b) => (a.active === false ? 1 : 0) - (b.active === false ? 1 : 0));
-  allItems.forEach(item => buildItem(item, item.isFolder));
+
+  if (allItems.length === 0) {
+    noResults.style.display = "flex";
+  } else {
+    noResults.style.display = "none";
+    allItems.forEach(item => buildItem(item, item.isFolder));
+  }
   
+  // Animation d'entrée
   const cards = grid.querySelectorAll(".content-card");
   cards.forEach((card, index) => {
     setTimeout(() => card.classList.add("visible"), index * 50);
@@ -325,7 +340,12 @@ function buildItem(item, isFolder) {
   html += `</div><div class="content-title">${item.title}</div>`;
   
   card.innerHTML = html;
-  card.onclick = () => { if(!isLocked) isFolder ? openFolder(item) : playMedia(item); };
+  card.onclick = () => { 
+    if(!isLocked) {
+      if(isFolder) openFolder(item);
+      else playMedia(item);
+    }
+  };
   grid.appendChild(card);
 }
 
@@ -345,9 +365,7 @@ function syncNavigation() {
 backArrow.onclick = () => {
   pathStack.pop();
   if(pathStack.length === 0) {
-    backArrow.style.display = "none";
-    breadcrumbNav.style.display = "none";
-    triggerGridAnimation(renderInitial);
+    renderInitial();
   } else {
     const parent = pathStack[pathStack.length - 1];
     syncNavigation();
@@ -355,6 +373,7 @@ backArrow.onclick = () => {
   }
 };
 
+// Player
 function playMedia(item) {
   videoEngine.src = item.video;
   playerOverlay.style.display = "flex";
@@ -368,30 +387,76 @@ function closePlayer() {
   setTimeout(() => { videoEngine.src = ""; playerOverlay.style.display = "none"; }, 500);
 }
 
-function resetSearch() {
+// RECHERCHE (LOGIQUE FIXÉE)
+function resetSearchUI() {
   searchInput.value = "";
   clearBtn.style.display = "none";
   noResults.style.display = "none";
 }
 
+clearBtn.onclick = () => { resetSearchUI(); renderInitial(); };
+
 searchInput.addEventListener("input", (e) => {
-  const query = e.target.value.toLowerCase();
-  if(!query) { resetSearch(); renderInitial(); return; }
+  const query = e.target.value.toLowerCase().trim();
+  
+  if(!query) { 
+    resetSearchUI(); 
+    renderInitial(); 
+    return; 
+  }
+
   clearBtn.style.display = "block";
   grid.innerHTML = "";
+  
   const found = [];
+  const addedTitles = new Set();
+
+  // Fonction récursive pour fouiller les dossiers
   const searchRecursive = (list) => {
     list.forEach(item => {
-      if(item.title.toLowerCase().includes(query)) found.push(item);
+      if(item.title.toLowerCase().includes(query)) {
+        if(!addedTitles.has(item.title)) {
+          found.push(item);
+          addedTitles.add(item.title);
+        }
+      }
       if(item.children) searchRecursive(item.children);
     });
   };
+
   searchRecursive(contentData.folders);
-  contentData.films.forEach(f => { if(f.title.toLowerCase().includes(query)) found.push(f); });
+  contentData.films.forEach(f => { 
+    if(f.title.toLowerCase().includes(query) && !addedTitles.has(f.title)) {
+        found.push(f);
+        addedTitles.add(f.title);
+    }
+  });
+
+  // Filtrer les résultats par le type d'onglet actif (si pas "Tout")
+  let filteredFound = found;
+  if(currentFilter !== 'all') {
+    filteredFound = found.filter(item => {
+        if(item.type === currentFilter) return true;
+        if(item.children || item.type === "Folder") return hasMatchingContent(item, currentFilter);
+        return false;
+    });
+  }
   
-  found.sort((a, b) => (a.active === false ? 1 : 0) - (b.active === false ? 1 : 0))
-       .forEach(item => buildItem(item, (item.children || item.type === "Folder")));
-  noResults.style.display = grid.innerHTML === "" ? "flex" : "none";
+  // Tri final
+  filteredFound.sort((a, b) => (a.active === false ? 1 : 0) - (b.active === false ? 1 : 0));
+
+  if (filteredFound.length === 0) {
+    noResults.style.display = "flex";
+  } else {
+    noResults.style.display = "none";
+    filteredFound.forEach(item => buildItem(item, (item.children || item.type === "Folder")));
+    
+    // Animation
+    const cards = grid.querySelectorAll(".content-card");
+    cards.forEach((card, index) => {
+      setTimeout(() => card.classList.add("visible"), index * 30);
+    });
+  }
 });
 </script>
 
