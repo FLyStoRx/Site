@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Copyflix Admin | Global Search</title>
+    <title>Copyflix Admin | Quick Status</title>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -49,24 +49,24 @@
 
         #tree-view { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 25px; padding-bottom: 100px; }
 
-        .tree-item {
-            position: relative; background: var(--bg-card); border-radius: var(--radius);
-            transition: var(--transition); cursor: grab; border: 2px solid transparent;
-            user-select: none;
-        }
+        .tree-item { position: relative; background: var(--bg-card); border-radius: var(--radius); transition: var(--transition); cursor: grab; border: 2px solid transparent; user-select: none; }
         .tree-item.dragging { opacity: 0.3; transform: scale(0.9); filter: grayscale(1); }
         .tree-item.is-inactive { opacity: 0.5; filter: saturate(0.5); }
-
-        .tree-item.drop-center { border-color: var(--primary); background: rgba(255, 0, 0, 0.15); transform: scale(1.05); }
-        .tree-item.drop-before { border-left: 5px solid var(--primary); }
-        .tree-item.drop-after { border-right: 5px solid var(--primary); }
-
+        
         .poster-wrapper { position: relative; aspect-ratio: 2/3; overflow: hidden; border-radius: var(--radius) var(--radius) 0 0; }
         .tree-item img { width: 100%; height: 100%; object-fit: cover; pointer-events: none; }
 
-        .status-badge { position: absolute; top: 10px; left: 10px; padding: 4px 10px; border-radius: 20px; font-size: 0.6rem; font-weight: 800; backdrop-filter: blur(5px); z-index: 2; }
-        .status-on { background: rgba(0, 255, 136, 0.2); color: var(--accent-green); border: 1px solid var(--accent-green); }
-        .status-off { background: rgba(255, 51, 51, 0.2); color: var(--accent-red); border: 1px solid var(--accent-red); }
+        /* BADGE CLIQUABLE */
+        .status-badge { 
+            position: absolute; top: 10px; left: 10px; padding: 5px 10px; 
+            border-radius: 20px; font-size: 0.65rem; font-weight: 800; 
+            backdrop-filter: blur(8px); z-index: 30; cursor: pointer;
+            border: 1px solid transparent; transition: 0.2s;
+            text-transform: uppercase;
+        }
+        .status-badge:hover { transform: scale(1.05); }
+        .status-on { background: rgba(0, 255, 136, 0.2); color: var(--accent-green); border-color: var(--accent-green); }
+        .status-off { background: rgba(255, 51, 51, 0.2); color: var(--accent-red); border-color: var(--accent-red); }
 
         .item-info { padding: 12px; text-align: center; }
         .item-title { font-weight: 600; font-size: 0.85rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; pointer-events: none; }
@@ -77,16 +77,18 @@
         .circle-btn { width: 38px; height: 38px; border-radius: 50%; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: 0.2s; z-index: 20; }
         .btn-edit { background: white; color: black; }
         .btn-delete { background: var(--accent-red); color: white; }
-        .circle-btn:hover { transform: scale(1.15); }
 
         .drop-root-zone { grid-column: 1 / -1; border: 2px dashed #333; border-radius: var(--radius); padding: 25px; text-align: center; color: var(--text-muted); margin-bottom: 15px; transition: 0.3s; }
         .drop-root-zone.drag-over { border-color: var(--primary); background: rgba(255,0,0,0.1); color: white; }
 
         #panel-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 2000; backdrop-filter: blur(10px); }
-        #panel { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: #111; width: 420px; padding: 35px; border-radius: 20px; border: 1px solid #222; }
-        .form-group { margin-bottom: 18px; }
-        .form-group label { display: block; margin-bottom: 8px; font-size: 0.75rem; color: var(--text-muted); }
+        #panel { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: #111; width: 450px; padding: 35px; border-radius: 20px; border: 1px solid #222; max-height: 90vh; overflow-y: auto; }
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; margin-bottom: 6px; font-size: 0.75rem; color: var(--text-muted); }
         .form-group input, .form-group select { width: 100%; padding: 12px; background: #1a1a1a; border: 1px solid #333; color: white; border-radius: 10px; }
+        
+        .tmdb-box { background: #000; padding: 15px; border-radius: 12px; border: 1px solid var(--primary); margin-bottom: 20px; }
+        .tmdb-btn { background: var(--primary); color: white; border: none; padding: 8px 15px; border-radius: 8px; cursor: pointer; font-weight: bold; margin-top: 10px; font-size: 0.8rem; width: 100%; }
 
         #toast { position: fixed; bottom: 30px; right: 30px; background: var(--accent-green); color: #000; padding: 15px 25px; border-radius: 12px; font-weight: 700; display: none; z-index: 5000; }
     </style>
@@ -112,7 +114,7 @@
         <div class="breadcrumb" id="breadcrumb">Position : <b>Racine</b></div>
         <div class="search-container">
             <span class="search-icon">🔍</span>
-            <input type="text" id="search-bar" class="search-input" placeholder="Recherche globale (titre)...">
+            <input type="text" id="search-bar" class="search-input" placeholder="Recherche globale...">
         </div>
     </div>
     <div id="tree-view"></div>
@@ -120,19 +122,23 @@
 
 <div id="panel-overlay">
     <div id="panel">
-        <h2 style="margin: 0 0 25px 0; font-size: 1.3rem;">Édition</h2>
+        <h2 style="margin: 0 0 15px 0; font-size: 1.2rem;">Édition Média</h2>
+        
+        <div class="tmdb-box">
+            <label style="font-size: 0.7rem; color: var(--text-muted);">AUTO-FILL TMDB</label>
+            <input type="text" id="tmdb-input" placeholder="ID ou Lien TMDB" style="width: 100%; padding: 8px; background: #222; border: 1px solid #444; color: white; border-radius: 5px; margin-top: 5px;">
+            <button type="button" class="tmdb-btn" onclick="fetchTMDB()">⚡ Récupérer les infos</button>
+        </div>
+
         <form id="panel-form">
             <input type="hidden" id="item-id">
-            <div class="form-group"><label>Titre</label><input type="text" id="item-title" required></div>
-            <div style="display: flex; gap: 10px;">
-                <div class="form-group" style="flex:1"><label>Type</label><select id="item-type"><option value="Film">Film</option><option value="Série">Série</option><option value="Folder">Dossier</option></select></div>
-                <div class="form-group" style="flex:1"><label>Statut</label><select id="item-active"><option value="true">Disponible</option><option value="false">Indisponible</option></select></div>
-            </div>
-            <div class="form-group"><label>Lien Image</label><input type="text" id="item-image"></div>
-            <div class="form-group"><label>Lien Vidéo</label><input type="text" id="item-video"></div>
+            <input type="hidden" id="item-active-hidden"> <div class="form-group"><label>Titre</label><input type="text" id="item-title" required></div>
+            <div class="form-group"><label>Type</label><select id="item-type"><option value="Film">Film</option><option value="Série">Série</option><option value="Folder">Dossier</option></select></div>
+            <div class="form-group"><label>Lien Image (Poster)</label><input type="text" id="item-image"></div>
+            <div class="form-group"><label>Lien Vidéo (Stream)</label><input type="text" id="item-video"></div>
             <div style="display:flex; gap:10px; margin-top:20px;">
                 <button type="submit" style="flex:2; background:white; color:black; border:none; padding:14px; border-radius:10px; font-weight:bold; cursor:pointer;">Enregistrer</button>
-                <button type="button" onclick="closePanel()" style="flex:1; background:#222; color:white; border:none; padding:14px; border-radius:10px; cursor:pointer;">Fermer</button>
+                <button type="button" onclick="closePanel()" style="flex:1; background:#222; color:white; border:none; padding:14px; border-radius:10px; cursor:pointer;">Annuler</button>
             </div>
         </form>
     </div>
@@ -141,6 +147,10 @@
 <div id="toast">Copié !</div>
 
 <script>
+// --- CONFIG TMDB ---
+const TMDB_API_KEY = "a05cb0aa7f238cb1cbbbdfaebf1e2df3"; 
+const TMDB_IMG_PATH = "https://image.tmdb.org/t/p/w500";
+
 let data = { folders: [], films: [] };
 let currentPath = [];
 let draggedItemId = null;
@@ -149,7 +159,27 @@ let searchQuery = "";
 const treeView = document.getElementById("tree-view");
 const searchBar = document.getElementById("search-bar");
 
-// --- LOGIQUE DE RECHERCHE GLOBALE ---
+// --- API TMDB ---
+async function fetchTMDB() {
+    const input = document.getElementById('tmdb-input').value;
+    if(!input) return;
+    const isTV = input.includes('/tv/');
+    const type = isTV ? 'tv' : 'movie';
+    const idMatch = input.match(/\/(movie|tv)\/(\d+)/);
+    const id = idMatch ? idMatch[2] : input.trim();
+
+    try {
+        const response = await fetch(`https://api.themoviedb.org/3/${type}/${id}?api_key=${TMDB_API_KEY}&language=fr-FR`);
+        const result = await response.json();
+        if(result.id) {
+            document.getElementById('item-title').value = result.title || result.name;
+            document.getElementById('item-image').value = TMDB_IMG_PATH + result.poster_path;
+            document.getElementById('item-type').value = isTV ? "Série" : "Film";
+        }
+    } catch (err) { alert("Erreur TMDB"); }
+}
+
+// --- CORE ---
 function getAllItems(root, list = []) {
     root.folders.forEach(f => {
         list.push(f);
@@ -176,101 +206,35 @@ function removeFromParent(id, root) {
 
 function saveAndRefresh() { localStorage.setItem("copyflixData", JSON.stringify(data)); renderTree(); }
 
-// --- DRAG & DROP ---
-function onDragStart(e) {
-    if (searchQuery !== "") { e.preventDefault(); return; } // Désactiver drag pendant recherche
-    draggedItemId = this.dataset.id;
-    this.classList.add('dragging');
-    e.dataTransfer.setData("text/plain", draggedItemId);
-}
-
-function onDragOver(e) {
-    e.preventDefault();
-    if (searchQuery !== "") return;
-    const targetId = this.dataset.id;
-    if (targetId === draggedItemId) return;
-    const rect = this.getBoundingClientRect();
-    const relX = e.clientX - rect.left;
-    const targetItem = findItem(targetId, data);
-    this.classList.remove('drop-before', 'drop-after', 'drop-center');
-    if (targetItem.type === "Folder") {
-        if (relX > rect.width * 0.25 && relX < rect.width * 0.75) this.classList.add('drop-center');
-        else if (relX <= rect.width * 0.25) this.classList.add('drop-before');
-        else this.classList.add('drop-after');
-    } else {
-        if (relX < rect.width / 2) this.classList.add('drop-before');
-        else this.classList.add('drop-after');
+function toggleStatus(id) {
+    const item = findItem(id, data);
+    if(item) {
+        item.active = !item.active;
+        saveAndRefresh();
     }
 }
 
-function onDrop(e) {
-    e.preventDefault();
-    if (searchQuery !== "") return;
-    const targetId = this.dataset.id;
-    if (!targetId || targetId === draggedItemId) return;
-    const rect = this.getBoundingClientRect();
-    const relX = e.clientX - rect.left;
-    const targetItem = findItem(targetId, data);
-    const draggedItem = findItem(draggedItemId, data);
-    removeFromParent(draggedItemId, data);
-    const activeParentId = currentPath.length > 0 ? currentPath[currentPath.length - 1] : "";
-    if (targetItem.type === "Folder" && relX > rect.width * 0.25 && relX < rect.width * 0.75) {
-        draggedItem.parentId = targetId;
-        targetItem.children.push(draggedItem);
-    } else {
-        draggedItem.parentId = activeParentId;
-        let arr = !activeParentId ? (draggedItem.type === "Folder" ? data.folders : data.films) : findItem(activeParentId, data).children;
-        const targetIdx = arr.findIndex(i => i.id === targetId);
-        const insertIdx = relX < rect.width / 2 ? targetIdx : targetIdx + 1;
-        arr.splice(insertIdx, 0, draggedItem);
-    }
-    saveAndRefresh();
-}
-
-// --- NAVIGATION & SEARCH ---
+// --- RENDER ---
 function navigateTo(id) {
-    searchBar.value = "";
-    searchQuery = "";
-    if (!id) currentPath = []; else {
-        const idx = currentPath.indexOf(id);
-        if (idx !== -1) currentPath = currentPath.slice(0, idx+1); else currentPath.push(id);
-    }
+    searchBar.value = ""; searchQuery = "";
+    if (!id) currentPath = []; 
+    else { const idx = currentPath.indexOf(id); if (idx !== -1) currentPath = currentPath.slice(0, idx+1); else currentPath.push(id); }
     renderTree();
 }
 
-searchBar.oninput = (e) => {
-    searchQuery = e.target.value.toLowerCase();
-    renderTree();
-};
+searchBar.oninput = (e) => { searchQuery = e.target.value.toLowerCase(); renderTree(); };
 
 function renderTree() {
     treeView.innerHTML = "";
     let bHtml = 'Position : <b onclick="navigateTo(\'\')">Racine</b>';
     currentPath.forEach(id => { const f = findItem(id, data); if(f) bHtml += ` > <b onclick="navigateTo('${id}')">${f.title}</b>`; });
-    
-    // Si recherche, on change le titre du breadcrumb
-    if (searchQuery !== "") {
-        document.getElementById("breadcrumb").innerHTML = `Résultats pour : <b style="color:var(--primary)">"${searchQuery}"</b>`;
-    } else {
-        document.getElementById("breadcrumb").innerHTML = bHtml;
-    }
+    document.getElementById("breadcrumb").innerHTML = (searchQuery !== "") ? `Résultats pour : <b style="color:var(--primary)">"${searchQuery}"</b>` : bHtml;
 
-    let items = [];
-    if (searchQuery !== "") {
-        // Recherche Globale dans TOUTE la base
-        items = getAllItems(data).filter(item => item.title.toLowerCase().includes(searchQuery));
-    } else {
-        // Vue normale par dossier
-        items = currentPath.length === 0 ? [...data.folders, ...data.films] : (findItem(currentPath[currentPath.length-1], data).children || []);
-    }
+    let items = searchQuery !== "" ? getAllItems(data).filter(i => i.title.toLowerCase().includes(searchQuery)) : (currentPath.length === 0 ? [...data.folders, ...data.films] : (findItem(currentPath[currentPath.length-1], data).children || []));
 
-    // Zone Root (Masquée si recherche)
     if (currentPath.length > 0 && searchQuery === "") {
         const rz = document.createElement('div');
-        rz.className = 'drop-root-zone';
-        rz.textContent = "↑ Déposer ici pour sortir de ce dossier";
-        rz.ondragover = (e) => { e.preventDefault(); rz.classList.add('drag-over'); };
-        rz.ondragleave = () => rz.classList.remove('drag-over');
+        rz.className = 'drop-root-zone'; rz.textContent = "↑ Sortir du dossier";
         rz.ondrop = (e) => {
             const item = findItem(draggedItemId, data);
             removeFromParent(draggedItemId, data);
@@ -278,37 +242,31 @@ function renderTree() {
             if(item.type === "Folder") data.folders.push(item); else data.films.push(item);
             saveAndRefresh();
         };
+        rz.ondragover = (e) => e.preventDefault();
         treeView.appendChild(rz);
     }
 
-    // Tri : Indisponibles à la fin
-    items.sort((a, b) => {
-        if (a.active === b.active) return 0;
-        return a.active ? -1 : 1;
-    });
+    items.sort((a, b) => (a.active === b.active) ? 0 : (a.active ? -1 : 1));
 
     items.forEach(item => {
         const div = document.createElement("div");
         div.className = `tree-item ${!item.active ? 'is-inactive' : ''}`;
-        div.draggable = (searchQuery === ""); // Pas de drag pendant la recherche
+        div.draggable = (searchQuery === "");
         div.dataset.id = item.id;
-        div.ondragstart = onDragStart;
-        div.ondragover = onDragOver;
-        div.ondragleave = () => div.classList.remove('drop-before', 'drop-after', 'drop-center');
-        div.ondrop = onDrop;
         
-        div.onclick = (e) => {
-            if (e.target.closest('.circle-btn')) return; 
-            if (item.type === "Folder") navigateTo(item.id);
+        div.onclick = (e) => { 
+            if (e.target.closest('.status-badge')) { toggleStatus(item.id); return; }
+            if (e.target.closest('.circle-btn')) return;
+            if (item.type === "Folder") navigateTo(item.id); 
         };
 
         div.innerHTML = `
             <div class="poster-wrapper">
-                <span class="status-badge ${item.active ? 'status-on' : 'status-off'}">${item.active ? 'Disponible' : 'Indisponible'}</span>
+                <div class="status-badge ${item.active ? 'status-on' : 'status-off'}">${item.active ? 'Disponible' : 'Indisponible'}</div>
                 <img src="${item.image || 'https://via.placeholder.com/300x450/111/333?text=Copyflix'}">
                 <div class="item-actions">
-                    <button class="circle-btn btn-edit" title="Modifier">✏️</button>
-                    <button class="circle-btn btn-delete" title="Supprimer">🗑️</button>
+                    <button class="circle-btn btn-edit">✏️</button>
+                    <button class="circle-btn btn-delete">🗑️</button>
                 </div>
             </div>
             <div class="item-info"><div class="item-title">${(item.type === "Folder" ? "📁 " : "") + item.title}</div></div>
@@ -316,21 +274,21 @@ function renderTree() {
 
         div.querySelector('.btn-edit').onclick = (e) => { e.stopPropagation(); openPanel(item.type, item.id); };
         div.querySelector('.btn-delete').onclick = (e) => { e.stopPropagation(); deleteItem(item.id); };
-
         treeView.appendChild(div);
     });
 }
 
-// --- UI MODAL ---
+// --- MODAL ---
 function openPanel(type, id = null) {
     const item = id ? findItem(id, data) : null;
     document.getElementById("panel-overlay").style.display = "block";
+    document.getElementById("tmdb-input").value = "";
     document.getElementById("item-id").value = id || "";
     document.getElementById("item-title").value = item ? item.title : "";
     document.getElementById("item-type").value = item ? item.type : type;
     document.getElementById("item-image").value = item ? item.image : "";
     document.getElementById("item-video").value = item ? item.video || "" : "";
-    document.getElementById("item-active").value = item ? item.active.toString() : "true";
+    document.getElementById("item-active-hidden").value = item ? item.active : "true";
 }
 function closePanel() { document.getElementById("panel-overlay").style.display = "none"; }
 
@@ -342,18 +300,18 @@ document.getElementById("panel-form").onsubmit = (e) => {
         type: document.getElementById("item-type").value,
         image: document.getElementById("item-image").value,
         video: document.getElementById("item-video").value,
-        active: document.getElementById("item-active").value === "true"
+        active: document.getElementById("item-active-hidden").value === "true"
     };
     if (id) Object.assign(findItem(id, data), vals);
     else {
         const newItem = { id: "id-" + Date.now(), ...vals, children: [], parentId: currentPath[currentPath.length-1] || "" };
-        if(!newItem.parentId) { if(vals.type === "Folder") data.folders.push(newItem); else data.films.push(newItem); }
+        if(!newItem.parentId) (vals.type === "Folder" ? data.folders : data.films).push(newItem);
         else findItem(newItem.parentId, data).children.push(newItem);
     }
     saveAndRefresh(); closePanel();
 };
 
-function deleteItem(id) { if(confirm("Supprimer cet élément ?")) { removeFromParent(id, data); saveAndRefresh(); } }
+function deleteItem(id) { if(confirm("Supprimer ?")) { removeFromParent(id, data); saveAndRefresh(); } }
 
 const saved = localStorage.getItem("copyflixData");
 if(saved) data = JSON.parse(saved);
@@ -364,7 +322,6 @@ document.getElementById("btn-copy-json").onclick = () => {
     const t = document.getElementById("toast"); t.style.display="block"; setTimeout(()=>t.style.display="none", 2000);
 };
 document.getElementById("btn-logout").onclick = () => window.location.href="../index.html";
-
 renderTree();
 </script>
 </body>

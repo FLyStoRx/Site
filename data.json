@@ -395,7 +395,108 @@
           "type": "Folder",
           "video": "",
           "image": "https://fr.web.img4.acsta.net/pictures/17/11/10/12/16/2256558.jpg",
-          "children": [],
+          "children": [
+            {
+              "id": "id-1769944328341",
+              "title": "Episode 1",
+              "type": "Série",
+              "image": "https://fr.web.img4.acsta.net/pictures/17/11/10/12/16/2256558.jpg",
+              "video": "",
+              "active": true,
+              "children": [],
+              "parentId": "id-1767872599754"
+            },
+            {
+              "id": "id-1769944337669",
+              "title": "Episode 2",
+              "type": "Série",
+              "image": "https://fr.web.img4.acsta.net/pictures/17/11/10/12/16/2256558.jpg",
+              "video": "",
+              "active": true,
+              "children": [],
+              "parentId": "id-1767872599754"
+            },
+            {
+              "id": "id-1769944350136",
+              "title": "Episode 3",
+              "type": "Série",
+              "image": "https://fr.web.img4.acsta.net/pictures/17/11/10/12/16/2256558.jpg",
+              "video": "",
+              "active": true,
+              "children": [],
+              "parentId": "id-1767872599754"
+            },
+            {
+              "id": "id-1769944364187",
+              "title": "Episode 4",
+              "type": "Série",
+              "image": "https://fr.web.img4.acsta.net/pictures/17/11/10/12/16/2256558.jpg",
+              "video": "",
+              "active": true,
+              "children": [],
+              "parentId": "id-1767872599754"
+            },
+            {
+              "id": "id-1769944377469",
+              "title": "Episode 5",
+              "type": "Film",
+              "image": "https://fr.web.img4.acsta.net/pictures/17/11/10/12/16/2256558.jpg",
+              "video": "",
+              "active": true,
+              "children": [],
+              "parentId": "id-1767872599754"
+            },
+            {
+              "id": "id-1769944385464",
+              "title": "Episode 6",
+              "type": "Série",
+              "image": "https://fr.web.img4.acsta.net/pictures/17/11/10/12/16/2256558.jpg",
+              "video": "",
+              "active": true,
+              "children": [],
+              "parentId": "id-1767872599754"
+            },
+            {
+              "id": "id-1769944393960",
+              "title": "Episode 7",
+              "type": "Série",
+              "image": "https://fr.web.img4.acsta.net/pictures/17/11/10/12/16/2256558.jpg",
+              "video": "",
+              "active": true,
+              "children": [],
+              "parentId": "id-1767872599754"
+            },
+            {
+              "id": "id-1769944400261",
+              "title": "Episode 8",
+              "type": "Série",
+              "image": "https://fr.web.img4.acsta.net/pictures/17/11/10/12/16/2256558.jpg",
+              "video": "",
+              "active": true,
+              "children": [],
+              "parentId": "id-1767872599754"
+            },
+            {
+              "id": "id-1769944408615",
+              "title": "Episode 9",
+              "type": "Série",
+              "image": "https://fr.web.img4.acsta.net/pictures/17/11/10/12/16/2256558.jpg",
+              "video": "",
+              "active": true,
+              "children": [],
+              "parentId": "id-1767872599754"
+            },
+            {
+              "id": "id-1769944423389",
+              "title": "Episode 10",
+              "type": "Série",
+              "image": "https://fr.web.img4.acsta.net/pictures/17/11/10/12/16/2256558.jpg",
+              "video": "",
+              "active": true,
+              "children": [],
+              "parentId": "id-1767872599754"
+            }
+          ],
           "expanded": false,
           "active": false,
           "parentId": "id-1767872534200"
@@ -406,7 +507,88 @@
           "type": "Folder",
           "video": "",
           "image": "https://fr.web.img2.acsta.net/pictures/19/06/11/09/59/0923348.jpg",
-          "children": [],
+          "children": [
+            {
+              "id": "id-1769944450847",
+              "title": "Episode 1",
+              "type": "Série",
+              "image": "https://fr.web.img2.acsta.net/pictures/19/06/11/09/59/0923348.jpg",
+              "video": "",
+              "active": true,
+              "children": [],
+              "parentId": "id-1767872618384"
+            },
+            {
+              "id": "id-1769944470697",
+              "title": "Episode 2",
+              "type": "Série",
+              "image": "https://fr.web.img2.acsta.net/pictures/19/06/11/09/59/0923348.jpg",
+              "video": "",
+              "active": true,
+              "children": [],
+              "parentId": "id-1767872618384"
+            },
+            {
+              "id": "id-1769944476884",
+              "title": "Episode 3",
+              "type": "Série",
+              "image": "https://fr.web.img2.acsta.net/pictures/19/06/11/09/59/0923348.jpg",
+              "video": "",
+              "active": true,
+              "children": [],
+              "parentId": "id-1767872618384"
+            },
+            {
+              "id": "id-1769944482720",
+              "title": "Episode 4",
+              "type": "Série",
+              "image": "https://fr.web.img2.acsta.net/pictures/19/06/11/09/59/0923348.jpg",
+              "video": "",
+              "active": true,
+              "children": [],
+              "parentId": "id-1767872618384"
+            },
+            {
+              "id": "id-1769944494014",
+              "title": "Episode 5",
+              "type": "Série",
+              "image": "https://fr.web.img2.acsta.net/pictures/19/06/11/09/59/0923348.jpg",
+              "video": "",
+              "active": true,
+              "children": [],
+              "parentId": "id-1767872618384"
+            },
+            {
+              "id": "id-1769944500356",
+              "title": "Episode 6",
+              "type": "Série",
+              "image": "https://fr.web.img2.acsta.net/pictures/19/06/11/09/59/0923348.jpg",
+              "video": "",
+              "active": true,
+              "children": [],
+              "parentId": "id-1767872618384"
+            },
+            {
+              "id": "id-1769944507846",
+              "title": "Episode 7",
+              "type": "Série",
+              "image": "https://fr.web.img2.acsta.net/pictures/19/06/11/09/59/0923348.jpg",
+              "video": "",
+              "active": true,
+              "children": [],
+              "parentId": "id-1767872618384"
+            },
+            {
+              "id": "id-1769944517296",
+              "title": "Episode 8",
+              "type": "Série",
+              "image": "https://fr.web.img2.acsta.net/pictures/19/06/11/09/59/0923348.jpg",
+              "video": "",
+              "active": true,
+              "children": [],
+              "parentId": "id-1767872618384"
+            }
+          ],
           "expanded": false,
           "active": false,
           "parentId": "id-1767872534200"
@@ -417,7 +599,88 @@
           "type": "Folder",
           "video": "",
           "image": "https://www.avoir-alire.com/IMG/jpg/dark_s3_poster__1_.jpg",
-          "children": [],
+          "children": [
+            {
+              "id": "id-1769944543289",
+              "title": "Episode 1",
+              "type": "Série",
+              "image": "https://www.avoir-alire.com/IMG/jpg/dark_s3_poster__1_.jpg",
+              "video": "",
+              "active": true,
+              "children": [],
+              "parentId": "id-1767872631843"
+            },
+            {
+              "id": "id-1769944553203",
+              "title": "Episode 2",
+              "type": "Série",
+              "image": "https://www.avoir-alire.com/IMG/jpg/dark_s3_poster__1_.jpg",
+              "video": "",
+              "active": true,
+              "children": [],
+              "parentId": "id-1767872631843"
+            },
+            {
+              "id": "id-1769944558981",
+              "title": "Episode 3",
+              "type": "Série",
+              "image": "https://www.avoir-alire.com/IMG/jpg/dark_s3_poster__1_.jpg",
+              "video": "",
+              "active": true,
+              "children": [],
+              "parentId": "id-1767872631843"
+            },
+            {
+              "id": "id-1769944568600",
+              "title": "Episode 4",
+              "type": "Série",
+              "image": "https://www.avoir-alire.com/IMG/jpg/dark_s3_poster__1_.jpg",
+              "video": "",
+              "active": true,
+              "children": [],
+              "parentId": "id-1767872631843"
+            },
+            {
+              "id": "id-1769944575978",
+              "title": "Episode 5",
+              "type": "Série",
+              "image": "https://www.avoir-alire.com/IMG/jpg/dark_s3_poster__1_.jpg",
+              "video": "",
+              "active": true,
+              "children": [],
+              "parentId": "id-1767872631843"
+            },
+            {
+              "id": "id-1769944587218",
+              "title": "Episode 6",
+              "type": "Série",
+              "image": "https://www.avoir-alire.com/IMG/jpg/dark_s3_poster__1_.jpg",
+              "video": "",
+              "active": true,
+              "children": [],
+              "parentId": "id-1767872631843"
+            },
+            {
+              "id": "id-1769944594150",
+              "title": "Episode 7",
+              "type": "Série",
+              "image": "https://www.avoir-alire.com/IMG/jpg/dark_s3_poster__1_.jpg",
+              "video": "",
+              "active": true,
+              "children": [],
+              "parentId": "id-1767872631843"
+            },
+            {
+              "id": "id-1769944601539",
+              "title": "Episode 8",
+              "type": "Série",
+              "image": "https://www.avoir-alire.com/IMG/jpg/dark_s3_poster__1_.jpg",
+              "video": "",
+              "active": true,
+              "children": [],
+              "parentId": "id-1767872631843"
+            }
+          ],
           "expanded": false,
           "active": false,
           "parentId": "id-1767872534200"
@@ -1411,8 +1674,8 @@
           "title": "Avatar",
           "type": "Film",
           "image": "https://image.tmdb.org/t/p/w600_and_h900_face/v5Y8pVwJK68SKQQ1GRbIB1hkPDy.jpg",
-          "video": "https://vidmoly.net/embed-gvvo52cjk82r.html",
-          "active": true,
+          "video": "",
+          "active": false,
           "children": [],
           "parentId": "id-1769525550701"
         },
@@ -1438,7 +1701,7 @@
         }
       ],
       "expanded": false,
-      "active": true,
+      "active": false,
       "parentId": ""
     },
     {
