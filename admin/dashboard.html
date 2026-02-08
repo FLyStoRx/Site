@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Copyflix Admin | Quick Status</title>
+    <title>Copyflix Admin | Onglets Statut</title>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -33,10 +33,17 @@
         .nav-btn.primary { background: var(--primary); color: white; box-shadow: 0 4px 15px var(--primary-glow); }
 
         main { flex: 1; overflow-y: auto; padding: 40px 5%; position: relative; }
-        .header-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; gap: 20px; }
+        .header-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; gap: 20px; }
         .breadcrumb { font-size: 1.1rem; color: var(--text-muted); flex-shrink: 0; }
         .breadcrumb b { color: white; cursor: pointer; }
         .breadcrumb b:hover { color: var(--primary); }
+
+        /* TABS SYSTEM */
+        .tabs-container { display: flex; gap: 10px; margin-bottom: 30px; border-bottom: 1px solid #1a1a1a; padding-bottom: 15px; }
+        .tab-btn { background: transparent; border: none; color: var(--text-muted); padding: 8px 20px; cursor: pointer; font-family: inherit; font-weight: 600; border-radius: 50px; transition: 0.2s; display: flex; align-items: center; gap: 8px; }
+        .tab-btn.active { background: #1a1a1a; color: white; border: 1px solid #333; }
+        .tab-btn .count { font-size: 0.7rem; background: #333; color: white; padding: 2px 8px; border-radius: 10px; }
+        .tab-btn.active .count { background: var(--primary); }
 
         .search-container { position: relative; flex: 1; max-width: 400px; }
         .search-input { 
@@ -51,12 +58,14 @@
 
         .tree-item { position: relative; background: var(--bg-card); border-radius: var(--radius); transition: var(--transition); cursor: grab; border: 2px solid transparent; user-select: none; }
         .tree-item.dragging { opacity: 0.3; transform: scale(0.9); filter: grayscale(1); }
-        .tree-item.is-inactive { opacity: 0.5; filter: saturate(0.5); }
         
+        .tree-item.drop-center { border-color: var(--primary); background: rgba(255, 0, 0, 0.15); transform: scale(1.05); }
+        .tree-item.drop-before { border-left: 5px solid var(--primary); }
+        .tree-item.drop-after { border-right: 5px solid var(--primary); }
+
         .poster-wrapper { position: relative; aspect-ratio: 2/3; overflow: hidden; border-radius: var(--radius) var(--radius) 0 0; }
         .tree-item img { width: 100%; height: 100%; object-fit: cover; pointer-events: none; }
 
-        /* BADGE CLIQUABLE */
         .status-badge { 
             position: absolute; top: 10px; left: 10px; padding: 5px 10px; 
             border-radius: 20px; font-size: 0.65rem; font-weight: 800; 
@@ -117,22 +126,31 @@
             <input type="text" id="search-bar" class="search-input" placeholder="Recherche globale...">
         </div>
     </div>
+
+    <div class="tabs-container">
+        <button class="tab-btn active" onclick="switchTab(true)">
+            ✅ Médias Actifs <span class="count" id="count-active">0</span>
+        </button>
+        <button class="tab-btn" onclick="switchTab(false)">
+            📁 Archives (Inactifs) <span class="count" id="count-inactive">0</span>
+        </button>
+    </div>
+
     <div id="tree-view"></div>
 </main>
 
 <div id="panel-overlay">
     <div id="panel">
         <h2 style="margin: 0 0 15px 0; font-size: 1.2rem;">Édition Média</h2>
-        
         <div class="tmdb-box">
             <label style="font-size: 0.7rem; color: var(--text-muted);">AUTO-FILL TMDB</label>
             <input type="text" id="tmdb-input" placeholder="ID ou Lien TMDB" style="width: 100%; padding: 8px; background: #222; border: 1px solid #444; color: white; border-radius: 5px; margin-top: 5px;">
             <button type="button" class="tmdb-btn" onclick="fetchTMDB()">⚡ Récupérer les infos</button>
         </div>
-
         <form id="panel-form">
             <input type="hidden" id="item-id">
-            <input type="hidden" id="item-active-hidden"> <div class="form-group"><label>Titre</label><input type="text" id="item-title" required></div>
+            <input type="hidden" id="item-active-hidden"> 
+            <div class="form-group"><label>Titre</label><input type="text" id="item-title" required></div>
             <div class="form-group"><label>Type</label><select id="item-type"><option value="Film">Film</option><option value="Série">Série</option><option value="Folder">Dossier</option></select></div>
             <div class="form-group"><label>Lien Image (Poster)</label><input type="text" id="item-image"></div>
             <div class="form-group"><label>Lien Vidéo (Stream)</label><input type="text" id="item-video"></div>
@@ -147,7 +165,6 @@
 <div id="toast">Copié !</div>
 
 <script>
-// --- CONFIG TMDB ---
 const TMDB_API_KEY = "a05cb0aa7f238cb1cbbbdfaebf1e2df3"; 
 const TMDB_IMG_PATH = "https://image.tmdb.org/t/p/w500";
 
@@ -155,9 +172,19 @@ let data = { folders: [], films: [] };
 let currentPath = [];
 let draggedItemId = null;
 let searchQuery = "";
+let showActiveTab = true; // État de l'onglet
 
 const treeView = document.getElementById("tree-view");
 const searchBar = document.getElementById("search-bar");
+
+// --- NAVIGATION ONGLETS ---
+function switchTab(active) {
+    showActiveTab = active;
+    document.querySelectorAll('.tab-btn').forEach((btn, idx) => {
+        btn.classList.toggle('active', (idx === 0 && active) || (idx === 1 && !active));
+    });
+    renderTree();
+}
 
 // --- API TMDB ---
 async function fetchTMDB() {
@@ -167,7 +194,6 @@ async function fetchTMDB() {
     const type = isTV ? 'tv' : 'movie';
     const idMatch = input.match(/\/(movie|tv)\/(\d+)/);
     const id = idMatch ? idMatch[2] : input.trim();
-
     try {
         const response = await fetch(`https://api.themoviedb.org/3/${type}/${id}?api_key=${TMDB_API_KEY}&language=fr-FR`);
         const result = await response.json();
@@ -214,6 +240,57 @@ function toggleStatus(id) {
     }
 }
 
+// --- DRAG & DROP ---
+function onDragStart(e) {
+    if (searchQuery !== "") { e.preventDefault(); return; }
+    draggedItemId = this.dataset.id;
+    this.classList.add('dragging');
+    e.dataTransfer.setData("text/plain", draggedItemId);
+}
+
+function onDragOver(e) {
+    e.preventDefault();
+    if (searchQuery !== "") return;
+    const targetId = this.dataset.id;
+    if (targetId === draggedItemId) return;
+    const rect = this.getBoundingClientRect();
+    const relX = e.clientX - rect.left;
+    const targetItem = findItem(targetId, data);
+    this.classList.remove('drop-before', 'drop-after', 'drop-center');
+    if (targetItem.type === "Folder") {
+        if (relX > rect.width * 0.25 && relX < rect.width * 0.75) this.classList.add('drop-center');
+        else if (relX <= rect.width * 0.25) this.classList.add('drop-before');
+        else this.classList.add('drop-after');
+    } else {
+        if (relX < rect.width / 2) this.classList.add('drop-before');
+        else this.classList.add('drop-after');
+    }
+}
+
+function onDrop(e) {
+    e.preventDefault();
+    const targetId = this.dataset.id;
+    if (!targetId || targetId === draggedItemId) return;
+    const rect = this.getBoundingClientRect();
+    const relX = e.clientX - rect.left;
+    const targetItem = findItem(targetId, data);
+    const draggedItem = findItem(draggedItemId, data);
+    removeFromParent(draggedItemId, data);
+    const activeParentId = currentPath.length > 0 ? currentPath[currentPath.length - 1] : "";
+    if (targetItem.type === "Folder" && relX > rect.width * 0.25 && relX < rect.width * 0.75) {
+        draggedItem.parentId = targetId;
+        if(!targetItem.children) targetItem.children = [];
+        targetItem.children.push(draggedItem);
+    } else {
+        draggedItem.parentId = activeParentId;
+        let arr = !activeParentId ? (draggedItem.type === "Folder" ? data.folders : data.films) : findItem(activeParentId, data).children;
+        const targetIdx = arr.findIndex(i => i.id === targetId);
+        const insertIdx = (relX < rect.width / 2) ? targetIdx : targetIdx + 1;
+        arr.splice(insertIdx, 0, draggedItem);
+    }
+    saveAndRefresh();
+}
+
 // --- RENDER ---
 function navigateTo(id) {
     searchBar.value = ""; searchQuery = "";
@@ -226,11 +303,23 @@ searchBar.oninput = (e) => { searchQuery = e.target.value.toLowerCase(); renderT
 
 function renderTree() {
     treeView.innerHTML = "";
+    
+    // Breadcrumb
     let bHtml = 'Position : <b onclick="navigateTo(\'\')">Racine</b>';
     currentPath.forEach(id => { const f = findItem(id, data); if(f) bHtml += ` > <b onclick="navigateTo('${id}')">${f.title}</b>`; });
-    document.getElementById("breadcrumb").innerHTML = (searchQuery !== "") ? `Résultats pour : <b style="color:var(--primary)">"${searchQuery}"</b>` : bHtml;
+    document.getElementById("breadcrumb").innerHTML = (searchQuery !== "") ? `Résultats : <b style="color:var(--primary)">"${searchQuery}"</b>` : bHtml;
 
-    let items = searchQuery !== "" ? getAllItems(data).filter(i => i.title.toLowerCase().includes(searchQuery)) : (currentPath.length === 0 ? [...data.folders, ...data.films] : (findItem(currentPath[currentPath.length-1], data).children || []));
+    // Filtration des items
+    let allCurrentItems = searchQuery !== "" ? getAllItems(data).filter(i => i.title.toLowerCase().includes(searchQuery)) : (currentPath.length === 0 ? [...data.folders, ...data.films] : (findItem(currentPath[currentPath.length-1], data).children || []));
+
+    // Compteurs
+    const activeCount = allCurrentItems.filter(i => i.active).length;
+    const inactiveCount = allCurrentItems.filter(i => !i.active).length;
+    document.getElementById("count-active").textContent = activeCount;
+    document.getElementById("count-inactive").textContent = inactiveCount;
+
+    // On garde uniquement les items correspondant à l'onglet choisi
+    let filteredItems = allCurrentItems.filter(i => i.active === showActiveTab);
 
     if (currentPath.length > 0 && searchQuery === "") {
         const rz = document.createElement('div');
@@ -242,18 +331,21 @@ function renderTree() {
             if(item.type === "Folder") data.folders.push(item); else data.films.push(item);
             saveAndRefresh();
         };
-        rz.ondragover = (e) => e.preventDefault();
+        rz.ondragover = (e) => { e.preventDefault(); rz.classList.add('drag-over'); };
+        rz.ondragleave = () => rz.classList.remove('drag-over');
         treeView.appendChild(rz);
     }
 
-    items.sort((a, b) => (a.active === b.active) ? 0 : (a.active ? -1 : 1));
-
-    items.forEach(item => {
+    filteredItems.forEach(item => {
         const div = document.createElement("div");
-        div.className = `tree-item ${!item.active ? 'is-inactive' : ''}`;
+        div.className = `tree-item`;
         div.draggable = (searchQuery === "");
         div.dataset.id = item.id;
-        
+        div.ondragstart = onDragStart;
+        div.ondragover = onDragOver;
+        div.ondragleave = () => div.classList.remove('drop-before', 'drop-after', 'drop-center');
+        div.ondrop = onDrop;
+
         div.onclick = (e) => { 
             if (e.target.closest('.status-badge')) { toggleStatus(item.id); return; }
             if (e.target.closest('.circle-btn')) return;
@@ -306,7 +398,11 @@ document.getElementById("panel-form").onsubmit = (e) => {
     else {
         const newItem = { id: "id-" + Date.now(), ...vals, children: [], parentId: currentPath[currentPath.length-1] || "" };
         if(!newItem.parentId) (vals.type === "Folder" ? data.folders : data.films).push(newItem);
-        else findItem(newItem.parentId, data).children.push(newItem);
+        else {
+            const parent = findItem(newItem.parentId, data);
+            if(!parent.children) parent.children = [];
+            parent.children.push(newItem);
+        }
     }
     saveAndRefresh(); closePanel();
 };

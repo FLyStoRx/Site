@@ -433,10 +433,18 @@ function playMedia(item) {
     currentIndex = -1;
   }
   document.getElementById("hud-current-name").innerText = item.title;
-  videoEngine.src = item.video;
+  
+  // MODIFICATION ICI : PURGE DE LA RAM POUR SMART TV
+  videoEngine.src = "about:blank"; // Vide la mémoire du lecteur précédent
+  
   playerOverlay.style.display = "flex";
   document.body.classList.add("no-scroll", "player-open");
-  setTimeout(() => playerOverlay.classList.add("active"), 50);
+  
+  // Petit délai pour laisser la TV respirer avant de charger la nouvelle vidéo
+  setTimeout(() => { 
+    videoEngine.src = item.video;
+    playerOverlay.classList.add("active"); 
+  }, 300);
 }
 
 function updateNextButtonState() {
@@ -467,6 +475,10 @@ function playNextAuto() {
   if (currentIndex !== -1 && currentIndex < currentSiblings.length - 1) {
     const nextItem = currentSiblings[currentIndex + 1];
     videoEngine.style.opacity = "0";
+    
+    // MODIFICATION ICI : PURGE RAM ÉGALEMENT POUR LE MODE SUIVANT
+    videoEngine.src = "about:blank";
+    
     setTimeout(() => { playMedia(nextItem); videoEngine.style.opacity = "1"; }, 300);
   } else {
     const nextSeason = getNextSeasonFolder();
@@ -477,6 +489,7 @@ function playNextAuto() {
       const firstEp = nextSeason.children.find(c => c.type !== "Folder");
       if (firstEp) {
         videoEngine.style.opacity = "0";
+        videoEngine.src = "about:blank"; // PURGE RAM
         setTimeout(() => { playMedia(firstEp); videoEngine.style.opacity = "1"; }, 300);
       }
     }
@@ -486,7 +499,8 @@ function playNextAuto() {
 function closePlayer() {
   playerOverlay.classList.remove("active");
   document.body.classList.remove("player-open", "no-scroll");
-  setTimeout(() => { videoEngine.src = ""; playerOverlay.style.display = "none"; }, 500);
+  // MODIFICATION : PURGE RAM À LA FERMETURE
+  setTimeout(() => { videoEngine.src = "about:blank"; playerOverlay.style.display = "none"; }, 500);
 }
 
 function resetSearch() {
