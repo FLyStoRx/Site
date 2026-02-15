@@ -29,7 +29,7 @@
 body { background: var(--bg); color: #fff; overflow-x: hidden; min-height: 100vh; }
 body.no-scroll { overflow: hidden; }
 
-/* OPTIMISATION TV : On remplace le blur par un assombrissement simple */
+/* OPTIMISATION TV : Opacité simple plutôt que Blur pour éviter les flashs noirs */
 #app-content { transition: transform 0.5s ease, opacity 0.5s ease; }
 body.player-open #app-content { opacity: 0.1; transform: scale(0.98); }
 
@@ -137,7 +137,7 @@ header.scrolled {
 
 .content-title { font-size: 1rem; font-weight: 600; color: #eee; }
 
-/* PLAYER OPTIMISÉ POUR ÉVITER LES CLIGNOTEMENTS */
+/* PLAYER OPTIMISÉ */
 #player-overlay { position: fixed; inset: 0; background: #000; z-index: 2000; display: none; opacity: 0; transition: opacity 0.5s ease; }
 #player-overlay.active { opacity: 1; }
 
@@ -145,10 +145,9 @@ header.scrolled {
   position: absolute; inset: 0; z-index: 2100; 
   background: linear-gradient(to bottom, rgba(0,0,0,0.85) 0%, transparent 25%, transparent 75%, rgba(0,0,0,0.85) 100%); 
   opacity: 0; transition: opacity 0.4s ease; 
-  display: none; /* OPTIMISATION : On cache totalement quand inutile */
+  display: none; 
   flex-direction: column; justify-content: space-between; padding: 40px; pointer-events: none; 
 }
-/* On affiche le HUD seulement au survol */
 #player-overlay:hover #player-hud { opacity: 1; display: flex; }
 
 .hud-top { display: flex; justify-content: space-between; align-items: flex-start; pointer-events: auto; }
@@ -163,6 +162,7 @@ header.scrolled {
 
 .close-player { width: 50px; height: 50px; background: rgba(255,255,255,0.1); border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; backdrop-filter: blur(10px); }
 
+/* ACCÉLÉRATION GPU */
 #player-container { 
   width: 100%; height: 100%; 
   transform: translateZ(0); 
@@ -363,6 +363,18 @@ function refreshView() {
   }
 }
 
+/* FONCTION DE PURGE RAM POUR TV */
+function purgeAndPlay(url) {
+  const engine = document.getElementById("video-engine");
+  engine.src = "about:blank"; // On vide l'iframe
+  engine.load && engine.load(); // Si c'est un element video natif
+  
+  // Petite pause pour laisser le navigateur vider le cache avant de charger
+  setTimeout(() => {
+    engine.src = url;
+  }, 100);
+}
+
 function playMedia(item) {
   currentPlayingItem = item;
   const overlay = document.getElementById("player-overlay");
@@ -372,7 +384,9 @@ function playMedia(item) {
   
   document.getElementById("hud-parent-name").innerText = pathStack.length > 0 ? pathStack[0].title : (item.type || "Film");
   document.getElementById("hud-current-name").innerText = item.title;
-  document.getElementById("video-engine").src = item.video;
+  
+  // Utilisation de la PURGE RAM ici
+  purgeAndPlay(item.video);
   
   if (pathStack.length >= 2) {
     seasonHud.innerText = pathStack[pathStack.length - 1].title;
@@ -430,7 +444,12 @@ function closePlayer() {
   const overlay = document.getElementById("player-overlay");
   overlay.classList.remove("active");
   document.body.classList.remove("no-scroll", "player-open");
-  setTimeout(() => { document.getElementById("video-engine").src = ""; overlay.style.display = "none"; }, 500);
+  
+  // Purge au moment de fermer pour libérer la mémoire pour la navigation
+  setTimeout(() => { 
+    document.getElementById("video-engine").src = "about:blank"; 
+    overlay.style.display = "none"; 
+  }, 500);
 }
 
 searchInput.addEventListener("input", (e) => {
