@@ -3,8 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Copyflix Admin | Onglets Statut</title>
+    <title>Copyflix Admin | Catégories & Héritage</title>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
     <style>
         :root {
             --primary: #ff0000;
@@ -12,7 +13,6 @@
             --bg-body: #050505;
             --bg-sidebar: #0a0a0a;
             --bg-card: #121212;
-            --bg-card-hover: #1c1c1c;
             --text-main: #ffffff;
             --text-muted: #888888;
             --accent-green: #00ff88;
@@ -36,9 +36,7 @@
         .header-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; gap: 20px; }
         .breadcrumb { font-size: 1.1rem; color: var(--text-muted); flex-shrink: 0; }
         .breadcrumb b { color: white; cursor: pointer; }
-        .breadcrumb b:hover { color: var(--primary); }
 
-        /* TABS SYSTEM */
         .tabs-container { display: flex; gap: 10px; margin-bottom: 30px; border-bottom: 1px solid #1a1a1a; padding-bottom: 15px; }
         .tab-btn { background: transparent; border: none; color: var(--text-muted); padding: 8px 20px; cursor: pointer; font-family: inherit; font-weight: 600; border-radius: 50px; transition: 0.2s; display: flex; align-items: center; gap: 8px; }
         .tab-btn.active { background: #1a1a1a; color: white; border: 1px solid #333; }
@@ -46,58 +44,63 @@
         .tab-btn.active .count { background: var(--primary); }
 
         .search-container { position: relative; flex: 1; max-width: 400px; }
-        .search-input { 
-            width: 100%; background: #111; border: 1px solid #333; color: white; 
-            padding: 12px 15px 12px 40px; border-radius: 50px; font-family: inherit;
-            transition: var(--transition);
-        }
-        .search-input:focus { border-color: var(--primary); background: #1a1a1a; box-shadow: 0 0 15px rgba(255,0,0,0.1); }
+        .search-input { width: 100%; background: #111; border: 1px solid #333; color: white; padding: 12px 15px 12px 40px; border-radius: 50px; transition: var(--transition); }
         .search-icon { position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: var(--text-muted); pointer-events: none; }
 
         #tree-view { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 25px; padding-bottom: 100px; }
 
         .tree-item { position: relative; background: var(--bg-card); border-radius: var(--radius); transition: var(--transition); cursor: grab; border: 2px solid transparent; user-select: none; }
-        .tree-item.dragging { opacity: 0.3; transform: scale(0.9); filter: grayscale(1); }
-        
-        .tree-item.drop-center { border-color: var(--primary); background: rgba(255, 0, 0, 0.15); transform: scale(1.05); }
+        .tree-item.dragging { opacity: 0.3; transform: scale(0.9); }
+        .tree-item.drop-center { border-color: var(--primary); background: rgba(255, 0, 0, 0.15); }
         .tree-item.drop-before { border-left: 5px solid var(--primary); }
         .tree-item.drop-after { border-right: 5px solid var(--primary); }
 
         .poster-wrapper { position: relative; aspect-ratio: 2/3; overflow: hidden; border-radius: var(--radius) var(--radius) 0 0; }
-        .tree-item img { width: 100%; height: 100%; object-fit: cover; pointer-events: none; }
+        .tree-item img { width: 100%; height: 100%; object-fit: cover; }
 
-        .status-badge { 
-            position: absolute; top: 10px; left: 10px; padding: 5px 10px; 
-            border-radius: 20px; font-size: 0.65rem; font-weight: 800; 
-            backdrop-filter: blur(8px); z-index: 30; cursor: pointer;
-            border: 1px solid transparent; transition: 0.2s;
-            text-transform: uppercase;
+        .status-badge { position: absolute; top: 10px; left: 10px; padding: 5px 10px; border-radius: 20px; font-size: 0.65rem; font-weight: 800; backdrop-filter: blur(8px); z-index: 30; cursor: pointer; text-transform: uppercase; }
+        .status-on { background: rgba(0, 255, 136, 0.2); color: var(--accent-green); border: 1px solid var(--accent-green); }
+        .status-off { background: rgba(255, 51, 51, 0.2); color: var(--accent-red); border: 1px solid var(--accent-red); }
+
+        .cat-badge { 
+            position: absolute; top: 10px; right: 10px; display: flex; align-items: center; gap: 5px; 
+            padding: 5px 8px; border-radius: 8px; font-size: 0.6rem; font-weight: 800; 
+            backdrop-filter: blur(10px); z-index: 30; text-transform: uppercase; border: 1px solid rgba(255,255,255,0.1);
         }
-        .status-badge:hover { transform: scale(1.05); }
-        .status-on { background: rgba(0, 255, 136, 0.2); color: var(--accent-green); border-color: var(--accent-green); }
-        .status-off { background: rgba(255, 51, 51, 0.2); color: var(--accent-red); border-color: var(--accent-red); }
+        .cat-badge i { width: 12px; height: 12px; stroke-width: 3; }
 
         .item-info { padding: 12px; text-align: center; }
-        .item-title { font-weight: 600; font-size: 0.85rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; pointer-events: none; }
+        .item-title { font-weight: 600; font-size: 0.85rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
         .item-actions { position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.7); display: flex; justify-content: center; align-items: center; gap: 8px; opacity: 0; transition: 0.2s; border-radius: var(--radius); z-index: 10; }
         .tree-item:hover .item-actions { opacity: 1; }
-        
-        .circle-btn { width: 38px; height: 38px; border-radius: 50%; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: 0.2s; z-index: 20; }
+        .circle-btn { width: 38px; height: 38px; border-radius: 50%; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: 0.2s; }
         .btn-edit { background: white; color: black; }
         .btn-delete { background: var(--accent-red); color: white; }
 
-        .drop-root-zone { grid-column: 1 / -1; border: 2px dashed #333; border-radius: var(--radius); padding: 25px; text-align: center; color: var(--text-muted); margin-bottom: 15px; transition: 0.3s; }
-        .drop-root-zone.drag-over { border-color: var(--primary); background: rgba(255,0,0,0.1); color: white; }
+        .drop-root-zone { grid-column: 1 / -1; border: 2px dashed #333; border-radius: var(--radius); padding: 25px; text-align: center; color: var(--text-muted); margin-bottom: 15px; }
 
         #panel-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 2000; backdrop-filter: blur(10px); }
         #panel { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: #111; width: 450px; padding: 35px; border-radius: 20px; border: 1px solid #222; max-height: 90vh; overflow-y: auto; }
         .form-group { margin-bottom: 15px; }
         .form-group label { display: block; margin-bottom: 6px; font-size: 0.75rem; color: var(--text-muted); }
-        .form-group input, .form-group select { width: 100%; padding: 12px; background: #1a1a1a; border: 1px solid #333; color: white; border-radius: 10px; }
+        .form-group input, .form-group select { width: 100%; padding: 12px; background: #1a1a1a; border: 1px solid #333; color: white; border-radius: 10px; font-family: inherit; }
         
-        .tmdb-box { background: #000; padding: 15px; border-radius: 12px; border: 1px solid var(--primary); margin-bottom: 20px; }
-        .tmdb-btn { background: var(--primary); color: white; border: none; padding: 8px 15px; border-radius: 8px; cursor: pointer; font-weight: bold; margin-top: 10px; font-size: 0.8rem; width: 100%; }
+        /* TMDB STYLING REVISITED */
+        .tmdb-box { 
+            background: rgba(255, 0, 0, 0.05); padding: 20px; border-radius: 15px; 
+            border: 1px solid rgba(255, 0, 0, 0.2); margin-bottom: 25px; 
+            box-shadow: inset 0 0 20px rgba(0,0,0,0.2);
+        }
+        .tmdb-box label { font-weight: 800; color: var(--primary); letter-spacing: 1px; margin-bottom: 10px; display: block; }
+        .tmdb-box input { border-color: rgba(255,255,255,0.1); }
+        .tmdb-btn { 
+            background: var(--primary); color: white; border: none; padding: 12px; 
+            border-radius: 10px; cursor: pointer; font-weight: 800; width: 100%; 
+            font-size: 0.85rem; margin-top: 10px; display: flex; align-items: center; 
+            justify-content: center; gap: 8px; transition: 0.2s;
+        }
+        .tmdb-btn:hover { background: #d00; transform: scale(0.98); }
 
         #toast { position: fixed; bottom: 30px; right: 30px; background: var(--accent-green); color: #000; padding: 15px 25px; border-radius: 12px; font-weight: 700; display: none; z-index: 5000; }
     </style>
@@ -128,12 +131,8 @@
     </div>
 
     <div class="tabs-container">
-        <button class="tab-btn active" onclick="switchTab(true)">
-            ✅ Médias Actifs <span class="count" id="count-active">0</span>
-        </button>
-        <button class="tab-btn" onclick="switchTab(false)">
-            📁 Archives (Inactifs) <span class="count" id="count-inactive">0</span>
-        </button>
+        <button class="tab-btn active" onclick="switchTab(true)">✅ Médias Actifs <span class="count" id="count-active">0</span></button>
+        <button class="tab-btn" onclick="switchTab(false)">📁 Archives (Inactifs) <span class="count" id="count-inactive">0</span></button>
     </div>
 
     <div id="tree-view"></div>
@@ -143,14 +142,26 @@
     <div id="panel">
         <h2 style="margin: 0 0 15px 0; font-size: 1.2rem;">Édition Média</h2>
         <div class="tmdb-box">
-            <label style="font-size: 0.7rem; color: var(--text-muted);">AUTO-FILL TMDB</label>
-            <input type="text" id="tmdb-input" placeholder="ID ou Lien TMDB" style="width: 100%; padding: 8px; background: #222; border: 1px solid #444; color: white; border-radius: 5px; margin-top: 5px;">
-            <button type="button" class="tmdb-btn" onclick="fetchTMDB()">⚡ Récupérer les infos</button>
+            <label style="font-size: 0.7rem;">AUTO-FILL TMDB</label>
+            <input type="text" id="tmdb-input" placeholder="ID ou Lien TMDB">
+            <button type="button" class="tmdb-btn" onclick="fetchTMDB()">⚡ RÉCUPÉRER LES INFOS</button>
         </div>
         <form id="panel-form">
             <input type="hidden" id="item-id">
             <input type="hidden" id="item-active-hidden"> 
             <div class="form-group"><label>Titre</label><input type="text" id="item-title" required></div>
+            <div class="form-group">
+                <label>Catégorie</label>
+                <select id="item-category">
+                    <option value="">Aucune</option>
+                    <option value="Action">Action ⚔️</option>
+                    <option value="Comédie">Comédie 😂</option>
+                    <option value="Horreur">Horreur 👻</option>
+                    <option value="SF">Science-Fiction 🚀</option>
+                    <option value="Animation">Animation 🍄</option>
+                    <option value="Docu">Documentaire 🌍</option>
+                </select>
+            </div>
             <div class="form-group"><label>Type</label><select id="item-type"><option value="Film">Film</option><option value="Série">Série</option><option value="Folder">Dossier</option></select></div>
             <div class="form-group"><label>Lien Image (Poster)</label><input type="text" id="item-image"></div>
             <div class="form-group"><label>Lien Vidéo (Stream)</label><input type="text" id="item-video"></div>
@@ -168,25 +179,30 @@
 const TMDB_API_KEY = "a05cb0aa7f238cb1cbbbdfaebf1e2df3"; 
 const TMDB_IMG_PATH = "https://image.tmdb.org/t/p/w500";
 
+const CATEGORIES = {
+    "Action": { color: "#ff3333", icon: "zap" },
+    "Comédie": { color: "#ffc800", icon: "laugh" },
+    "Horreur": { color: "#e0e0e0", icon: "skull" },
+    "SF": { color: "#0096ff", icon: "rocket" },
+    "Animation": { color: "#00ff88", icon: "palette" },
+    "Docu": { color: "#b464ff", icon: "globe" }
+};
+
 let data = { folders: [], films: [] };
 let currentPath = [];
 let draggedItemId = null;
 let searchQuery = "";
-let showActiveTab = true; // État de l'onglet
+let showActiveTab = true;
 
 const treeView = document.getElementById("tree-view");
 const searchBar = document.getElementById("search-bar");
 
-// --- NAVIGATION ONGLETS ---
 function switchTab(active) {
     showActiveTab = active;
-    document.querySelectorAll('.tab-btn').forEach((btn, idx) => {
-        btn.classList.toggle('active', (idx === 0 && active) || (idx === 1 && !active));
-    });
+    document.querySelectorAll('.tab-btn').forEach((btn, idx) => btn.classList.toggle('active', (idx === 0 && active) || (idx === 1 && !active)));
     renderTree();
 }
 
-// --- API TMDB ---
 async function fetchTMDB() {
     const input = document.getElementById('tmdb-input').value;
     if(!input) return;
@@ -205,12 +221,8 @@ async function fetchTMDB() {
     } catch (err) { alert("Erreur TMDB"); }
 }
 
-// --- CORE ---
 function getAllItems(root, list = []) {
-    root.folders.forEach(f => {
-        list.push(f);
-        if (f.children) getAllItems({ folders: f.children.filter(c => c.type === 'Folder'), films: f.children.filter(c => c.type !== 'Folder') }, list);
-    });
+    root.folders.forEach(f => { list.push(f); if (f.children) getAllItems({ folders: f.children.filter(c => c.type === 'Folder'), films: f.children.filter(c => c.type !== 'Folder') }, list); });
     root.films.forEach(f => list.push(f));
     return list;
 }
@@ -230,32 +242,27 @@ function removeFromParent(id, root) {
     remove(root.folders); remove(root.films);
 }
 
+function propagateCategory(item, category) {
+    if (!item.children) return;
+    item.children.forEach(child => {
+        child.category = category;
+        if (child.type === "Folder") propagateCategory(child, category);
+    });
+}
+
 function saveAndRefresh() { localStorage.setItem("copyflixData", JSON.stringify(data)); renderTree(); }
 
 function toggleStatus(id) {
     const item = findItem(id, data);
-    if(item) {
-        item.active = !item.active;
-        saveAndRefresh();
-    }
+    if(item) { item.active = !item.active; saveAndRefresh(); }
 }
 
-// --- DRAG & DROP ---
-function onDragStart(e) {
-    if (searchQuery !== "") { e.preventDefault(); return; }
-    draggedItemId = this.dataset.id;
-    this.classList.add('dragging');
-    e.dataTransfer.setData("text/plain", draggedItemId);
-}
-
+function onDragStart(e) { if (searchQuery !== "") { e.preventDefault(); return; } draggedItemId = this.dataset.id; this.classList.add('dragging'); e.dataTransfer.setData("text/plain", draggedItemId); }
 function onDragOver(e) {
-    e.preventDefault();
-    if (searchQuery !== "") return;
-    const targetId = this.dataset.id;
-    if (targetId === draggedItemId) return;
+    e.preventDefault(); if (searchQuery !== "") return;
     const rect = this.getBoundingClientRect();
     const relX = e.clientX - rect.left;
-    const targetItem = findItem(targetId, data);
+    const targetItem = findItem(this.dataset.id, data);
     this.classList.remove('drop-before', 'drop-after', 'drop-center');
     if (targetItem.type === "Folder") {
         if (relX > rect.width * 0.25 && relX < rect.width * 0.75) this.classList.add('drop-center');
@@ -285,76 +292,40 @@ function onDrop(e) {
         draggedItem.parentId = activeParentId;
         let arr = !activeParentId ? (draggedItem.type === "Folder" ? data.folders : data.films) : findItem(activeParentId, data).children;
         const targetIdx = arr.findIndex(i => i.id === targetId);
-        const insertIdx = (relX < rect.width / 2) ? targetIdx : targetIdx + 1;
-        arr.splice(insertIdx, 0, draggedItem);
+        arr.splice((relX < rect.width / 2) ? targetIdx : targetIdx + 1, 0, draggedItem);
     }
     saveAndRefresh();
 }
 
-// --- RENDER ---
-function navigateTo(id) {
-    searchBar.value = ""; searchQuery = "";
-    if (!id) currentPath = []; 
-    else { const idx = currentPath.indexOf(id); if (idx !== -1) currentPath = currentPath.slice(0, idx+1); else currentPath.push(id); }
-    renderTree();
-}
-
-searchBar.oninput = (e) => { searchQuery = e.target.value.toLowerCase(); renderTree(); };
-
 function renderTree() {
     treeView.innerHTML = "";
-    
-    // Breadcrumb
     let bHtml = 'Position : <b onclick="navigateTo(\'\')">Racine</b>';
     currentPath.forEach(id => { const f = findItem(id, data); if(f) bHtml += ` > <b onclick="navigateTo('${id}')">${f.title}</b>`; });
     document.getElementById("breadcrumb").innerHTML = (searchQuery !== "") ? `Résultats : <b style="color:var(--primary)">"${searchQuery}"</b>` : bHtml;
 
-    // Filtration des items
     let allCurrentItems = searchQuery !== "" ? getAllItems(data).filter(i => i.title.toLowerCase().includes(searchQuery)) : (currentPath.length === 0 ? [...data.folders, ...data.films] : (findItem(currentPath[currentPath.length-1], data).children || []));
+    document.getElementById("count-active").textContent = allCurrentItems.filter(i => i.active).length;
+    document.getElementById("count-inactive").textContent = allCurrentItems.filter(i => !i.active).length;
 
-    // Compteurs
-    const activeCount = allCurrentItems.filter(i => i.active).length;
-    const inactiveCount = allCurrentItems.filter(i => !i.active).length;
-    document.getElementById("count-active").textContent = activeCount;
-    document.getElementById("count-inactive").textContent = inactiveCount;
-
-    // On garde uniquement les items correspondant à l'onglet choisi
-    let filteredItems = allCurrentItems.filter(i => i.active === showActiveTab);
-
-    if (currentPath.length > 0 && searchQuery === "") {
-        const rz = document.createElement('div');
-        rz.className = 'drop-root-zone'; rz.textContent = "↑ Sortir du dossier";
-        rz.ondrop = (e) => {
-            const item = findItem(draggedItemId, data);
-            removeFromParent(draggedItemId, data);
-            item.parentId = "";
-            if(item.type === "Folder") data.folders.push(item); else data.films.push(item);
-            saveAndRefresh();
-        };
-        rz.ondragover = (e) => { e.preventDefault(); rz.classList.add('drag-over'); };
-        rz.ondragleave = () => rz.classList.remove('drag-over');
-        treeView.appendChild(rz);
-    }
-
-    filteredItems.forEach(item => {
+    allCurrentItems.filter(i => i.active === showActiveTab).forEach(item => {
         const div = document.createElement("div");
         div.className = `tree-item`;
         div.draggable = (searchQuery === "");
         div.dataset.id = item.id;
-        div.ondragstart = onDragStart;
-        div.ondragover = onDragOver;
+        div.ondragstart = onDragStart; div.ondragover = onDragOver; div.ondrop = onDrop;
         div.ondragleave = () => div.classList.remove('drop-before', 'drop-after', 'drop-center');
-        div.ondrop = onDrop;
+        div.onclick = (e) => { if (e.target.closest('.status-badge')) { toggleStatus(item.id); return; } if (item.type === "Folder" && !e.target.closest('.circle-btn')) navigateTo(item.id); };
 
-        div.onclick = (e) => { 
-            if (e.target.closest('.status-badge')) { toggleStatus(item.id); return; }
-            if (e.target.closest('.circle-btn')) return;
-            if (item.type === "Folder") navigateTo(item.id); 
-        };
+        let catHtml = "";
+        if (item.category && CATEGORIES[item.category]) {
+            const cat = CATEGORIES[item.category];
+            catHtml = `<div class="cat-badge" style="background: ${cat.color}22; color: ${cat.color}; border-color: ${cat.color}44;"><i data-lucide="${cat.icon}"></i> ${item.category}</div>`;
+        }
 
         div.innerHTML = `
             <div class="poster-wrapper">
-                <div class="status-badge ${item.active ? 'status-on' : 'status-off'}">${item.active ? 'Disponible' : 'Indisponible'}</div>
+                <div class="status-badge ${item.active ? 'status-on' : 'status-off'}">${item.active ? 'Dispo' : 'Off'}</div>
+                ${catHtml}
                 <img src="${item.image || 'https://via.placeholder.com/300x450/111/333?text=Copyflix'}">
                 <div class="item-actions">
                     <button class="circle-btn btn-edit">✏️</button>
@@ -363,20 +334,34 @@ function renderTree() {
             </div>
             <div class="item-info"><div class="item-title">${(item.type === "Folder" ? "📁 " : "") + item.title}</div></div>
         `;
-
         div.querySelector('.btn-edit').onclick = (e) => { e.stopPropagation(); openPanel(item.type, item.id); };
         div.querySelector('.btn-delete').onclick = (e) => { e.stopPropagation(); deleteItem(item.id); };
         treeView.appendChild(div);
     });
+    lucide.createIcons();
 }
 
-// --- MODAL ---
+function navigateTo(id) { searchBar.value = ""; searchQuery = ""; if (!id) currentPath = []; else { const idx = currentPath.indexOf(id); if (idx !== -1) currentPath = currentPath.slice(0, idx+1); else currentPath.push(id); } renderTree(); }
+searchBar.oninput = (e) => { searchQuery = e.target.value.toLowerCase(); renderTree(); };
+
 function openPanel(type, id = null) {
     const item = id ? findItem(id, data) : null;
     document.getElementById("panel-overlay").style.display = "block";
-    document.getElementById("tmdb-input").value = "";
     document.getElementById("item-id").value = id || "";
     document.getElementById("item-title").value = item ? item.title : "";
+    
+    // RESET TMDB INPUT
+    document.getElementById("tmdb-input").value = "";
+
+    // LOGIQUE D'HÉRITAGE AUTOMATIQUE
+    if (item) {
+        document.getElementById("item-category").value = item.category || "";
+    } else {
+        const parentId = currentPath[currentPath.length - 1];
+        const parent = parentId ? findItem(parentId, data) : null;
+        document.getElementById("item-category").value = (parent && parent.category) ? parent.category : "";
+    }
+
     document.getElementById("item-type").value = item ? item.type : type;
     document.getElementById("item-image").value = item ? item.image : "";
     document.getElementById("item-video").value = item ? item.video || "" : "";
@@ -387,36 +372,33 @@ function closePanel() { document.getElementById("panel-overlay").style.display =
 document.getElementById("panel-form").onsubmit = (e) => {
     e.preventDefault();
     const id = document.getElementById("item-id").value;
+    const category = document.getElementById("item-category").value;
     const vals = {
         title: document.getElementById("item-title").value,
         type: document.getElementById("item-type").value,
+        category: category,
         image: document.getElementById("item-image").value,
         video: document.getElementById("item-video").value,
         active: document.getElementById("item-active-hidden").value === "true"
     };
-    if (id) Object.assign(findItem(id, data), vals);
-    else {
+    if (id) {
+        const item = findItem(id, data);
+        Object.assign(item, vals);
+        if (item.type === "Folder" && category) propagateCategory(item, category);
+    } else {
         const newItem = { id: "id-" + Date.now(), ...vals, children: [], parentId: currentPath[currentPath.length-1] || "" };
         if(!newItem.parentId) (vals.type === "Folder" ? data.folders : data.films).push(newItem);
-        else {
-            const parent = findItem(newItem.parentId, data);
-            if(!parent.children) parent.children = [];
-            parent.children.push(newItem);
-        }
+        else findItem(newItem.parentId, data).children.push(newItem);
     }
     saveAndRefresh(); closePanel();
 };
 
 function deleteItem(id) { if(confirm("Supprimer ?")) { removeFromParent(id, data); saveAndRefresh(); } }
-
 const saved = localStorage.getItem("copyflixData");
 if(saved) data = JSON.parse(saved);
 document.getElementById("btn-add-folder").onclick = () => openPanel("Folder");
 document.getElementById("btn-add-film").onclick = () => openPanel("Film");
-document.getElementById("btn-copy-json").onclick = () => {
-    navigator.clipboard.writeText(JSON.stringify(data, null, 2));
-    const t = document.getElementById("toast"); t.style.display="block"; setTimeout(()=>t.style.display="none", 2000);
-};
+document.getElementById("btn-copy-json").onclick = () => { navigator.clipboard.writeText(JSON.stringify(data, null, 2)); const t = document.getElementById("toast"); t.style.display="block"; setTimeout(()=>t.style.display="none", 2000); };
 document.getElementById("btn-logout").onclick = () => window.location.href="../index.html";
 renderTree();
 </script>
