@@ -97,6 +97,7 @@ header.scrolled {
 .carousel-viewport {
   display: flex; overflow-x: auto; padding: 40px 5%; margin-top: -10px; margin-bottom: -10px;
   gap: 28px; cursor: grab; user-select: none;
+  scrollbar-width: none; /* Cache la scrollbar sur Firefox */
 }
 .carousel-viewport::-webkit-scrollbar { display: none; }
 
@@ -195,14 +196,12 @@ header.scrolled {
 
 #player-overlay:hover #player-hud { opacity: 1; }
 
-/* HAUT : On garde le dégradé pour la visibilité du titre */
 .hud-top { 
   display: flex; justify-content: space-between; align-items: flex-start; 
   pointer-events: auto; padding: 40px;
   background: linear-gradient(to bottom, rgba(0,0,0,0.95) 0%, transparent 100%);
 }
 
-/* BAS : On supprime le dégradé noir. Seul le bouton est cliquable */
 .hud-bottom { 
   display: flex; justify-content: center; 
   pointer-events: none; padding-bottom: 60px;
@@ -210,7 +209,6 @@ header.scrolled {
 
 .close-player { width: 55px; height: 55px; background: rgba(255,255,255,0.15); border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; color: #fff; font-size: 1.5rem; }
 
-/* On réactive le clic uniquement sur le bouton lui-même */
 .btn-next-ep { 
   pointer-events: auto;
   background: rgba(255,255,255,0.15); color: white; border: 1px solid rgba(255,255,255,0.2); 
@@ -280,12 +278,12 @@ const CAT_CONFIG = {
     "Action": { title: "Action", icon: "fa-fire" },
     "Comédie": { title: "Comédie", icon: "fa-laugh-squint" },
     "Horreur": { title: "Horreur", icon: "fa-ghost" },
-    "Science-fiction": { title: "Science-fiction", icon: "fa-rocket" },
+    "SF": { title: "Science-fiction", icon: "fa-rocket" },
     "Animation": { title: "Animation", icon: "fa-wand-magic-sparkles" },
-    "Documentaire": { title: "Documentaire", icon: "fa-camera-retro" }
+    "Docu": { title: "Documentaire", icon: "fa-camera-retro" }
 };
 
-const CATEGORIES = ["Action", "Comédie", "Horreur", "Science-fiction", "Animation", "Documentaire"];
+const CATEGORIES = ["Action", "Comédie", "Horreur", "SF", "Animation", "Docu"];
 
 fetch("data.json").then(r => r.json()).then(json => {
   contentData = json;
@@ -313,9 +311,15 @@ function setGlobalFilter(filter, btn) {
     renderHome();
 }
 
+// CORRECTION SCROLL : On enlève le blocage de la molette
 function initDragScroll(el) {
     let isDown = false, startX, scrollLeft;
-    el.addEventListener('mousedown', (e) => { isDown = true; startX = e.pageX - el.offsetLeft; scrollLeft = el.scrollLeft; el.style.cursor='grabbing'; });
+    el.addEventListener('mousedown', (e) => { 
+        isDown = true; 
+        startX = e.pageX - el.offsetLeft; 
+        scrollLeft = el.scrollLeft; 
+        el.style.cursor='grabbing'; 
+    });
     el.addEventListener('mouseleave', () => { isDown = false; });
     el.addEventListener('mouseup', () => { isDown = false; el.style.cursor='grab'; });
     el.addEventListener('mousemove', (e) => {
@@ -325,6 +329,7 @@ function initDragScroll(el) {
         const walk = (x - startX) * 2;
         el.scrollLeft = scrollLeft - walk;
     });
+    // On ne touche plus à 'wheel' ici pour laisser le comportement par défaut (scroll vertical du site)
 }
 
 function smoothScroll(element, target, duration) {
