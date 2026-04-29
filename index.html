@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>COPYFLIX V3</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+
+<link rel="icon" type="image/png" href="favicon.png">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+
+<style>
+:root {
+  --primary: #dc2626;
+  --primary-glow: rgba(220, 38, 38, 0.4);
+  --bg-dark: #050505;
+  --bg-center: #0f0f0f;
+  --surface: #0a0a0a;
+  --text-muted: #a3a3a3;
+  --transition-fluid: all 0.5s cubic-bezier(0.2, 1, 0.3, 1);
+  --radius: 18px;
+  --card-width: 220px;
+}
+
+* { 
+  margin:0; padding:0; box-sizing:border-box; 
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+body { 
+  background: radial-gradient(circle at center, var(--bg-center) 0%, var(--bg-dark) 100%); 
+  color: #fff; 
+  overflow-x: hidden; 
+  min-height: 100vh; 
+}
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background-image: url('https://grainy-gradients.vercel.app/noise.svg');
+  opacity: 0.03;
+  pointer-events: none;
+  z-index: 1;
+}
+body.no-scroll { overflow: hidden; }
+
+header {
+  position: fixed; top: 0; width: 100%; height: 90px; z-index: 1000;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 5%; transition: var(--transition-fluid);
+}
+header.scrolled {
+  background: rgba(0, 0, 0, 0.9);
+  height: 70px; border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+.logo { font-size: 28px; font-weight: 900; cursor: pointer; text-transform: uppercase; letter-spacing: -1.5px; position: relative; z-index: 2;}
+.logo span { color: var(--primary); text-shadow: 0 0 25px var(--primary-glow); }
+
+.filter-menu { display: flex; gap: 30px; margin-left: 40px; }
+.filter-btn {
+  background: none; border: none; color: rgba(255,255,255,0.5);
+  font-size: 0.9rem; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 1px; cursor: pointer; transition: 0.3s;
+  position: relative; padding: 5px 0; outline: none;
+}
+.filter-btn:hover, .filter-btn.active { color: #fff; }
+.filter-btn.active::after {
+  content: ''; position: absolute; bottom: 0; left: 0; width: 100%; height: 2px;
+  background: var(--primary); box-shadow: 0 0 10px var(--primary-glow);
+}
+
+.nav-right { display: flex; align-items: center; gap: 20px; position: relative; z-index: 2;}
+.search-wrapper {
+  background: rgba(255,255,255,0.03); border-radius: 16px; padding: 12px 20px;
+  display: flex; align-items: center; gap: 12px;
+  border: 1px solid rgba(255,255,255,0.08);
+}
+.search-wrapper input { background: transparent; border: none; color: white; outline: none; width: 200px; }
+
+#app-content { padding-top: 120px; padding-bottom: 100px; position: relative; z-index: 2; }
+
+.category-row { margin-bottom: 80px; position: relative; z-index: 1; }
+.row-header { padding: 0 5% 30px; display: flex; align-items: center; justify-content: center; }
+
+.row-title { 
+    font-size: 2.2rem; font-weight: 900; letter-spacing: -1px; 
+    text-transform: uppercase; 
+    background: linear-gradient(135deg, var(--primary) 0%, #991b1b 100%);
+    color: #fff;
+    padding: 8px 30px; display: inline-block; transform: skewX(-15deg);
+    box-shadow: 10px 10px 0 #fff; line-height: 1.1;
+}
+
+.row-title i { margin-right: 15px; transform: skewX(15deg); display: inline-block; font-size: 0.8em; }
+
+.carousel-viewport {
+  display: flex; overflow-x: auto; padding: 40px 5%; margin-top: -10px; margin-bottom: -10px;
+  gap: 28px; cursor: grab; user-select: none;
+  scrollbar-width: none; /* Cache la scrollbar sur Firefox */
+}
+.carousel-viewport::-webkit-scrollbar { display: none; }
+
+.content-card { 
+  flex: 0 0 var(--card-width); 
+  position: relative; 
+  cursor: pointer; 
+  transition: var(--transition-fluid); 
+  outline: none; 
+}
+
+.content-card.not-active {
+  cursor: default;
+}
+.content-card.not-active .poster-wrapper {
+  opacity: 0.3;
+  filter: grayscale(1);
+}
+.content-card.not-active:hover {
+  transform: none;
+}
+
+.adaptive-glow {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  filter: blur(50px);
+  opacity: 0;
+  transition: var(--transition-fluid);
+  z-index: 1;
+  border-radius: var(--radius);
+}
+
+.poster-wrapper { 
+  position: relative; aspect-ratio: 2/3; border-radius: var(--radius); 
+  overflow: hidden; background: #0f0f0f; border: 2px solid rgba(255,255,255,0.1);
+  box-shadow: 0 10px 25px rgba(0,0,0,0.5); transition: var(--transition-fluid);
+  z-index: 2;
+}
+
+.poster-wrapper img { width: 100%; height: 100%; object-fit: cover; pointer-events: none; }
+
+.poster-wrapper::after {
+  content: '';
+  position: absolute;
+  top: 0; left: -150%; width: 100%; height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transform: skewX(-20deg);
+  transition: 0.6s;
+}
+
+.content-card:not(.not-active):hover { transform: translateY(-15px) scale(1.1); z-index: 1000; }
+.content-card:not(.not-active):hover .poster-wrapper { border-color: var(--primary); box-shadow: 0 20px 40px rgba(0,0,0,0.8); }
+.content-card:not(.not-active):hover .poster-wrapper::after { left: 150%; }
+.content-card:not(.not-active):hover .adaptive-glow { opacity: 0.7; transform: scale(1.2); }
+
+.content-title { 
+  margin-top: 15px; font-size: 1.05rem; font-weight: 800; text-align: center; 
+  color: #fff; opacity: 0.4; transition: var(--transition-fluid); 
+  transform: translateY(0);
+}
+.content-card:not(.not-active):hover .content-title { opacity: 1; color: var(--primary); transform: translateY(-5px); }
+
+.coming-soon-badge {
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  background: var(--primary);
+  color: white;
+  padding: 5px 10px;
+  font-size: 0.7rem;
+  font-weight: 900;
+  text-transform: uppercase;
+  border-radius: 5px;
+  z-index: 3;
+  white-space: nowrap;
+}
+
+.nav-arrow { position: absolute; top: 55%; transform: translateY(-50%); width: 65px; height: 120px; background: rgba(0,0,0,0.8); border: none; color: white; z-index: 2000; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: 0.3s; }
+.nav-arrow:hover { background: var(--primary); color: #fff; }
+.arrow-left { left: 0; border-radius: 0 20px 20px 0; border-right: 2px solid var(--primary); }
+.arrow-right { right: 0; border-radius: 20px 0 0 20px; border-left: 2px solid var(--primary); }
+
+#back-arrow { display: none; width: 60px; height: 60px; border-radius: 20px; background: #111; border: 1px solid #333; color: white; align-items: center; justify-content: center; cursor: pointer; margin-left: 5%; margin-bottom: 20px;}
+#back-arrow:hover { background: var(--primary); transform: scale(1.1); outline: none; }
+
+#player-overlay { position: fixed; inset: 0; background: #000; z-index: 3000; display: none; opacity: 0; transition: 0.5s; }
+#player-overlay.active { opacity: 1; }
+
+#player-hud { 
+  position: absolute; inset: 0; z-index: 3100; 
+  display: flex; flex-direction: column; justify-content: space-between; 
+  pointer-events: none; 
+  opacity: 0; transition: 0.4s; 
+}
+
+#player-overlay:hover #player-hud { opacity: 1; }
+
+.hud-top { 
+  display: flex; justify-content: space-between; align-items: flex-start; 
+  pointer-events: auto; padding: 40px;
+  background: linear-gradient(to bottom, rgba(0,0,0,0.95) 0%, transparent 100%);
+}
+
+.hud-bottom { 
+  display: flex; justify-content: center; 
+  pointer-events: none; padding-bottom: 60px;
+}
+
+.close-player { width: 55px; height: 55px; background: rgba(255,255,255,0.15); border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; color: #fff; font-size: 1.5rem; }
+
+.btn-next-ep { 
+  pointer-events: auto;
+  background: rgba(255,255,255,0.15); color: white; border: 1px solid rgba(255,255,255,0.2); 
+  padding: 18px 40px; border-radius: 15px; font-weight: 800; cursor: pointer; 
+  display: flex; align-items: center; gap: 15px; transition: 0.3s; font-size: 1.1rem; 
+}
+.btn-next-ep:hover { background: var(--primary); border-color: var(--primary); transform: translateY(-5px); box-shadow: 0 10px 20px var(--primary-glow); }
+
+#player-container { width: 100%; height: 100%; background:#000; }
+iframe { width: 100%; height: 100%; border: none; }
+#search-grid { display: none; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 60px 40px; padding: 40px 5% 100px; }
+</style>
+</head>
+
+<body>
+<div id="app-content">
+  <header id="mainNav">
+    <div style="display: flex; align-items: center;">
+      <div class="logo" onclick="location.reload()">COPY<span>FLIX</span></div>
+      <div class="filter-menu">
+        <button class="filter-btn active" onclick="setGlobalFilter('all', this)">Tout</button>
+        <button class="filter-btn" onclick="setGlobalFilter('Série', this)">Séries</button>
+        <button class="filter-btn" onclick="setGlobalFilter('Film', this)">Films</button>
+      </div>
+    </div>
+    <div class="nav-right">
+      <div class="search-wrapper">
+        <i class="fa-solid fa-magnifying-glass" style="color:var(--primary)"></i>
+        <input type="text" id="mainSearch" placeholder="Rechercher...">
+      </div>
+      <button style="background:none; border:none; color:white; cursor:pointer; font-size:1.6rem;" onclick="window.open('admin/login.html','_blank')"><i class="fa-solid fa-user-shield"></i></button>
+    </div>
+  </header>
+
+  <div id="back-arrow" onclick="goBack()"><i class="fa-solid fa-arrow-left"></i></div>
+  <div id="home-view"></div>
+  <div id="search-grid"></div>
+</div>
+
+<div id="player-overlay">
+  <div id="player-hud">
+    <div class="hud-top">
+      <div>
+        <div id="hud-parent-name" style="color:var(--primary); font-weight:900; font-size:1.1rem; text-transform:uppercase; letter-spacing:2px;"></div>
+        <div id="hud-season-name" style="color:rgba(255,255,255,0.6); font-weight:700; font-size:1rem; margin: 6px 0;"></div>
+        <h2 id="hud-current-name" style="font-size:2.2rem; font-weight:900;"></h2>
+      </div>
+      <div class="close-player" onclick="closePlayer()"><i class="fa-solid fa-xmark"></i></div>
+    </div>
+    <div class="hud-bottom">
+      <button class="btn-next-ep" id="btn-next-universal" style="display:none;" onclick="handleNextClick()">
+        <span id="next-btn-text">SUIVANT</span> <i class="fa-solid fa-forward"></i>
+      </button>
+    </div>
+  </div>
+  <div id="player-container"></div>
+</div>
+
+<script>
+let contentData, pathStack = [], currentPlayingItem = null;
+let registry = new Map(); 
+let currentGlobalFilter = 'all';
+let tempMainContent = null; 
+let lastScrollPos = 0;
+
+const CAT_CONFIG = {
+    "Action": { title: "Action", icon: "fa-fire" },
+    "Comédie": { title: "Comédie", icon: "fa-laugh-squint" },
+    "Horreur": { title: "Horreur", icon: "fa-ghost" },
+    "SF": { title: "Science-fiction", icon: "fa-rocket" },
+    "Animation": { title: "Animation", icon: "fa-wand-magic-sparkles" },
+    "Docu": { title: "Documentaire", icon: "fa-camera-retro" }
+};
+
+const CATEGORIES = ["Action", "Comédie", "Horreur", "SF", "Animation", "Docu"];
+
+fetch("data.json").then(r => r.json()).then(json => {
+  contentData = json;
+  renderHome();
+});
+
+function getDeepType(item) {
+    if (item.type === "Série" || item.type === "Film") return item.type;
+    if (item.video) return "Film";
+    if (item.children && item.children.length > 0) {
+        const hasSubFolder = item.children.some(c => c.children && c.children.length > 0);
+        if (hasSubFolder) return "Série";
+        for (let child of item.children) {
+            const found = getDeepType(child);
+            if (found) return found;
+        }
+    }
+    return null;
+}
+
+function setGlobalFilter(filter, btn) {
+    currentGlobalFilter = filter;
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    renderHome();
+}
+
+// CORRECTION SCROLL : On enlève le blocage de la molette
+function initDragScroll(el) {
+    let isDown = false, startX, scrollLeft;
+    el.addEventListener('mousedown', (e) => { 
+        isDown = true; 
+        startX = e.pageX - el.offsetLeft; 
+        scrollLeft = el.scrollLeft; 
+        el.style.cursor='grabbing'; 
+    });
+    el.addEventListener('mouseleave', () => { isDown = false; });
+    el.addEventListener('mouseup', () => { isDown = false; el.style.cursor='grab'; });
+    el.addEventListener('mousemove', (e) => {
+        if (!isDown) return;
+        e.preventDefault();
+        const x = e.pageX - el.offsetLeft;
+        const walk = (x - startX) * 2;
+        el.scrollLeft = scrollLeft - walk;
+    });
+    // On ne touche plus à 'wheel' ici pour laisser le comportement par défaut (scroll vertical du site)
+}
+
+function smoothScroll(element, target, duration) {
+    const start = element.scrollLeft;
+    const change = target - start;
+    let currentTime = 0;
+    const increment = 20;
+    const easeInOutQuad = (t, b, c, d) => {
+        t /= d/2;
+        if (t < 1) return c/2*t*t + b;
+        t--;
+        return -c/2 * (t*(t-2) - 1) + b;
+    };
+    const animateScroll = () => {
+        currentTime += increment;
+        const val = easeInOutQuad(currentTime, start, change, duration);
+        element.scrollLeft = val;
+        if (currentTime < duration) setTimeout(animateScroll, increment);
+    };
+    animateScroll();
+}
+
+function scrollCarousel(btn, direction) {
+    const viewport = direction === 'left' ? btn.nextElementSibling : btn.previousElementSibling;
+    const scrollStep = window.innerWidth * 0.75;
+    const target = direction === 'left' ? viewport.scrollLeft - scrollStep : viewport.scrollLeft + scrollStep;
+    smoothScroll(viewport, target, 600);
+}
+
+function renderHome() {
+  pathStack = []; registry.clear();
+  const container = document.getElementById("home-view");
+  if(!container) return;
+  
+  document.getElementById("home-view").style.display = "block";
+  document.getElementById("search-grid").style.display = "none";
+  document.getElementById("back-arrow").style.display = "none";
+  container.innerHTML = "";
+  
+  CATEGORIES.forEach(cat => {
+    const items = [...contentData.folders, ...contentData.films].filter(i => {
+        if (i.category !== cat) return false;
+        const type = getDeepType(i);
+        if (currentGlobalFilter === 'all') return true;
+        return type === currentGlobalFilter;
+    });
+
+    if(items.length > 0) {
+      const config = CAT_CONFIG[cat];
+      const row = document.createElement("div");
+      row.className = "category-row";
+      row.innerHTML = `
+        <div class="row-header"><h2 class="row-title"><i class="fas ${config.icon}"></i>${config.title}</h2></div>
+        <button class="nav-arrow arrow-left" onclick="scrollCarousel(this, 'left')"><i class="fas fa-chevron-left"></i></button>
+        <div class="carousel-viewport">${items.map(i => createCardHTML(i)).join('')}</div>
+        <button class="nav-arrow arrow-right" onclick="scrollCarousel(this, 'right')"><i class="fas fa-chevron-right"></i></button>
+      `;
+      container.appendChild(row);
+      initDragScroll(row.querySelector('.carousel-viewport'));
+    }
+  });
+}
+
+function createCardHTML(item) {
+  const id = Math.random().toString(36).substr(2, 9);
+  registry.set(id, item);
+  const isActive = item.active !== false;
+  return `
+    <div class="content-card ${isActive ? '' : 'not-active'}" onclick="handleCardClick('${id}')">
+      ${isActive ? `<div class="adaptive-glow" style="background-image: url('${item.image}')"></div>` : '<div class="coming-soon-badge">Bientôt</div>'}
+      <div class="poster-wrapper">
+        <img src="${item.image}">
+      </div>
+      <div class="content-title">${item.title}</div>
+    </div>`;
+}
+
+function handleCardClick(id) {
+  const item = registry.get(id);
+  if (item.active === false) return; 
+  if (item.video) playMedia(item);
+  else if (item.children) openFolder(item);
+}
+
+function openFolder(folder) {
+  pathStack.push(folder);
+  document.getElementById("home-view").style.display = "none";
+  document.getElementById("search-grid").style.display = "grid";
+  document.getElementById("back-arrow").style.display = "flex";
+  const grid = document.getElementById("search-grid");
+  grid.innerHTML = folder.children.map(c => createCardHTML(c)).join('');
+}
+
+function goBack() {
+  pathStack.pop();
+  if(pathStack.length === 0) renderHome();
+  else { const p = pathStack.pop(); openFolder(p); }
+}
+
+function playMedia(item) {
+  currentPlayingItem = item;
+  const app = document.getElementById("app-content");
+  
+  if (tempMainContent === null) {
+      lastScrollPos = window.scrollY;
+      tempMainContent = app.innerHTML; 
+  }
+  
+  app.innerHTML = ""; 
+  
+  document.body.classList.add("no-scroll");
+  const overlay = document.getElementById("player-overlay");
+  overlay.style.display = "block";
+
+  const container = document.getElementById("player-container");
+  container.innerHTML = ""; 
+  const ifrm = document.createElement("iframe");
+  ifrm.id = "video-engine";
+  ifrm.src = item.video;
+  ifrm.allowFullscreen = true;
+  ifrm.allow = "autoplay";
+  container.appendChild(ifrm);
+    
+  document.getElementById("hud-current-name").innerText = item.title;
+  document.getElementById("hud-parent-name").innerText = pathStack.length > 0 ? pathStack[0].title : (item.type || "Film");
+  
+  const seasonHud = document.getElementById("hud-season-name");
+  seasonHud.style.display = (pathStack.length >= 2) ? "block" : "none";
+  if(pathStack.length >= 2) seasonHud.innerText = pathStack[pathStack.length - 1].title;
+
+  updateNextButton(item);
+  setTimeout(() => overlay.classList.add("active"), 50);
+}
+
+function updateNextButton(item) {
+  const nextBtn = document.getElementById("btn-next-universal");
+  nextBtn.style.display = "none";
+  if (item.type !== "Film" && pathStack.length > 0) {
+    const currentSeasonFolder = pathStack[pathStack.length - 1];
+    const episodes = currentSeasonFolder.children.filter(c => (!c.children || c.video) && c.active !== false);
+    const currentIndex = episodes.findIndex(e => e.title === item.title);
+    if (currentIndex < episodes.length - 1 || pathStack.length >= 2) nextBtn.style.display = "flex";
+  }
+}
+
+function handleNextClick() {
+  const currentSeasonFolder = pathStack[pathStack.length - 1];
+  const episodes = currentSeasonFolder.children.filter(c => (!c.children || c.video) && c.active !== false);
+  const currentIndex = episodes.findIndex(e => e.title === currentPlayingItem.title);
+  
+  if (currentIndex < episodes.length - 1) {
+    playMedia(episodes[currentIndex + 1]);
+  } else if (pathStack.length >= 2) {
+    const seriesRoot = pathStack[pathStack.length - 2];
+    const currentSeasonIndex = seriesRoot.children.findIndex(s => s.title === currentSeasonFolder.title);
+    if (currentSeasonIndex < seriesRoot.children.length - 1) {
+        const nextSeason = seriesRoot.children[currentSeasonIndex + 1];
+        pathStack.pop();
+        pathStack.push(nextSeason);
+        const firstEp = nextSeason.children.find(c => (!c.children || c.video) && c.active !== false);
+        if (firstEp) playMedia(firstEp);
+    }
+  }
+}
+
+function closePlayer() {
+  const overlay = document.getElementById("player-overlay");
+  overlay.classList.remove("active");
+  const ifrm = document.getElementById("video-engine");
+  if(ifrm) ifrm.src = "about:blank";
+
+  setTimeout(() => { 
+    overlay.style.display = "none"; 
+    document.getElementById("player-container").innerHTML = ""; 
+    const app = document.getElementById("app-content");
+    app.innerHTML = tempMainContent;
+    tempMainContent = null; 
+    document.body.classList.remove("no-scroll"); 
+    window.scrollTo(0, lastScrollPos);
+    document.querySelectorAll('.carousel-viewport').forEach(v => initDragScroll(v));
+  }, 500);
+}
+
+document.getElementById("mainSearch").addEventListener("input", (e) => {
+  const q = e.target.value.toLowerCase();
+  const grid = document.getElementById("search-grid");
+  if(!q) { renderHome(); return; }
+  document.getElementById("home-view").style.display = "none";
+  grid.style.display = "grid";
+  document.getElementById("back-arrow").style.display = "flex";
+  let found = [];
+  const search = (list) => list.forEach(i => { if(i.title.toLowerCase().includes(q)) found.push(i); if(i.children) search(i.children); });
+  search([...contentData.folders, ...contentData.films]);
+  grid.innerHTML = found.map(i => createCardHTML(i)).join('');
+});
+
+window.onscroll = () => {
+    const nav = document.getElementById("mainNav");
+    if(nav) nav.classList.toggle("scrolled", window.scrollY > 50);
+}
+</script>
+</body>
+</html>
