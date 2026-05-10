@@ -1,0 +1,935 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>COPYFLIX</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+
+<link rel="icon" type="image/png" href="favicon.png">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Syne:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+
+<style>
+/* ========================================
+   COPYFLIX — NOIR CINÉMA REDESIGN
+   Direction : editorial luxury streaming
+   Fonts : Bebas Neue (display) · Syne (body)
+   ======================================== */
+
+:root {
+  --primary:        #e5372b;
+  --primary-glow:   rgba(229, 55, 43, 0.38);
+  --primary-dim:    rgba(229, 55, 43, 0.10);
+  --bg:             #03030a;
+  --bg-card:        #0d0d14;
+  --surface:        rgba(255, 255, 255, 0.03);
+  --text:           #eeeeee;
+  --text-muted:     #5a5a6a;
+  --text-dim:       rgba(255,255,255,0.22);
+  --border:         rgba(255,255,255,0.065);
+  --border-red:     rgba(229, 55, 43, 0.45);
+  --radius:         14px;
+  --radius-lg:      20px;
+  --card-width:     210px;
+  --ease-out:       cubic-bezier(0.16, 1, 0.3, 1);
+  --transition:     all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+  --transition-fast:all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+*, *::before, *::after {
+  margin: 0; padding: 0; box-sizing: border-box;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Syne uniquement sur éléments texte — pas sur les i/span Font Awesome */
+body, div, h1, h2, h3, h4, h5, h6, p, span:not([class*="fa"]),
+button, input, a, label, header, footer, section, article {
+  font-family: 'Syne', sans-serif;
+}
+
+/* === BODY === */
+body {
+  background: var(--bg);
+  color: var(--text);
+  overflow-x: hidden;
+  min-height: 100vh;
+}
+
+/* Vignette sombre + bruit cinématique */
+body::before {
+  content: '';
+  position: fixed; inset: 0;
+  background:
+    radial-gradient(ellipse 160% 100% at 50% 0%, rgba(229,55,43,0.045) 0%, transparent 55%),
+    radial-gradient(ellipse at center, transparent 25%, rgba(0,0,0,0.72) 100%);
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Grain film */
+body::after {
+  content: '';
+  position: fixed; inset: 0;
+  background-image: url('https://grainy-gradients.vercel.app/noise.svg');
+  opacity: 0.025;
+  pointer-events: none;
+  z-index: 2;
+}
+
+body.no-scroll { overflow: hidden; }
+
+/* === SCROLLBAR === */
+::-webkit-scrollbar { width: 3px; height: 3px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--primary); border-radius: 3px; }
+
+/* ==============================
+   HEADER
+   ============================== */
+header {
+  position: fixed; top: 0; width: 100%; height: 88px;
+  z-index: 1000;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 5%;
+  transition: var(--transition);
+}
+
+header.scrolled {
+  background: rgba(3, 3, 10, 0.85);
+  backdrop-filter: blur(28px) saturate(160%);
+  -webkit-backdrop-filter: blur(28px) saturate(160%);
+  height: 66px;
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+  box-shadow: 0 1px 0 0 rgba(229,55,43,0.12);
+}
+
+/* === LOGO === */
+.logo {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 33px;
+  letter-spacing: 4px;
+  cursor: pointer;
+  position: relative; z-index: 2;
+  color: var(--text);
+  transition: var(--transition-fast);
+}
+
+.logo:hover { opacity: 0.85; }
+
+.logo span {
+  color: var(--primary);
+  text-shadow: 0 0 28px var(--primary-glow), 0 0 56px rgba(229,55,43,0.18);
+}
+
+/* === FILTER PILLS === */
+.filter-menu {
+  display: flex; gap: 3px;
+  margin-left: 44px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid var(--border);
+  border-radius: 50px;
+  padding: 4px;
+}
+
+.filter-btn {
+  background: none; border: none;
+  color: var(--text-muted);
+  font-family: 'Syne', sans-serif;
+  font-size: 0.75rem; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 1.8px;
+  cursor: pointer; outline: none;
+  padding: 8px 20px; border-radius: 50px;
+  transition: var(--transition-fast);
+  position: relative;
+}
+
+.filter-btn:hover { color: var(--text); background: rgba(255,255,255,0.05); }
+
+.filter-btn.active {
+  background: var(--primary);
+  color: #fff;
+  box-shadow: 0 3px 18px var(--primary-glow);
+  text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+}
+
+/* Supprime le ::after de l'ancienne version */
+.filter-btn.active::after { display: none; }
+
+/* === NAV RIGHT === */
+.nav-right {
+  display: flex; align-items: center; gap: 14px;
+  position: relative; z-index: 2;
+}
+
+/* Admin button */
+.nav-right > button {
+  background: rgba(255,255,255,0.05) !important;
+  border: 1px solid var(--border) !important;
+  color: rgba(255,255,255,0.65) !important;
+  cursor: pointer; font-size: 1.3rem !important;
+  width: 44px !important; height: 44px !important;
+  border-radius: 50% !important;
+  display: flex !important; align-items: center !important; justify-content: center !important;
+  transition: var(--transition-fast) !important;
+  padding: 0 !important;
+}
+
+.nav-right > button:hover {
+  color: #fff !important;
+  border-color: var(--border-red) !important;
+  background: rgba(229,55,43,0.12) !important;
+  box-shadow: 0 0 16px rgba(229,55,43,0.18) !important;
+}
+
+/* === BARRE DE RECHERCHE === */
+.search-wrapper {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid var(--border);
+  border-radius: 50px;
+  padding: 10px 22px;
+  display: flex; align-items: center; gap: 11px;
+  transition: var(--transition-fast);
+}
+
+.search-wrapper:focus-within {
+  border-color: var(--border-red);
+  background: rgba(229,55,43,0.05);
+  box-shadow: 0 0 0 4px rgba(229,55,43,0.07);
+}
+
+.search-wrapper input {
+  background: transparent; border: none;
+  color: var(--text); outline: none;
+  width: 190px;
+  font-family: 'Syne', sans-serif;
+  font-size: 0.875rem; font-weight: 500;
+}
+
+.search-wrapper input::placeholder { color: var(--text-muted); }
+
+.search-wrapper .fa-magnifying-glass {
+  font-size: 0.85rem;
+}
+
+/* ==============================
+   APP CONTENT
+   ============================== */
+#app-content {
+  padding-top: 130px;
+  padding-bottom: 110px;
+  position: relative; z-index: 3;
+}
+
+/* ==============================
+   CATEGORY ROW
+   ============================== */
+.category-row {
+  margin-bottom: 78px;
+  position: relative; z-index: 1;
+}
+
+/* Row header — left-aligned editorial */
+.row-header {
+  padding: 0 5% 22px;
+  display: flex; align-items: center; justify-content: flex-start;
+}
+
+/* Row title — barre rouge + Bebas */
+.row-title {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 2.5rem;
+  font-weight: 400;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  background: none;
+  color: var(--text);
+  padding: 0 0 0 22px;
+  display: inline-flex;
+  align-items: center;
+  gap: 14px;
+  transform: none;
+  box-shadow: none;
+  line-height: 1;
+  position: relative;
+}
+
+/* Barre verticale rouge à gauche */
+.row-title::before {
+  content: '';
+  position: absolute; left: 0; top: 50%;
+  transform: translateY(-50%);
+  width: 4px; height: 78%;
+  background: linear-gradient(180deg, var(--primary) 0%, rgba(229,55,43,0.25) 100%);
+  border-radius: 3px;
+  box-shadow: 0 0 14px var(--primary-glow);
+}
+
+/* Ligne horizontale décorative après le titre */
+.row-title::after {
+  content: '';
+  display: block;
+  width: 60px; height: 1px;
+  background: linear-gradient(90deg, rgba(229,55,43,0.5), transparent);
+  flex-shrink: 0;
+}
+
+/* Icône */
+.row-title i {
+  color: var(--primary);
+  font-size: 0.75em;
+  margin-right: 0;
+  transform: none !important;
+  display: inline-block;
+  opacity: 1;
+  text-shadow: 0 0 14px var(--primary-glow);
+  flex-shrink: 0;
+}
+
+/* ==============================
+   CAROUSEL
+   ============================== */
+.carousel-viewport {
+  display: flex; overflow-x: auto;
+  padding: 28px 5% 36px;
+  gap: 22px;
+  cursor: grab; user-select: none;
+  scrollbar-width: none;
+}
+.carousel-viewport::-webkit-scrollbar { display: none; }
+
+/* ==============================
+   CARDS
+   ============================== */
+.content-card {
+  flex: 0 0 var(--card-width);
+  position: relative;
+  cursor: pointer;
+  transition: var(--transition);
+  outline: none;
+  transform-origin: center bottom;
+}
+
+.content-card.not-active { cursor: default; }
+
+.content-card.not-active .poster-wrapper {
+  opacity: 0.2;
+  filter: grayscale(1) brightness(0.5);
+}
+
+.content-card.not-active:hover { transform: none; }
+
+/* Lueur adaptative (couleur du poster) */
+.adaptive-glow {
+  position: absolute;
+  inset: -8px -4px;
+  background-size: cover;
+  background-position: center;
+  filter: blur(36px) saturate(180%);
+  opacity: 0;
+  transition: var(--transition);
+  z-index: 0;
+  border-radius: var(--radius-lg);
+  transform: scale(0.85);
+}
+
+/* Poster */
+.poster-wrapper {
+  position: relative;
+  aspect-ratio: 2/3;
+  border-radius: var(--radius);
+  overflow: hidden;
+  background: var(--bg-card);
+  border: 1px solid rgba(255,255,255,0.07);
+  box-shadow:
+    0 6px 20px rgba(0,0,0,0.7),
+    0 2px 6px rgba(0,0,0,0.4);
+  transition: var(--transition);
+  z-index: 1;
+}
+
+.poster-wrapper img {
+  width: 100%; height: 100%;
+  object-fit: cover; pointer-events: none;
+  transition: transform 0.6s var(--ease-out);
+}
+
+/* Overlay gradient au bas du poster */
+.poster-wrapper::before {
+  content: '';
+  position: absolute; bottom: 0; left: 0; right: 0;
+  height: 40%;
+  background: linear-gradient(to top, rgba(0,0,0,0.6), transparent);
+  z-index: 1;
+  opacity: 0;
+  transition: var(--transition);
+}
+
+/* Shimmer sweep */
+.poster-wrapper::after {
+  content: '';
+  position: absolute; inset: 0;
+  background: linear-gradient(105deg,
+    transparent 30%,
+    rgba(255,255,255,0.12) 50%,
+    transparent 70%
+  );
+  transform: translateX(-150%) skewX(-15deg);
+  transition: transform 0.7s var(--ease-out);
+  z-index: 2;
+}
+
+/* === HOVER === */
+.content-card:not(.not-active):hover {
+  transform: translateY(-20px) scale(1.07);
+  z-index: 1000;
+}
+
+.content-card:not(.not-active):hover .poster-wrapper {
+  border-color: rgba(229, 55, 43, 0.55);
+  box-shadow:
+    0 28px 56px rgba(0,0,0,0.85),
+    0 0 0 1px rgba(229, 55, 43, 0.25),
+    0 0 30px rgba(229, 55, 43, 0.12);
+}
+
+.content-card:not(.not-active):hover .poster-wrapper img {
+  transform: scale(1.06);
+}
+
+.content-card:not(.not-active):hover .poster-wrapper::before {
+  opacity: 1;
+}
+
+.content-card:not(.not-active):hover .poster-wrapper::after {
+  transform: translateX(200%) skewX(-15deg);
+}
+
+.content-card:not(.not-active):hover .adaptive-glow {
+  opacity: 0.6;
+  transform: scale(1.05);
+}
+
+/* Titre de la card */
+.content-title {
+  margin-top: 13px;
+  font-size: 0.82rem; font-weight: 700;
+  text-align: center; color: var(--text);
+  opacity: 0.28; transition: var(--transition);
+  transform: translateY(5px);
+  letter-spacing: 0.3px;
+  line-height: 1.35;
+  padding: 0 4px;
+}
+
+.content-card:not(.not-active):hover .content-title {
+  opacity: 1;
+  color: #fff;
+  transform: translateY(0);
+}
+
+/* Badge "Bientôt" */
+.coming-soon-badge {
+  position: absolute; top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  background: var(--primary);
+  color: white; padding: 5px 13px;
+  font-size: 0.62rem; font-weight: 800;
+  text-transform: uppercase; letter-spacing: 2px;
+  border-radius: 6px; z-index: 3;
+  white-space: nowrap;
+  box-shadow: 0 4px 18px var(--primary-glow);
+  font-family: 'Syne', sans-serif;
+}
+
+/* ==============================
+   FLÈCHES DE NAVIGATION
+   ============================== */
+.nav-arrow {
+  position: absolute; top: 55%; transform: translateY(-50%);
+  width: 52px; height: 96px;
+  background: none;
+  border: none; color: rgba(255,255,255,0.7);
+  z-index: 2000; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: var(--transition-fast);
+  font-size: 1rem;
+}
+
+.nav-arrow:hover { color: #fff; }
+
+.arrow-left {
+  left: 0; border-radius: 0 12px 12px 0;
+  background: linear-gradient(90deg, rgba(3,3,10,0.96) 0%, rgba(3,3,10,0.55) 100%);
+}
+.arrow-left:hover { background: linear-gradient(90deg, rgba(229,55,43,0.95), rgba(229,55,43,0.6)); }
+
+.arrow-right {
+  right: 0; border-radius: 12px 0 0 12px;
+  background: linear-gradient(270deg, rgba(3,3,10,0.96) 0%, rgba(3,3,10,0.55) 100%);
+}
+.arrow-right:hover { background: linear-gradient(270deg, rgba(229,55,43,0.95), rgba(229,55,43,0.6)); }
+
+/* ==============================
+   RETOUR
+   ============================== */
+#back-arrow {
+  display: none;
+  width: 48px; height: 48px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid var(--border);
+  color: var(--text);
+  align-items: center; justify-content: center;
+  cursor: pointer;
+  margin-left: 5%; margin-bottom: 20px;
+  transition: var(--transition-fast);
+  font-size: 0.95rem;
+  outline: none;
+}
+
+#back-arrow:hover {
+  background: var(--primary);
+  border-color: var(--primary);
+  transform: translateX(-5px);
+  box-shadow: 0 8px 22px var(--primary-glow);
+}
+
+/* ==============================
+   GRILLE DE RECHERCHE / DOSSIER
+   ============================== */
+#search-grid {
+  display: none;
+  grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+  gap: 52px 30px;
+  padding: 16px 5% 100px;
+}
+
+/* ==============================
+   PLAYER OVERLAY
+   ============================== */
+#player-overlay {
+  position: fixed; inset: 0;
+  background: #000;
+  z-index: 3000;
+  display: none; opacity: 0;
+  transition: opacity 0.55s ease;
+}
+#player-overlay.active { opacity: 1; }
+
+/* HUD */
+#player-hud {
+  position: absolute; inset: 0; z-index: 3100;
+  display: flex; flex-direction: column; justify-content: space-between;
+  pointer-events: none;
+  opacity: 0; transition: opacity 0.35s ease;
+}
+
+#player-overlay:hover #player-hud { opacity: 1; }
+
+.hud-top {
+  display: flex; justify-content: space-between; align-items: flex-start;
+  pointer-events: auto;
+  padding: 44px 52px;
+  background: linear-gradient(to bottom, rgba(0,0,0,0.92) 0%, transparent 100%);
+}
+
+.hud-bottom {
+  display: flex; justify-content: center;
+  pointer-events: none;
+  padding-bottom: 64px;
+}
+
+/* Titre HUD */
+#hud-parent-name {
+  font-family: 'Bebas Neue', sans-serif !important;
+  letter-spacing: 4px !important;
+  font-size: 0.8rem !important;
+  color: var(--primary) !important;
+  font-weight: 400 !important;
+}
+
+#hud-season-name {
+  font-family: 'Syne', sans-serif;
+  font-size: 0.85rem !important;
+  color: rgba(255,255,255,0.45) !important;
+  font-weight: 600;
+  margin: 5px 0 !important;
+}
+
+#hud-current-name {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 3rem !important;
+  font-weight: 400 !important;
+  letter-spacing: 3px;
+  line-height: 1 !important;
+  margin-top: 2px;
+}
+
+/* Bouton fermer */
+.close-player {
+  width: 50px; height: 50px;
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; color: #fff; font-size: 1.25rem;
+  transition: var(--transition-fast);
+  flex-shrink: 0;
+}
+
+.close-player:hover {
+  background: var(--primary);
+  border-color: var(--primary);
+  transform: scale(1.1) rotate(90deg);
+  box-shadow: 0 8px 24px var(--primary-glow);
+}
+
+/* Bouton épisode suivant */
+.btn-next-ep {
+  pointer-events: auto;
+  background: rgba(255,255,255,0.07);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  color: white;
+  border: 1px solid rgba(255,255,255,0.12);
+  padding: 17px 40px;
+  border-radius: 50px;
+  font-family: 'Syne', sans-serif;
+  font-weight: 800;
+  cursor: pointer;
+  display: flex; align-items: center; gap: 14px;
+  transition: var(--transition-fast);
+  font-size: 0.9rem;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+
+.btn-next-ep:hover {
+  background: var(--primary);
+  border-color: var(--primary);
+  transform: translateY(-5px);
+  box-shadow: 0 16px 42px var(--primary-glow);
+}
+
+#player-container { width: 100%; height: 100%; background: #000; }
+iframe { width: 100%; height: 100%; border: none; }
+</style>
+</head>
+
+<body>
+<div id="app-content">
+  <header id="mainNav">
+    <div style="display: flex; align-items: center;">
+      <div class="logo" onclick="location.reload()">COPY<span>FLIX</span></div>
+      <div class="filter-menu">
+        <button class="filter-btn active" onclick="setGlobalFilter('all', this)">Tout</button>
+        <button class="filter-btn" onclick="setGlobalFilter('Série', this)">Séries</button>
+        <button class="filter-btn" onclick="setGlobalFilter('Film', this)">Films</button>
+      </div>
+    </div>
+    <div class="nav-right">
+      <div class="search-wrapper">
+        <i class="fa-solid fa-magnifying-glass" style="color:var(--primary)"></i>
+        <input type="text" id="mainSearch" placeholder="Rechercher...">
+      </div>
+      <button style="background:none; border:none; color:white; cursor:pointer; font-size:1.6rem;" onclick="window.open('admin/login.html','_blank')"><i class="fa-solid fa-user-shield"></i></button>
+    </div>
+  </header>
+
+  <div id="back-arrow" onclick="goBack()"><i class="fa-solid fa-arrow-left"></i></div>
+  <div id="home-view"></div>
+  <div id="search-grid"></div>
+</div>
+
+<div id="player-overlay">
+  <div id="player-hud">
+    <div class="hud-top">
+      <div>
+        <div id="hud-parent-name" style="color:var(--primary); font-weight:900; font-size:1.1rem; text-transform:uppercase; letter-spacing:2px;"></div>
+        <div id="hud-season-name" style="color:rgba(255,255,255,0.6); font-weight:700; font-size:1rem; margin: 6px 0;"></div>
+        <h2 id="hud-current-name" style="font-size:2.2rem; font-weight:900;"></h2>
+      </div>
+      <div class="close-player" onclick="closePlayer()"><i class="fa-solid fa-xmark"></i></div>
+    </div>
+    <div class="hud-bottom">
+      <button class="btn-next-ep" id="btn-next-universal" style="display:none;" onclick="handleNextClick()">
+        <span id="next-btn-text">SUIVANT</span> <i class="fa-solid fa-forward"></i>
+      </button>
+    </div>
+  </div>
+  <div id="player-container"></div>
+</div>
+
+<script>
+let contentData, pathStack = [], currentPlayingItem = null;
+let registry = new Map(); 
+let currentGlobalFilter = 'all';
+let tempMainContent = null; 
+let lastScrollPos = 0;
+
+const CAT_CONFIG = {
+    "Action": { title: "Action", icon: "fa-fire" },
+    "Comédie": { title: "Comédie", icon: "fa-laugh-squint" },
+    "Horreur": { title: "Horreur", icon: "fa-ghost" },
+    "SF": { title: "Science-fiction", icon: "fa-rocket" },
+    "Animation": { title: "Animation", icon: "fa-wand-magic-sparkles" },
+    "Docu": { title: "Documentaire", icon: "fa-camera-retro" }
+};
+
+const CATEGORIES = ["Action", "Comédie", "Horreur", "SF", "Animation", "Docu"];
+
+fetch("data.json").then(r => r.json()).then(json => {
+  contentData = json;
+  renderHome();
+});
+
+function getDeepType(item) {
+    if (item.type === "Série" || item.type === "Film") return item.type;
+    if (item.video) return "Film";
+    if (item.children && item.children.length > 0) {
+        for (let child of item.children) {
+            const found = getDeepType(child);
+            if (found) return found;
+        }
+    }
+    return null;
+}
+
+function setGlobalFilter(filter, btn) {
+    currentGlobalFilter = filter;
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    renderHome();
+}
+
+function initDragScroll(el) {
+    let isDown = false, startX, scrollLeft;
+    el.addEventListener('mousedown', (e) => { 
+        isDown = true; 
+        startX = e.pageX - el.offsetLeft; 
+        scrollLeft = el.scrollLeft; 
+        el.style.cursor='grabbing'; 
+    });
+    el.addEventListener('mouseleave', () => { isDown = false; });
+    el.addEventListener('mouseup', () => { isDown = false; el.style.cursor='grab'; });
+    el.addEventListener('mousemove', (e) => {
+        if (!isDown) return;
+        e.preventDefault();
+        const x = e.pageX - el.offsetLeft;
+        const walk = (x - startX) * 2;
+        el.scrollLeft = scrollLeft - walk;
+    });
+}
+
+function smoothScroll(element, target, duration) {
+    const start = element.scrollLeft;
+    const change = target - start;
+    let currentTime = 0;
+    const increment = 20;
+    const easeInOutQuad = (t, b, c, d) => {
+        t /= d/2;
+        if (t < 1) return c/2*t*t + b;
+        t--;
+        return -c/2 * (t*(t-2) - 1) + b;
+    };
+    const animateScroll = () => {
+        currentTime += increment;
+        const val = easeInOutQuad(currentTime, start, change, duration);
+        element.scrollLeft = val;
+        if (currentTime < duration) setTimeout(animateScroll, increment);
+    };
+    animateScroll();
+}
+
+function scrollCarousel(btn, direction) {
+    const viewport = direction === 'left' ? btn.nextElementSibling : btn.previousElementSibling;
+    const scrollStep = window.innerWidth * 0.75;
+    const target = direction === 'left' ? viewport.scrollLeft - scrollStep : viewport.scrollLeft + scrollStep;
+    smoothScroll(viewport, target, 600);
+}
+
+function renderHome() {
+  pathStack = []; registry.clear();
+  const container = document.getElementById("home-view");
+  if(!container) return;
+  
+  document.getElementById("home-view").style.display = "block";
+  document.getElementById("search-grid").style.display = "none";
+  document.getElementById("back-arrow").style.display = "none";
+  container.innerHTML = "";
+  
+  CATEGORIES.forEach(cat => {
+    const items = [...contentData.folders, ...contentData.films].filter(i => {
+        if (i.category !== cat) return false;
+        const type = getDeepType(i);
+        if (currentGlobalFilter === 'all') return true;
+        return type === currentGlobalFilter;
+    });
+
+    if(items.length > 0) {
+      const config = CAT_CONFIG[cat];
+      const row = document.createElement("div");
+      row.className = "category-row";
+      row.innerHTML = `
+        <div class="row-header"><h2 class="row-title"><i class="fas ${config.icon}"></i>${config.title}</h2></div>
+        <button class="nav-arrow arrow-left" onclick="scrollCarousel(this, 'left')"><i class="fas fa-chevron-left"></i></button>
+        <div class="carousel-viewport">${items.map(i => createCardHTML(i)).join('')}</div>
+        <button class="nav-arrow arrow-right" onclick="scrollCarousel(this, 'right')"><i class="fas fa-chevron-right"></i></button>
+      `;
+      container.appendChild(row);
+      initDragScroll(row.querySelector('.carousel-viewport'));
+    }
+  });
+}
+
+function createCardHTML(item) {
+  const id = Math.random().toString(36).substr(2, 9);
+  registry.set(id, item);
+  const isActive = item.active !== false;
+  return `
+    <div class="content-card ${isActive ? '' : 'not-active'}" onclick="handleCardClick('${id}')">
+      ${isActive ? `<div class="adaptive-glow" style="background-image: url('${item.image}')"></div>` : '<div class="coming-soon-badge">Bientôt</div>'}
+      <div class="poster-wrapper">
+        <img src="${item.image}">
+      </div>
+      <div class="content-title">${item.title}</div>
+    </div>`;
+}
+
+function handleCardClick(id) {
+  const item = registry.get(id);
+  if (item.active === false) return; 
+  if (item.video) playMedia(item);
+  else if (item.children) openFolder(item);
+}
+
+function openFolder(folder) {
+  pathStack.push(folder);
+  document.getElementById("home-view").style.display = "none";
+  document.getElementById("search-grid").style.display = "grid";
+  document.getElementById("back-arrow").style.display = "flex";
+  const grid = document.getElementById("search-grid");
+  grid.innerHTML = folder.children.map(c => createCardHTML(c)).join('');
+}
+
+function goBack() {
+  pathStack.pop();
+  if(pathStack.length === 0) renderHome();
+  else { const p = pathStack.pop(); openFolder(p); }
+}
+
+function playMedia(item) {
+  currentPlayingItem = item;
+  const app = document.getElementById("app-content");
+  
+  if (tempMainContent === null) {
+      lastScrollPos = window.scrollY;
+      tempMainContent = app.innerHTML; 
+  }
+  
+  app.innerHTML = ""; 
+  
+  document.body.classList.add("no-scroll");
+  const overlay = document.getElementById("player-overlay");
+  overlay.style.display = "block";
+
+  const container = document.getElementById("player-container");
+  container.innerHTML = ""; 
+  const ifrm = document.createElement("iframe");
+  ifrm.id = "video-engine";
+  ifrm.src = item.video;
+  ifrm.allowFullscreen = true;
+  ifrm.allow = "autoplay";
+  container.appendChild(ifrm);
+    
+  document.getElementById("hud-current-name").innerText = item.title;
+  document.getElementById("hud-parent-name").innerText = pathStack.length > 0 ? pathStack[0].title : (item.type || "Film");
+  
+  const seasonHud = document.getElementById("hud-season-name");
+  seasonHud.style.display = (pathStack.length >= 2) ? "block" : "none";
+  if(pathStack.length >= 2) seasonHud.innerText = pathStack[pathStack.length - 1].title;
+
+  updateNextButton(item);
+  setTimeout(() => overlay.classList.add("active"), 50);
+}
+
+function updateNextButton(item) {
+  const nextBtn = document.getElementById("btn-next-universal");
+  nextBtn.style.display = "none";
+  if (item.type !== "Film" && pathStack.length > 0) {
+    const currentSeasonFolder = pathStack[pathStack.length - 1];
+    const episodes = currentSeasonFolder.children.filter(c => (!c.children || c.video) && c.active !== false);
+    const currentIndex = episodes.findIndex(e => e.title === item.title);
+    if (currentIndex < episodes.length - 1 || pathStack.length >= 2) nextBtn.style.display = "flex";
+  }
+}
+
+function handleNextClick() {
+  const currentSeasonFolder = pathStack[pathStack.length - 1];
+  const episodes = currentSeasonFolder.children.filter(c => (!c.children || c.video) && c.active !== false);
+  const currentIndex = episodes.findIndex(e => e.title === currentPlayingItem.title);
+  
+  if (currentIndex < episodes.length - 1) {
+    playMedia(episodes[currentIndex + 1]);
+  } else if (pathStack.length >= 2) {
+    const seriesRoot = pathStack[pathStack.length - 2];
+    const currentSeasonIndex = seriesRoot.children.findIndex(s => s.title === currentSeasonFolder.title);
+    if (currentSeasonIndex < seriesRoot.children.length - 1) {
+        const nextSeason = seriesRoot.children[currentSeasonIndex + 1];
+        pathStack.pop();
+        pathStack.push(nextSeason);
+        const firstEp = nextSeason.children.find(c => (!c.children || c.video) && c.active !== false);
+        if (firstEp) playMedia(firstEp);
+    }
+  }
+}
+
+function closePlayer() {
+  const overlay = document.getElementById("player-overlay");
+  overlay.classList.remove("active");
+  const ifrm = document.getElementById("video-engine");
+  if(ifrm) ifrm.src = "about:blank";
+
+  setTimeout(() => { 
+    overlay.style.display = "none"; 
+    document.getElementById("player-container").innerHTML = ""; 
+    const app = document.getElementById("app-content");
+    app.innerHTML = tempMainContent;
+    tempMainContent = null; 
+    document.body.classList.remove("no-scroll"); 
+    window.scrollTo(0, lastScrollPos);
+    document.querySelectorAll('.carousel-viewport').forEach(v => initDragScroll(v));
+  }, 500);
+}
+
+document.getElementById("mainSearch").addEventListener("input", (e) => {
+  const q = e.target.value.toLowerCase();
+  const grid = document.getElementById("search-grid");
+  if(!q) { renderHome(); return; }
+  document.getElementById("home-view").style.display = "none";
+  grid.style.display = "grid";
+  document.getElementById("back-arrow").style.display = "flex";
+  let found = [];
+  
+  const search = (list) => {
+    list.forEach(i => {
+      if(i.title.toLowerCase().includes(q)) {
+        found.push(i);
+      } else if(i.children) {
+        search(i.children);
+      }
+    });
+  };
+
+  search([...contentData.folders, ...contentData.films]);
+  grid.innerHTML = found.map(i => createCardHTML(i)).join('');
+});
+
+window.onscroll = () => {
+    const nav = document.getElementById("mainNav");
+    if(nav) nav.classList.toggle("scrolled", window.scrollY > 50);
+}
+</script>
+</body>
+</html>
