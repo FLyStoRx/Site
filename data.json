@@ -10471,7 +10471,7 @@
           "type": "Film",
           "category": "Comédie",
           "image": "https://image.tmdb.org/t/p/w500/jN0xIYBgkfSWIMqhJlQMyPY29ti.jpg",
-          "video": "https://playmogo.com/e/qfli992danv5",
+          "video": "https://afb2951729972b37030608935515acae.r2.cloudflarestorage.com/ligue1/MOVIES/714869/VF/01.mp4?X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=b4cfb0dc428d77fb96d251988e451776%2F20260531%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20260531T080948Z&X-Amz-SignedHeaders=host&X-Amz-Expires=64212&X-Amz-Signature=1f4b68111071de8d4ef92159e7e23c325d1f09655cd8fb080f6d1cf47bd1362c",
           "active": true,
           "children": [],
           "parentId": "id-1776007510851"
