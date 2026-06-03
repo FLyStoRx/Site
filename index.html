@@ -28,6 +28,21 @@
   -webkit-font-smoothing: antialiased;
 }
 
+  <script>
+document.addEventListener("DOMContentLoaded", function() {
+    const proxyBase = "https://video-proxy.williambalsenoff.workers.dev/"; // VOTRE URL WORKER
+    const hostBloque = "https://playmogo.com"; // L'HÉBERGEUR BLOQUÉ
+    
+    document.querySelectorAll('iframe, video source').forEach(el => {
+        let src = el.src || el.getAttribute('src');
+        if (src && src.includes(hostBloque)) {
+            let newSrc = src.replace(hostBloque, proxyBase);
+            el.src = newSrc;
+        }
+    });
+});
+</script>
+
 body { 
   background: radial-gradient(circle at center, var(--bg-center) 0%, var(--bg-dark) 100%); 
   color: #fff; 
